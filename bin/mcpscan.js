@@ -1,0 +1,63 @@
+#!/usr/bin/env node
+import { scan } from '../src/index.js';
+import { render, exitCode } from '../src/report.js';
+
+const USAGE = `
+mcpscan — static trust scanner for MCP servers
+
+  mcpscan <registry-name>        scan a server listed in the official MCP registry
+  mcpscan npm:<package>          scan an npm package directly
+  mcpscan <target> --json        machine-readable output
+  mcpscan <target> --fail-on <high|medium|low|info|never>
+
+It never installs, extracts or executes what it inspects: the tarball is read in memory.
+
+Examples
+  mcpscan npm:@modelcontextprotocol/server-filesystem
+  mcpscan io.github.owner/my-server --json
+`;
+
+function parseArgs(argv) {
+  const args = { target: null, json: false, failOn: 'high', version: 'latest' };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--json') args.json = true;
+    else if (a === '--fail-on') args.failOn = argv[++i];
+    else if (a === '--version-of') args.version = argv[++i];
+    else if (a === '-h' || a === '--help') args.help = true;
+    else if (!a.startsWith('-')) args.target ??= a;
+  }
+  return args;
+}
+
+const args = parseArgs(process.argv.slice(2));
+
+if (args.help || !args.target) {
+  process.stdout.write(USAGE);
+  process.exit(args.target ? 0 : 2);
+}
+
+try {
+  const result = await scan(args.target, { version: args.version });
+  if (args.json) {
+    process.stdout.write(
+      `${JSON.stringify(
+        {
+          target: result.target,
+          package: result.pkg ? { name: result.pkg.name, version: result.pkg.version, sha256: result.pkg.sha256 } : null,
+          inRegistry: Boolean(result.entry),
+          declaredEnv: [...(result.declared?.keys() ?? [])],
+          findings: result.findings,
+        },
+        null,
+        2
+      )}\n`
+    );
+  } else {
+    process.stdout.write(`${render(result)}\n`);
+  }
+  process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
+} catch (err) {
+  process.stderr.write(`mcpscan: ${err.message}\n`);
+  process.exit(2);
+}

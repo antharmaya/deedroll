@@ -80,9 +80,22 @@ export function checkUndeclaredSecrets(pkg, entry, declared) {
   const findings = [];
   for (const [name, evidence] of found) {
     if (declared?.has(name)) continue;
+    if (name.includes('${') || name.includes('+')) {
+      // A computed name like `${prefix}_API_KEY`. Static analysis cannot resolve it,
+      // and reporting the template as if it were a variable name would be a lie.
+      findings.push({
+        check: 'dynamic-env',
+        subject: name,
+        severity: 'info',
+        message: `builds an environment variable name at runtime (${name}); static analysis cannot resolve it`,
+        evidence,
+      });
+      continue;
+    }
     const secretish = SECRETISH.test(name);
     findings.push({
       check: 'undeclared-env',
+      subject: name,
       severity: secretish ? (entry ? 'high' : 'medium') : 'low',
       message: entry
         ? `reads ${name}${secretish ? ' (looks like a credential)' : ''} but the registry entry does not declare it`

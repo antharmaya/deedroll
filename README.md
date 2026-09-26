@@ -44,29 +44,38 @@ the product working.
 
 ## A first measurement
 
-Scanning the first 30 npm-backed servers in the registry, 2026-09-26 (`node scripts/registry-sweep.js 30`):
+Population: every npm-backed server found by walking 12,000 registry entries — **469 servers across
+405 publishers**. From those, a seeded random sample of 60 (`node scripts/registry-sweep.js 60`):
 
 ```
-  servers scanned                       30
-  declare no environment variables      25
-  read a credential they never declare  21
-  errored                               0
+  scanned successfully                  57   across 53 publishers
+  declare no environment variables      23 (40%)  19 publishers
+  read a credential they never declare  14 (25%)  11 publishers
+      95% CI                            15% - 37%
+  run an install script                 1 (2%)
+  no repository field                   11 (19%)
+  errored                               3
 ```
 
-**Read that carefully.** The 21 servers come from only **5 distinct publishers**, and 17 of them are
-one publisher shipping near-identical servers that each read an undeclared `X402_PRIVATE_KEY`. The
-sample is the registry's own alphabetical order, not a random draw. So this is a real finding about
-five publishers, not yet a population estimate. A random sample across the registry is the next step
-before any number goes in a post.
+Among them: four servers that read an undeclared `X402_PRIVATE_KEY`, and one reading
+`PAYER_PRIVATE_KEY` — agent payment keys, requested by code, absent from the metadata a user would
+read before installing.
 
-Raw output is in `findings.json`.
+**Limits, stated up front.** The sample is random within npm-backed servers in the first 12,000
+registry entries, not the whole registry, and not remote-only servers. Seed `20260926` reproduces
+the exact sample. 3 of 60 failed to scan. Raw rows are in `findings.json`.
+
+An earlier alphabetical sample gave 21 of 30, which looked far worse — but 17 of those 21 were a
+single publisher's near-identical servers sitting together in the registry's own ordering. That is
+why the sampling is random and why publisher counts are reported next to server counts.
 
 ## Development
 
 ```
-npm test          # 13 tests, no network
+npm test          # 15 tests, no network
 node bin/mcpscan.js npm:<package>
-node scripts/registry-sweep.js 30
+node scripts/collect-population.js   # cache the npm-backed population
+node scripts/registry-sweep.js 60    # seeded random sample of it
 ```
 
 MIT.

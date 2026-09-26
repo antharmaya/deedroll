@@ -141,3 +141,17 @@ test('edit distance', () => {
   assert.equal(editDistance('abc', 'abd'), 1);
   assert.equal(editDistance('', 'abc'), 3);
 });
+
+test('findings carry the variable name as data, not only in the message', () => {
+  const pkg = pkgWith({ 'index.js': 'const k = process.env.ACME_API_KEY;\n' });
+  const [finding] = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(finding.subject, 'ACME_API_KEY');
+});
+
+test('a computed env var name is reported as unresolvable, not as a credential', () => {
+  const pkg = pkgWith({ 'index.js': 'const k = process.env[`${prefix}_API_KEY`];\n' });
+  const findings = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].check, 'dynamic-env');
+  assert.equal(findings[0].severity, 'info');
+});

@@ -1,363 +1,633 @@
 {
-  "scannedAt": "2026-09-26T12:45:29.721Z",
+  "scannedAt": "2026-09-26T13:02:42.915Z",
+  "seed": 20260926,
+  "populationSize": 469,
+  "sampled": 60,
   "rows": [
     {
-      "name": "agency.kesey/pretrip",
-      "pkg": "pretrip-mcp@1.0.1",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "PRETRIP_API_KEY"
-      ],
-      "high": 1,
-      "findings": 4
-    },
-    {
-      "name": "ai.adeu/adeu",
-      "pkg": "@adeu/mcp-server@1.7.1",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 5
-    },
-    {
-      "name": "ai.adtest/adtest-mcp",
-      "pkg": "adtest-mcp@1.1.0",
-      "declaredEnvCount": 3,
-      "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 2
-    },
-    {
-      "name": "ai.aetherwealth/mcp",
-      "pkg": "@aetherwealth/mcp@0.2.17",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "AI_LIVE_PUSH_SECRET",
-        "MCP_HTTP_AUTH",
-        "MCP_HTTP_BEARER"
-      ],
-      "high": 3,
-      "findings": 19
-    },
-    {
-      "name": "ai.agenticaffiliate/affiliate-networks-mcp",
-      "pkg": "affiliate-networks-mcp@0.19.0",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "ACCESSTRADE_ACCESS_KEY",
-        "ADCELL_API_TOKEN",
-        "ADDREVENUE_API_TOKEN",
-        "ADMITAD_ADVERTISER_CLIENT_SECRET",
-        "ADMITAD_CLIENT_SECRET",
-        "ADSERVICE_LOGIN_TOKEN",
-        "ADTRACTION_ADVERTISER_API_TOKEN",
-        "ADTRACTION_API_TOKEN",
-        "AFFILAE_API_TOKEN",
-        "AFFILIATE_FUTURE_PASSWORD",
-        "AFFISE_API_KEY",
-        "AFILIO_AFFILIATE_TOKEN",
-        "AVANTLINK_API_KEY",
-        "AWIN_ADVERTISER_API_TOKEN",
-        "AWIN_API_TOKEN",
-        "BELBOON_MAGIC_KEY",
-        "CAKE_API_KEY",
-        "CJ_ADVERTISER_API_TOKEN",
-        "CJ_API_TOKEN",
-        "COMMISSION_FACTORY_API_KEY",
-        "CONNEXITY_API_KEY",
-        "DIGISTORE24_API_KEY",
-        "EBAY_CLIENT_SECRET",
-        "EDUZZ_API_KEY",
-        "EFFILIATION_API_KEY",
-        "EHUB_API_KEY",
-        "EVERFLOW_API_KEY",
-        "FINANCEADS_API_KEY",
-        "FLEXOFFERS_API_KEY",
-        "FLIPKART_AFFILIATE_TOKEN",
-        "GROWSURF_API_KEY",
-        "HOTMART_CLIENT_SECRET",
-        "HOWL_API_KEY",
-        "IMPACT_ADVERTISER_AUTH_TOKEN",
-        "IMPACT_AUTH_TOKEN",
-        "INDOLEADS_API_TOKEN",
-        "INVOLVE_ASIA_API_SECRET",
-        "KWANKO_ADVERTISER_API_TOKEN",
-        "KWANKO_API_TOKEN",
-        "LEADDYNO_API_KEY",
-        "LEVANTA_API_KEY",
-        "LINKCONNECTOR_API_KEY",
-        "LOMADEE_REPORT_PASSWORD",
-        "MONETIZZE_API_KEY",
-        "NETREFER_TOKEN_URL",
-        "OPTIMISE_MEDIA_API_TOKEN",
-        "PARTNERIZE_APPLICATION_KEY",
-        "PARTNERIZE_USER_API_KEY",
-        "PARTNERO_API_KEY",
-        "PARTNERSTACK_PUBLIC_KEY",
-        "PARTNERSTACK_SECRET_KEY",
-        "PARTNERSTACK_API_KEY",
-        "POST_AFFILIATE_PRO_API_KEY",
-        "PROFITSHARE_API_KEY",
-        "RAKUTEN_TOKEN_URL",
-        "REFERSION_SECRET_KEY",
-        "REFERSION_API_KEY",
-        "REWARDFUL_API_SECRET",
-        "SCALEO_API_KEY",
-        "SHAREASALE_API_SECRET",
-        "SHOPMY_API_TOKEN",
-        "SKIMLINKS_CLIENT_SECRET",
-        "SOVRN_SECRET_KEY",
-        "TAPFILIATE_API_KEY",
-        "TOLT_API_KEY",
-        "TRADEDOUBLER_ADV_TOKEN",
-        "TRAVELPAYOUTS_ACCESS_TOKEN",
-        "TUNE_API_KEY",
-        "VALUE_COMMERCE_ADVERTISER_CLIENT_SECRET",
-        "VALUE_COMMERCE_CLIENT_SECRET",
-        "WEBGAINS_ADVERTISER_API_KEY",
-        "WEBGAINS_API_KEY",
-        "YIELDKIT_API_SECRET",
-        "ACCESSTRADE_BASE_URL",
-        "DIGEST_COMPOSE_SECRET"
-      ],
-      "high": 75,
-      "findings": 378
-    },
-    {
-      "name": "ai.agenttrust/mcp-server",
-      "pkg": "@agenttrust/mcp-server@1.1.1",
+      "name": "ai.windsock/windsock",
+      "publisher": "ai.windsock",
+      "pkg": "windsock-mcp@0.1.2",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 5
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
     },
     {
-      "name": "ai.agentutility/mcp-agentops",
-      "pkg": "@agentutility/mcp-agentops@0.1.1",
+      "name": "com.blackduck/mcp-server",
+      "publisher": "com.blackduck",
+      "pkg": "@black-duck/mcp-server@1.1.8",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-bestiary",
-      "pkg": "@agentutility/mcp-bestiary@0.1.3",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-browser-workflow",
-      "pkg": "@agentutility/mcp-browser-workflow@0.1.1",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-compose",
-      "pkg": "@agentutility/mcp-compose@0.13.0",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-edge-finance",
-      "pkg": "@agentutility/mcp-edge-finance@0.18.8",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-edge-market",
-      "pkg": "@agentutility/mcp-edge-market@0.15.6",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-locale",
-      "pkg": "@agentutility/mcp-locale@0.8.7",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-matchpoint",
-      "pkg": "@agentutility/mcp-matchpoint@0.1.4",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-mediakit",
-      "pkg": "@agentutility/mcp-mediakit@0.11.9",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-model-router",
-      "pkg": "@agentutility/mcp-model-router@0.1.1",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-prooflayer",
-      "pkg": "@agentutility/mcp-prooflayer@0.2.4",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-retail",
-      "pkg": "@agentutility/mcp-retail@0.2.1",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
     },
     {
       "name": "ai.agentutility/mcp-rollforge",
+      "publisher": "ai.agentutility",
       "pkg": "@agentutility/mcp-rollforge@0.1.5",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [
         "X402_PRIVATE_KEY"
       ],
-      "high": 1,
-      "findings": 5
+      "installScript": false,
+      "noRepository": false,
+      "high": 1
     },
     {
-      "name": "ai.agentutility/mcp-statline",
-      "pkg": "@agentutility/mcp-statline@0.1.3",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-synthforge",
-      "pkg": "@agentutility/mcp-synthforge@0.8.2",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.agentutility/mcp-web-probe",
-      "pkg": "@agentutility/mcp-web-probe@0.32.1",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 6
-    },
-    {
-      "name": "ai.agentutility/mcp-wordmint",
-      "pkg": "@agentutility/mcp-wordmint@0.16.1",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [
-        "X402_PRIVATE_KEY"
-      ],
-      "high": 1,
-      "findings": 5
-    },
-    {
-      "name": "ai.ankimcp/anki-mcp-server",
-      "pkg": "@ankimcp/anki-mcp-server@0.26.0",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 10
-    },
-    {
-      "name": "ai.autoblocks/contextlayer-mcp",
-      "pkg": "@contextlayer/mcp@0.0.3",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 0
-    },
-    {
-      "name": "ai.autoblocks/ctxl",
-      "pkg": "ctxl@0.0.2",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 0
-    },
-    {
-      "name": "ai.autoblocks/ctxl-mcp",
-      "pkg": "ctxl-mcp@0.0.2",
-      "declaredEnvCount": 0,
-      "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 0
-    },
-    {
-      "name": "ai.autonomad/computeback",
-      "pkg": "@autonomad1/computeback-mcp@1.1.4",
-      "declaredEnvCount": 4,
-      "undeclaredSecrets": [
-        "INTERNAL_API_KEY"
-      ],
-      "high": 1,
-      "findings": 8
-    },
-    {
-      "name": "ai.autonomad/travel",
-      "pkg": "autonomad-travel@1.4.4",
+      "name": "ai.verlon/mcp",
+      "publisher": "ai.verlon",
+      "pkg": "@verlon-ai/mcp@0.4.1",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 6
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
     },
     {
-      "name": "ai.bizmuse/bizmuse",
-      "pkg": "bizmuse-mcp@0.1.6",
+      "name": "ai.meetlark/mcp-server",
+      "publisher": "ai.meetlark",
+      "pkg": "@meetlark/mcp-server@1.0.3",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "co.trawlia/trawlia-mcp",
+      "publisher": "co.trawlia",
+      "pkg": "trawlia-mcp@0.1.0",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
-      "high": 0,
-      "findings": 1
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.execbro/execbro",
+      "publisher": "com.execbro",
+      "pkg": "execbro@2.12.3",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "cn.3ceng/kuailian",
+      "publisher": "cn.3ceng",
+      "pkg": "@kuailian/mcp-server@0.1.5",
+      "declaredEnvCount": 3,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "com.docfork/docfork-mcp",
+      "publisher": "com.docfork",
+      "pkg": "docfork@1.3.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "DOCFORK_API_KEY",
+        "CLIENT_IP_ENCRYPTION_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 2
+    },
+    {
+      "name": "app.trustrails/server",
+      "publisher": "app.trustrails",
+      "pkg": "@trustrails/mcp-server@1.0.7",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "TRUSTRAILS_API_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 1
+    },
+    {
+      "name": "ai.dimensions/analytics-mcp",
+      "publisher": "ai.dimensions",
+      "pkg": "@digital-science-dsl/dimensions-analytics-mcp@1.4.2",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [
+        "${envPrefix}_API_KEY",
+        "${envPrefix}_AUTH_URL",
+        "${envPrefix}_TOKEN_CACHE_DURATION",
+        "DSL_SERVICE_PASSWORD",
+        "RADAR_AUTH_URL",
+        "DIMENSIONS_AUTH_URL",
+        "DIMENSIONS_TOKEN_CACHE_DURATION",
+        "CUSTOM_API_KEY",
+        "DIMENSIONS_DSL_API_KEY",
+        "DIMENSIONS_UNKNOWN_API_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 10
+    },
+    {
+      "name": "ai.agentutility/mcp-prooflayer",
+      "publisher": "ai.agentutility",
+      "pkg": "@agentutility/mcp-prooflayer@0.2.4",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 1
+    },
+    {
+      "name": "com.coildesk/coildesk-hvac-tools",
+      "publisher": "com.coildesk",
+      "pkg": "@ellul-estate/coildesk-com-coildesk-hvac-tools-mcp@1.0.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.clize/inbox",
+      "publisher": "ai.clize",
+      "pkg": "@clize/inbox@0.35.5",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.elopstudio.aiwave/ai-wave",
+      "publisher": "com.elopstudio.aiwave",
+      "pkg": "@elopstudio/ai-wave-mcp@1.0.3",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.unpaper/cli",
+      "publisher": "ai.unpaper",
+      "pkg": "@unpaper/cli@0.3.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "co.lovie/company-formation",
+      "publisher": "co.lovie",
+      "pkg": "lovie@1.0.10",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "LOVIE_API_KEY"
+      ],
+      "installScript": false,
+      "noRepository": true,
+      "high": 1
+    },
+    {
+      "name": "com.attrove/mcp",
+      "publisher": "com.attrove",
+      "pkg": "@attrove/mcp@0.6.0",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "ai.inite/inite-visibility",
+      "publisher": "ai.inite",
+      "pkg": "@inite/visibility@1.1.2",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [
+        "INITE_AUTH_URL",
+        "INITE_TOKEN_FILE"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 2
+    },
+    {
+      "name": "br.com.mupag/mcp-server",
+      "publisher": "br.com.mupag",
+      "pkg": "@mupag/mcp-server@0.1.0",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "com.easyonward/mcp-server",
+      "publisher": "com.easyonward",
+      "pkg": "@easyonward/mcp-server@0.2.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.ravenmcp/raven-mcp",
+      "publisher": "ai.ravenmcp",
+      "pkg": "raven-mcp@2.6.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "RAVEN_GRAB_NOTIFY_WEBHOOK"
+      ],
+      "installScript": true,
+      "noRepository": false,
+      "high": 2
+    },
+    {
+      "name": "ai.agentutility/mcp-edge-market",
+      "publisher": "ai.agentutility",
+      "pkg": "@agentutility/mcp-edge-market@0.15.6",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 1
+    },
+    {
+      "name": "ai.adtest/adtest-mcp",
+      "publisher": "ai.adtest",
+      "pkg": "adtest-mcp@1.1.0",
+      "declaredEnvCount": 3,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.gency/gency-mcp",
+      "publisher": "ai.gency",
+      "pkg": "@gency-ai/gency-mcp@0.6.0",
+      "declaredEnvCount": 8,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "coffee.402/mcp",
+      "publisher": "coffee.402",
+      "pkg": "402coffee-mcp@0.1.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "PAYER_PRIVATE_KEY"
+      ],
+      "installScript": false,
+      "noRepository": true,
+      "high": 1
+    },
+    {
+      "name": "ai.llmintel/model-lifecycle",
+      "publisher": "ai.llmintel",
+      "pkg": "@llmintel/mcp@0.2.0",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "cheap.doc/mcp",
+      "publisher": "cheap.doc",
+      "pkg": "@doc-cheap/mcp@0.3.7",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "app.lasers.guildcontrol/discord",
+      "publisher": "app.lasers.guildcontrol",
+      "pkg": "guildctl@2.3.0",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.damagerestorehq/claims-index",
+      "publisher": "com.damagerestorehq",
+      "pkg": "@ellul-estate/damagerestorehq-com-claims-index-mcp@1.0.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.eonik/mcp",
+      "publisher": "ai.eonik",
+      "pkg": "eonik-mcp@2.0.0",
+      "declaredEnvCount": 3,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.dinglebear/ytdl-rmcp",
+      "publisher": "ai.dinglebear",
+      "error": "version 1.0.2 not found for ytdl-rmcp"
+    },
+    {
+      "name": "ai.vidofy/mcp",
+      "publisher": "ai.vidofy",
+      "pkg": "@vidofy/mcp@0.1.2",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [
+        "REDIS_PASSWORD"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 1
+    },
+    {
+      "name": "ai.tradesearcher/mcp-server",
+      "publisher": "ai.tradesearcher",
+      "pkg": "@tradesearcher/mcp-server@0.1.1",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.dinglebear/gotify-rmcp",
+      "publisher": "ai.dinglebear",
+      "error": "version 0.1.3 not found for gotify-rmcp"
+    },
+    {
+      "name": "com.datasparc/dbhawk",
+      "publisher": "com.datasparc",
+      "pkg": "@dbhawk/mcp@0.3.0",
+      "declaredEnvCount": 3,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.proofslip/mcp-server",
+      "publisher": "ai.proofslip",
+      "pkg": "@proofslip/mcp-server@0.2.3",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.agentutility/mcp-compose",
+      "publisher": "ai.agentutility",
+      "pkg": "@agentutility/mcp-compose@0.13.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "X402_PRIVATE_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 1
+    },
+    {
+      "name": "ca.honkio/mcp",
+      "publisher": "ca.honkio",
+      "pkg": "@honkio/mcp@1.9.0",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [
+        "MCP_AUTH_FAILURES_PER_MINUTE",
+        "MCP_SERVICE_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 2
+    },
+    {
+      "name": "app.percher/percher",
+      "publisher": "app.percher",
+      "pkg": "@percher/mcp@1.0.3",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "co.yungle/yungle",
+      "publisher": "co.yungle",
+      "pkg": "yungle-mcp@0.1.2",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "app.devglow/todoglow",
+      "publisher": "app.devglow",
+      "pkg": "todoglow-mcp@1.1.2",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.foura/mcp",
+      "publisher": "ai.foura",
+      "pkg": "@fouradata/mcp@0.7.3",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.arcnautical/mcp",
+      "publisher": "com.arcnautical",
+      "pkg": "@arcnautical/mcp@0.2.1",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.clize/domains",
+      "publisher": "ai.clize",
+      "pkg": "@clize/domains@0.35.5",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.contadeo/mcp",
+      "publisher": "com.contadeo",
+      "pkg": "contadeo-mcp@0.25.0",
+      "declaredEnvCount": 3,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": true,
+      "high": 0
+    },
+    {
+      "name": "app.cleanor/cleanor",
+      "publisher": "app.cleanor",
+      "pkg": "@cleanor/mcp@0.6.1",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.dinglebear/yarr-mcp",
+      "publisher": "ai.dinglebear",
+      "error": "version 1.1.1 not found for yarr-mcp"
+    },
+    {
+      "name": "ai.bolthub/registry",
+      "publisher": "ai.bolthub",
+      "pkg": "@bolthub/mcp-registry@0.1.6",
+      "declaredEnvCount": 9,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.shippp/mcp",
+      "publisher": "ai.shippp",
+      "pkg": "@shippp/mcp@0.1.1",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "app.uploadcheck/uploadcheck",
+      "publisher": "app.uploadcheck",
+      "pkg": "@drantoniou/uploadcheck-mcp@0.1.1",
+      "declaredEnvCount": 2,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.blockventurechaincapital/bvcc-agent-wallet",
+      "publisher": "com.blockventurechaincapital",
+      "pkg": "@bvcc/agent-mcp@0.2.2",
+      "declaredEnvCount": 6,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.casemargin/casemargin-mcp-server",
+      "publisher": "com.casemargin",
+      "pkg": "casemargin-mcp-server@1.0.2",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.diemdesk/mcp",
+      "publisher": "com.diemdesk",
+      "pkg": "diemdesk-mcp@0.1.2",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "ai.elfa/mcp",
+      "publisher": "ai.elfa",
+      "pkg": "@elfa-ai/mcp@4.3.0",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "build.uplink/uplink",
+      "publisher": "build.uplink",
+      "pkg": "@uplink-code/mcp@0.1.4",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [
+        "UPLINK_API_KEY"
+      ],
+      "installScript": false,
+      "noRepository": false,
+      "high": 1
+    },
+    {
+      "name": "com.dribba/dribba",
+      "publisher": "com.dribba",
+      "pkg": "dribba@1.1.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.fidensa/mcp-server",
+      "publisher": "com.fidensa",
+      "pkg": "@fidensa/mcp-server@0.4.1",
+      "declaredEnvCount": 1,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.carbikly/carbikly-tools",
+      "publisher": "com.carbikly",
+      "pkg": "@ellul-estate/carbikly-com-carbikly-tools-mcp@1.0.0",
+      "declaredEnvCount": 0,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
+    },
+    {
+      "name": "com.dethboy/vedetta",
+      "publisher": "com.dethboy",
+      "pkg": "vedetta-mcp@1.1.0",
+      "declaredEnvCount": 3,
+      "undeclaredSecrets": [],
+      "installScript": false,
+      "noRepository": false,
+      "high": 0
     }
   ]
 }

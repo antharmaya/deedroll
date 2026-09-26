@@ -1,0 +1,3290 @@
+{
+  "collectedAt": "2026-09-26T12:57:27.940Z",
+  "pages": 120,
+  "totalEntries": 12000,
+  "population": [
+    {
+      "name": "agency.kesey/pretrip",
+      "npm": "pretrip-mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "agency.kesey"
+    },
+    {
+      "name": "ai.adeu/adeu",
+      "npm": "@adeu/mcp-server",
+      "npmVersion": "1.7.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.adeu"
+    },
+    {
+      "name": "ai.adtest/adtest-mcp",
+      "npm": "adtest-mcp",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 3,
+      "publisher": "ai.adtest"
+    },
+    {
+      "name": "ai.aetherwealth/mcp",
+      "npm": "@aetherwealth/mcp",
+      "npmVersion": "0.2.9",
+      "declaredEnvCount": 0,
+      "publisher": "ai.aetherwealth"
+    },
+    {
+      "name": "ai.agenticaffiliate/affiliate-networks-mcp",
+      "npm": "affiliate-networks-mcp",
+      "npmVersion": "0.19.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agenticaffiliate"
+    },
+    {
+      "name": "ai.agenttrust/mcp-server",
+      "npm": "@agenttrust/mcp-server",
+      "npmVersion": "1.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.agenttrust"
+    },
+    {
+      "name": "ai.agentutility/mcp-agentops",
+      "npm": "@agentutility/mcp-agentops",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-bestiary",
+      "npm": "@agentutility/mcp-bestiary",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-browser-workflow",
+      "npm": "@agentutility/mcp-browser-workflow",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-compose",
+      "npm": "@agentutility/mcp-compose",
+      "npmVersion": "0.13.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-edge-finance",
+      "npm": "@agentutility/mcp-edge-finance",
+      "npmVersion": "0.18.8",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-edge-market",
+      "npm": "@agentutility/mcp-edge-market",
+      "npmVersion": "0.15.6",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-locale",
+      "npm": "@agentutility/mcp-locale",
+      "npmVersion": "0.8.7",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-matchpoint",
+      "npm": "@agentutility/mcp-matchpoint",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-mediakit",
+      "npm": "@agentutility/mcp-mediakit",
+      "npmVersion": "0.11.9",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-model-router",
+      "npm": "@agentutility/mcp-model-router",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-prooflayer",
+      "npm": "@agentutility/mcp-prooflayer",
+      "npmVersion": "0.2.4",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-retail",
+      "npm": "@agentutility/mcp-retail",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-rollforge",
+      "npm": "@agentutility/mcp-rollforge",
+      "npmVersion": "0.1.5",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-statline",
+      "npm": "@agentutility/mcp-statline",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-synthforge",
+      "npm": "@agentutility/mcp-synthforge",
+      "npmVersion": "0.8.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-web-probe",
+      "npm": "@agentutility/mcp-web-probe",
+      "npmVersion": "0.32.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.agentutility/mcp-wordmint",
+      "npm": "@agentutility/mcp-wordmint",
+      "npmVersion": "0.16.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.agentutility"
+    },
+    {
+      "name": "ai.ankimcp/anki-mcp-server",
+      "npm": "@ankimcp/anki-mcp-server",
+      "npmVersion": "0.26.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.ankimcp"
+    },
+    {
+      "name": "ai.autoblocks/contextlayer-mcp",
+      "npm": "@contextlayer/mcp",
+      "npmVersion": "0.0.3",
+      "declaredEnvCount": 0,
+      "publisher": "ai.autoblocks"
+    },
+    {
+      "name": "ai.autoblocks/ctxl",
+      "npm": "ctxl",
+      "npmVersion": "0.0.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.autoblocks"
+    },
+    {
+      "name": "ai.autoblocks/ctxl-mcp",
+      "npm": "ctxl-mcp",
+      "npmVersion": "0.0.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.autoblocks"
+    },
+    {
+      "name": "ai.autonomad/computeback",
+      "npm": "@autonomad1/computeback-mcp",
+      "npmVersion": "1.1.4",
+      "declaredEnvCount": 4,
+      "publisher": "ai.autonomad"
+    },
+    {
+      "name": "ai.autonomad/travel",
+      "npm": "autonomad-travel",
+      "npmVersion": "1.4.4",
+      "declaredEnvCount": 2,
+      "publisher": "ai.autonomad"
+    },
+    {
+      "name": "ai.bizmuse/bizmuse",
+      "npm": "bizmuse-mcp",
+      "npmVersion": "0.1.6",
+      "declaredEnvCount": 2,
+      "publisher": "ai.bizmuse"
+    },
+    {
+      "name": "ai.bolthub/mcp",
+      "npm": "@bolthub/mcp",
+      "npmVersion": "0.7.2",
+      "declaredEnvCount": 9,
+      "publisher": "ai.bolthub"
+    },
+    {
+      "name": "ai.bolthub/registry",
+      "npm": "@bolthub/mcp-registry",
+      "npmVersion": "0.1.6",
+      "declaredEnvCount": 9,
+      "publisher": "ai.bolthub"
+    },
+    {
+      "name": "ai.bourdon/bourdon",
+      "npm": "@getbourdon/mcp-server",
+      "npmVersion": "0.6.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.bourdon"
+    },
+    {
+      "name": "ai.bowmark/bowmark",
+      "npm": "@bowmark/mcp",
+      "npmVersion": "2.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.bowmark"
+    },
+    {
+      "name": "ai.buywhere/buywhere-mcp",
+      "npm": "@buywhere/mcp-server",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.buywhere"
+    },
+    {
+      "name": "ai.callmcp/server",
+      "npm": "@callmcp/server",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 2,
+      "publisher": "ai.callmcp"
+    },
+    {
+      "name": "ai.certscore/mcp",
+      "npm": "@certscore/mcp",
+      "npmVersion": "0.2.4",
+      "declaredEnvCount": 2,
+      "publisher": "ai.certscore"
+    },
+    {
+      "name": "ai.chronary/mcp",
+      "npm": "@chronary/mcp",
+      "npmVersion": "1.5.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.chronary"
+    },
+    {
+      "name": "ai.circulara/plugin",
+      "npm": "@circulara/plugin",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 5,
+      "publisher": "ai.circulara"
+    },
+    {
+      "name": "ai.clarx/mcp",
+      "npm": "@clarxai/mcp",
+      "npmVersion": "0.2.2",
+      "declaredEnvCount": 2,
+      "publisher": "ai.clarx"
+    },
+    {
+      "name": "ai.clawfetch/mcp",
+      "npm": "@clawfetch/mcp",
+      "npmVersion": "0.3.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.clawfetch"
+    },
+    {
+      "name": "ai.clelp/clelp",
+      "npm": "clelp-mcp-server",
+      "npmVersion": "1.1.8",
+      "declaredEnvCount": 1,
+      "publisher": "ai.clelp"
+    },
+    {
+      "name": "ai.clize/clize",
+      "npm": "@clize/clize",
+      "npmVersion": "0.46.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.clize"
+    },
+    {
+      "name": "ai.clize/domains",
+      "npm": "@clize/domains",
+      "npmVersion": "0.35.5",
+      "declaredEnvCount": 0,
+      "publisher": "ai.clize"
+    },
+    {
+      "name": "ai.clize/inbox",
+      "npm": "@clize/inbox",
+      "npmVersion": "0.35.5",
+      "declaredEnvCount": 0,
+      "publisher": "ai.clize"
+    },
+    {
+      "name": "ai.clize/sites",
+      "npm": "@clize/sites",
+      "npmVersion": "0.35.5",
+      "declaredEnvCount": 0,
+      "publisher": "ai.clize"
+    },
+    {
+      "name": "ai.clize/storefront",
+      "npm": "@clize/storefront",
+      "npmVersion": "0.35.5",
+      "declaredEnvCount": 0,
+      "publisher": "ai.clize"
+    },
+    {
+      "name": "ai.contextstudios/mcp",
+      "npm": "contextstudios-mcp",
+      "npmVersion": "2.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.contextstudios"
+    },
+    {
+      "name": "ai.cueapi/mcp",
+      "npm": "@cueapi/mcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 2,
+      "publisher": "ai.cueapi"
+    },
+    {
+      "name": "ai.demomagic/interactive-video-guide",
+      "npm": "@demomagic/mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.demomagic"
+    },
+    {
+      "name": "ai.dimensions/analytics-mcp",
+      "npm": "@digital-science-dsl/dimensions-analytics-mcp",
+      "npmVersion": "1.4.2",
+      "declaredEnvCount": 2,
+      "publisher": "ai.dimensions"
+    },
+    {
+      "name": "ai.dinglebear/apprise-rmcp",
+      "npm": "apprise-rmcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/arcane-rmcp",
+      "npm": "arcane-rmcp",
+      "npmVersion": "0.4.2",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/cortex",
+      "npm": "@dinglebear/cortex",
+      "npmVersion": "3.13.2",
+      "declaredEnvCount": 7,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/cortex-rmcp",
+      "npm": "cortex-rmcp",
+      "npmVersion": "3.9.1",
+      "declaredEnvCount": 7,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/gotify-rmcp",
+      "npm": "gotify-rmcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 7,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/labby",
+      "npm": "@dinglebear/labby",
+      "npmVersion": "2.3.2",
+      "declaredEnvCount": 3,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/rapprise",
+      "npm": "@dinglebear/rapprise",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/rarcane",
+      "npm": "@dinglebear/rarcane",
+      "npmVersion": "0.4.4",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/rgotify",
+      "npm": "@dinglebear/rgotify",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 7,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/rtailscale",
+      "npm": "@dinglebear/rtailscale",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 5,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/runifi",
+      "npm": "@dinglebear/runifi",
+      "npmVersion": "0.2.5",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/rytdl",
+      "npm": "@dinglebear/rytdl",
+      "npmVersion": "1.0.4",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/soma",
+      "npm": "@dinglebear/soma",
+      "npmVersion": "0.9.0",
+      "declaredEnvCount": 5,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/synapse",
+      "npm": "@dinglebear/synapse",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 7,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/synapse-rmcp",
+      "npm": "synapse-rmcp",
+      "npmVersion": "0.5.4",
+      "declaredEnvCount": 7,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/tailscale-rmcp",
+      "npm": "tailscale-rmcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 5,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/unifi-rmcp",
+      "npm": "unifi-rmcp",
+      "npmVersion": "0.2.4",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/unraid",
+      "npm": "@dinglebear/unraid",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/unraid-rmcp",
+      "npm": "unraid-rmcp",
+      "npmVersion": "0.2.3",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/yarr",
+      "npm": "@dinglebear/yarr",
+      "npmVersion": "2.2.2",
+      "declaredEnvCount": 10,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/yarr-mcp",
+      "npm": "yarr-mcp",
+      "npmVersion": "1.1.1",
+      "declaredEnvCount": 10,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.dinglebear/ytdl-rmcp",
+      "npm": "ytdl-rmcp",
+      "npmVersion": "1.0.2",
+      "declaredEnvCount": 6,
+      "publisher": "ai.dinglebear"
+    },
+    {
+      "name": "ai.doublespeed/mcp",
+      "npm": "@doublespeed/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.doublespeed"
+    },
+    {
+      "name": "ai.dxpert/mcp",
+      "npm": "@dxpert/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.dxpert"
+    },
+    {
+      "name": "ai.dxpert/uns-tools",
+      "npm": "@dxpert/uns-tools",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.dxpert"
+    },
+    {
+      "name": "ai.ekwo/mcp",
+      "npm": "@ekwo-ai/mcp",
+      "npmVersion": "0.8.0",
+      "declaredEnvCount": 7,
+      "publisher": "ai.ekwo"
+    },
+    {
+      "name": "ai.elfa/mcp",
+      "npm": "@elfa-ai/mcp",
+      "npmVersion": "4.3.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.elfa"
+    },
+    {
+      "name": "ai.elicitly/elicitly",
+      "npm": "elicitly",
+      "npmVersion": "0.7.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.elicitly"
+    },
+    {
+      "name": "ai.eonik/mcp",
+      "npm": "eonik-mcp",
+      "npmVersion": "2.0.0",
+      "declaredEnvCount": 3,
+      "publisher": "ai.eonik"
+    },
+    {
+      "name": "ai.etincel/etincel-nonfiction",
+      "npm": "etincel",
+      "npmVersion": "0.9.5",
+      "declaredEnvCount": 0,
+      "publisher": "ai.etincel"
+    },
+    {
+      "name": "ai.facesign/facesign-mcp",
+      "npm": "facesign-mcp",
+      "npmVersion": "0.0.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.facesign"
+    },
+    {
+      "name": "ai.flydocs/flydocs",
+      "npm": "@flydocs/cli",
+      "npmVersion": "1.3.8",
+      "declaredEnvCount": 0,
+      "publisher": "ai.flydocs"
+    },
+    {
+      "name": "ai.fodda/mcp-server",
+      "npm": "fodda-mcp",
+      "npmVersion": "1.46.31",
+      "declaredEnvCount": 2,
+      "publisher": "ai.fodda"
+    },
+    {
+      "name": "ai.foura/mcp",
+      "npm": "@fouradata/mcp",
+      "npmVersion": "0.7.3",
+      "declaredEnvCount": 1,
+      "publisher": "ai.foura"
+    },
+    {
+      "name": "ai.gency/gency-mcp",
+      "npm": "@gency-ai/gency-mcp",
+      "npmVersion": "0.6.0",
+      "declaredEnvCount": 8,
+      "publisher": "ai.gency"
+    },
+    {
+      "name": "ai.gessa/mcp-server",
+      "npm": "@gessa/mcp-server",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 2,
+      "publisher": "ai.gessa"
+    },
+    {
+      "name": "ai.getfacade/mcp",
+      "npm": "@getfacade/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 3,
+      "publisher": "ai.getfacade"
+    },
+    {
+      "name": "ai.getoptimal/optibot",
+      "npm": "@optimalai/optibot-mcp",
+      "npmVersion": "1.4.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.getoptimal"
+    },
+    {
+      "name": "ai.getvet/vet",
+      "npm": "@getvetai/mcp",
+      "npmVersion": "0.4.2",
+      "declaredEnvCount": 2,
+      "publisher": "ai.getvet"
+    },
+    {
+      "name": "ai.hermitsh/texts",
+      "npm": "@hermitsh/texts-mcp",
+      "npmVersion": "0.5.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.hermitsh"
+    },
+    {
+      "name": "ai.hiddencontent/mcp",
+      "npm": "@hiddencontent/mcp",
+      "npmVersion": "0.4.7",
+      "declaredEnvCount": 3,
+      "publisher": "ai.hiddencontent"
+    },
+    {
+      "name": "ai.i18nagent/i18n-agent",
+      "npm": "@i18n-agent/mcp-client",
+      "npmVersion": "1.16.3",
+      "declaredEnvCount": 2,
+      "publisher": "ai.i18nagent"
+    },
+    {
+      "name": "ai.imboard/dossier",
+      "npm": "@ai-dossier/mcp-server",
+      "npmVersion": "1.0.4",
+      "declaredEnvCount": 0,
+      "publisher": "ai.imboard"
+    },
+    {
+      "name": "ai.inite/inite-visibility",
+      "npm": "@inite/visibility",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.inite"
+    },
+    {
+      "name": "ai.instantclips/instantclips",
+      "npm": "instantclips-mcp",
+      "npmVersion": "1.6.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.instantclips"
+    },
+    {
+      "name": "ai.intodns/scanner",
+      "npm": "intodns-mcp",
+      "npmVersion": "1.10.3",
+      "declaredEnvCount": 0,
+      "publisher": "ai.intodns"
+    },
+    {
+      "name": "ai.justdrop/mcp",
+      "npm": "justdrop-mcp",
+      "npmVersion": "0.1.6",
+      "declaredEnvCount": 2,
+      "publisher": "ai.justdrop"
+    },
+    {
+      "name": "ai.kavel/kavel-mcp",
+      "npm": "kavel-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.kavel"
+    },
+    {
+      "name": "ai.kawacode/mcp",
+      "npm": "@kawacode/mcp",
+      "npmVersion": "8.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.kawacode"
+    },
+    {
+      "name": "ai.keenable/web-search",
+      "npm": "@keenable/mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.keenable"
+    },
+    {
+      "name": "ai.kinlab/kin",
+      "npm": "@kinlab/kin-mcp",
+      "npmVersion": "0.7.9",
+      "declaredEnvCount": 0,
+      "publisher": "ai.kinlab"
+    },
+    {
+      "name": "ai.knowall/reverie",
+      "npm": "@knowall-ai/reverie",
+      "npmVersion": "0.5.3",
+      "declaredEnvCount": 5,
+      "publisher": "ai.knowall"
+    },
+    {
+      "name": "ai.korala/mcp",
+      "npm": "@korala/mcp",
+      "npmVersion": "0.9.0",
+      "declaredEnvCount": 3,
+      "publisher": "ai.korala"
+    },
+    {
+      "name": "ai.law/lawyer-search",
+      "npm": "lawai-mcp-server",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.law"
+    },
+    {
+      "name": "ai.lithtrix/lithtrix-mcp",
+      "npm": "lithtrix-mcp",
+      "npmVersion": "0.20.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.lithtrix"
+    },
+    {
+      "name": "ai.llmintel/llmintel",
+      "npm": "@llmintel/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.llmintel"
+    },
+    {
+      "name": "ai.llmintel/model-lifecycle",
+      "npm": "@llmintel/mcp",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 2,
+      "publisher": "ai.llmintel"
+    },
+    {
+      "name": "ai.mafdet/mcp",
+      "npm": "@mafdet/mcp",
+      "npmVersion": "1.4.32",
+      "declaredEnvCount": 1,
+      "publisher": "ai.mafdet"
+    },
+    {
+      "name": "ai.makeaivideo/video-generator",
+      "npm": "@makeaivideo/mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.makeaivideo"
+    },
+    {
+      "name": "ai.makerportal/compute",
+      "npm": "@makerportal/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.makerportal"
+    },
+    {
+      "name": "ai.marchward/mcp-server",
+      "npm": "@marchward/mcp-server",
+      "npmVersion": "0.2.4",
+      "declaredEnvCount": 2,
+      "publisher": "ai.marchward"
+    },
+    {
+      "name": "ai.marketintell/marketintell",
+      "npm": "marketintell",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.marketintell"
+    },
+    {
+      "name": "ai.matih/mcp",
+      "npm": "@matihlabs/mcp",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.matih"
+    },
+    {
+      "name": "ai.meetlark/mcp-server",
+      "npm": "@meetlark/mcp-server",
+      "npmVersion": "1.0.3",
+      "declaredEnvCount": 0,
+      "publisher": "ai.meetlark"
+    },
+    {
+      "name": "ai.memcell/memcell",
+      "npm": "memcell",
+      "npmVersion": "0.8.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.memcell"
+    },
+    {
+      "name": "ai.mentu/navigator",
+      "npm": "mentu-navigator",
+      "npmVersion": "1.0.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.mentu"
+    },
+    {
+      "name": "ai.midplane/midplane",
+      "npm": "midplane",
+      "npmVersion": "0.20.0",
+      "declaredEnvCount": 4,
+      "publisher": "ai.midplane"
+    },
+    {
+      "name": "ai.monnet/mcp",
+      "npm": "@monnet/mcp",
+      "npmVersion": "0.9.5",
+      "declaredEnvCount": 1,
+      "publisher": "ai.monnet"
+    },
+    {
+      "name": "ai.motiblog/mcp",
+      "npm": "@motiblog/mcp",
+      "npmVersion": "0.6.0",
+      "declaredEnvCount": 3,
+      "publisher": "ai.motiblog"
+    },
+    {
+      "name": "ai.myspaice/spaces",
+      "npm": "spaces-mcp-server",
+      "npmVersion": "1.7.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.myspaice"
+    },
+    {
+      "name": "ai.naumu/mcp",
+      "npm": "@naumu/mcp",
+      "npmVersion": "0.18.1",
+      "declaredEnvCount": 3,
+      "publisher": "ai.naumu"
+    },
+    {
+      "name": "ai.nocturnus/logic-server",
+      "npm": "nocturnusai-mcp",
+      "npmVersion": "0.3.11",
+      "declaredEnvCount": 4,
+      "publisher": "ai.nocturnus"
+    },
+    {
+      "name": "ai.oobeprotocol.sap.mcp/sap-mcp",
+      "npm": "@oobe-protocol-labs/sap-mcp-server",
+      "npmVersion": "0.7.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.oobeprotocol.sap.mcp"
+    },
+    {
+      "name": "ai.orangepro/mcp",
+      "npm": "@orangepro/mcp-server",
+      "npmVersion": "0.2.40",
+      "declaredEnvCount": 3,
+      "publisher": "ai.orangepro"
+    },
+    {
+      "name": "ai.ordercore/ordercore-mcp",
+      "npm": "@ordercore/mcp",
+      "npmVersion": "0.2.18",
+      "declaredEnvCount": 2,
+      "publisher": "ai.ordercore"
+    },
+    {
+      "name": "ai.overwing/mcp",
+      "npm": "overwing-mcp",
+      "npmVersion": "0.5.0",
+      "declaredEnvCount": 2,
+      "publisher": "ai.overwing"
+    },
+    {
+      "name": "ai.payments.managed/payments-ai-mcp",
+      "npm": "@payments-ai/mcp",
+      "npmVersion": "1.4.3",
+      "declaredEnvCount": 0,
+      "publisher": "ai.payments.managed"
+    },
+    {
+      "name": "ai.perplexity/mcp-server",
+      "npm": "@perplexity-ai/mcp-server",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.perplexity"
+    },
+    {
+      "name": "ai.picsha/picsha",
+      "npm": "@picsha-ai/mcp-server",
+      "npmVersion": "2.3.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.picsha"
+    },
+    {
+      "name": "ai.ponlo/server",
+      "npm": "ponlo-ai",
+      "npmVersion": "1.13.2",
+      "declaredEnvCount": 2,
+      "publisher": "ai.ponlo"
+    },
+    {
+      "name": "ai.popdot/popdot-mcp",
+      "npm": "popdot-mcp",
+      "npmVersion": "2.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.popdot"
+    },
+    {
+      "name": "ai.positif/positif",
+      "npm": "positif-ai",
+      "npmVersion": "0.2.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.positif"
+    },
+    {
+      "name": "ai.posteverywhere/mcp",
+      "npm": "@posteverywhere/mcp",
+      "npmVersion": "1.7.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.posteverywhere"
+    },
+    {
+      "name": "ai.postfleet/postfleet",
+      "npm": "@postfleet/mcp",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 2,
+      "publisher": "ai.postfleet"
+    },
+    {
+      "name": "ai.primateintelligence/mcp",
+      "npm": "@primate-intelligence/mcp",
+      "npmVersion": "0.4.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.primateintelligence"
+    },
+    {
+      "name": "ai.proofslip/mcp-server",
+      "npm": "@proofslip/mcp-server",
+      "npmVersion": "0.2.3",
+      "declaredEnvCount": 2,
+      "publisher": "ai.proofslip"
+    },
+    {
+      "name": "ai.proxyllm/proxyllm-mcp",
+      "npm": "proxyllm-mcp",
+      "npmVersion": "1.0.2",
+      "declaredEnvCount": 2,
+      "publisher": "ai.proxyllm"
+    },
+    {
+      "name": "ai.pullpush/pullpush-mcp",
+      "npm": "kaduno-pullpush-mcp",
+      "npmVersion": "2.2.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.pullpush"
+    },
+    {
+      "name": "ai.radmail/radmail-mcp",
+      "npm": "radmail-mcp",
+      "npmVersion": "0.5.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.radmail"
+    },
+    {
+      "name": "ai.rapay/mcp-server",
+      "npm": "@rapay/mcp-server",
+      "npmVersion": "1.2.5",
+      "declaredEnvCount": 0,
+      "publisher": "ai.rapay"
+    },
+    {
+      "name": "ai.ravenmcp/raven-mcp",
+      "npm": "raven-mcp",
+      "npmVersion": "2.6.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.ravenmcp"
+    },
+    {
+      "name": "ai.rcll/fleet-memory",
+      "npm": "fleet-memory-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "ai.rcll"
+    },
+    {
+      "name": "ai.rightcard/mcp",
+      "npm": "rightcard-mcp",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 0,
+      "publisher": "ai.rightcard"
+    },
+    {
+      "name": "ai.rolli/mcp",
+      "npm": "@rolli/mcp",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.rolli"
+    },
+    {
+      "name": "ai.saymaker/saymaker-mcp",
+      "npm": "saymaker-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.saymaker"
+    },
+    {
+      "name": "ai.sendinel/mcp-server",
+      "npm": "@sendinel/mcp-server",
+      "npmVersion": "1.0.9",
+      "declaredEnvCount": 1,
+      "publisher": "ai.sendinel"
+    },
+    {
+      "name": "ai.sendraven/mcp",
+      "npm": "@sendraven/mcp",
+      "npmVersion": "0.4.9",
+      "declaredEnvCount": 1,
+      "publisher": "ai.sendraven"
+    },
+    {
+      "name": "ai.sentfrom/mcp",
+      "npm": "sentfromai-mcp",
+      "npmVersion": "0.4.0",
+      "declaredEnvCount": 2,
+      "publisher": "ai.sentfrom"
+    },
+    {
+      "name": "ai.sentvia/mcp",
+      "npm": "sentvia-mcp",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.sentvia"
+    },
+    {
+      "name": "ai.shawndurrani/mcp-merchant",
+      "npm": "mcp-merchant",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 3,
+      "publisher": "ai.shawndurrani"
+    },
+    {
+      "name": "ai.shipeasy/mcp",
+      "npm": "@shipeasy/mcp",
+      "npmVersion": "2.8.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.shipeasy"
+    },
+    {
+      "name": "ai.shiplight/shiplight",
+      "npm": "@shiplightai/mcp",
+      "npmVersion": "0.2.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.shiplight"
+    },
+    {
+      "name": "ai.shippp/mcp",
+      "npm": "@shippp/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.shippp"
+    },
+    {
+      "name": "ai.shumi/mcp",
+      "npm": "@shumi-ai/mcp",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.shumi"
+    },
+    {
+      "name": "ai.signal8/mcp",
+      "npm": "@signal8ai/mcp",
+      "npmVersion": "0.16.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.signal8"
+    },
+    {
+      "name": "ai.smartmemory/compose-mcp",
+      "npm": "@smartmemory/compose-mcp",
+      "npmVersion": "0.7.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.smartmemory"
+    },
+    {
+      "name": "ai.smartmemory/stratum-mcp",
+      "npm": "@smartmemory/stratum",
+      "npmVersion": "0.7.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.smartmemory"
+    },
+    {
+      "name": "ai.snapdiff/mcp",
+      "npm": "@corralimited/snapdiff-mcp",
+      "npmVersion": "0.5.0",
+      "declaredEnvCount": 2,
+      "publisher": "ai.snapdiff"
+    },
+    {
+      "name": "ai.snowsure/snow",
+      "npm": "snowsure-mcp-server",
+      "npmVersion": "3.7.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.snowsure"
+    },
+    {
+      "name": "ai.social-api/socialapi",
+      "npm": "mcp-socialapi",
+      "npmVersion": "1.2.0",
+      "declaredEnvCount": 1,
+      "publisher": "ai.social-api"
+    },
+    {
+      "name": "ai.speko/mcp",
+      "npm": "@spekoai/mcp",
+      "npmVersion": "1.0.9",
+      "declaredEnvCount": 1,
+      "publisher": "ai.speko"
+    },
+    {
+      "name": "ai.spiderbrain/spiderbrain",
+      "npm": "spiderbrain",
+      "npmVersion": "0.2.3",
+      "declaredEnvCount": 3,
+      "publisher": "ai.spiderbrain"
+    },
+    {
+      "name": "ai.spideriq/gate",
+      "npm": "@spideriq/mcp-gate",
+      "npmVersion": "1.3.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.spideriq"
+    },
+    {
+      "name": "ai.spideriq/leads",
+      "npm": "@spideriq/mcp-leads",
+      "npmVersion": "1.9.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.spideriq"
+    },
+    {
+      "name": "ai.spideriq/mail",
+      "npm": "@spideriq/mcp-mail",
+      "npmVersion": "1.4.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.spideriq"
+    },
+    {
+      "name": "ai.spideriq/media",
+      "npm": "@spideriq/mcp-media",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.spideriq"
+    },
+    {
+      "name": "ai.spideriq/publish",
+      "npm": "@spideriq/mcp-publish",
+      "npmVersion": "1.25.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.spideriq"
+    },
+    {
+      "name": "ai.spritecook/generate",
+      "npm": "spritecook-mcp",
+      "npmVersion": "0.2.6",
+      "declaredEnvCount": 0,
+      "publisher": "ai.spritecook"
+    },
+    {
+      "name": "ai.ssid/ssid-mcp",
+      "npm": "ssid-mcp",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.ssid"
+    },
+    {
+      "name": "ai.starreel/starreel",
+      "npm": "@starreel/mcp",
+      "npmVersion": "0.1.90",
+      "declaredEnvCount": 1,
+      "publisher": "ai.starreel"
+    },
+    {
+      "name": "ai.starsinger/starsinger-mcp",
+      "npm": "starsinger-mcp",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.starsinger"
+    },
+    {
+      "name": "ai.synchronex/mcp-proxy",
+      "npm": "@synchronex/mcp-proxy",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 0,
+      "publisher": "ai.synchronex"
+    },
+    {
+      "name": "ai.telbase/deploy",
+      "npm": "telbase",
+      "npmVersion": "0.14.0-beta.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.telbase"
+    },
+    {
+      "name": "ai.tensorfeed/mcp-server",
+      "npm": "@tensorfeed/mcp-server",
+      "npmVersion": "2.0.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.tensorfeed"
+    },
+    {
+      "name": "ai.tensorfeed/x402-base-mcp",
+      "npm": "@tensorfeed/x402-base-mcp",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.tensorfeed"
+    },
+    {
+      "name": "ai.testiv/mcp",
+      "npm": "@testivai/mcp",
+      "npmVersion": "0.5.7",
+      "declaredEnvCount": 0,
+      "publisher": "ai.testiv"
+    },
+    {
+      "name": "ai.thiri/chord-intelligence",
+      "npm": "@bluesprincemedia/thiri-mcp",
+      "npmVersion": "0.5.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.thiri"
+    },
+    {
+      "name": "ai.thrain/blackout",
+      "npm": "@thrain/blackout-mcp",
+      "npmVersion": "1.3.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.thrain"
+    },
+    {
+      "name": "ai.thrain/spotlight",
+      "npm": "@thrain/spotlight-mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.thrain"
+    },
+    {
+      "name": "ai.tokonomix/council",
+      "npm": "tokonomix-council-mcp",
+      "npmVersion": "1.8.4",
+      "declaredEnvCount": 1,
+      "publisher": "ai.tokonomix"
+    },
+    {
+      "name": "ai.toolprint/hypertool-mcp",
+      "npm": "@toolprint/hypertool-mcp",
+      "npmVersion": "0.0.42",
+      "declaredEnvCount": 0,
+      "publisher": "ai.toolprint"
+    },
+    {
+      "name": "ai.traderouter/trade-router-mcp",
+      "npm": "@traderouter/trade-router-mcp",
+      "npmVersion": "1.0.13",
+      "declaredEnvCount": 7,
+      "publisher": "ai.traderouter"
+    },
+    {
+      "name": "ai.tradesearcher/mcp-server",
+      "npm": "@tradesearcher/mcp-server",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.tradesearcher"
+    },
+    {
+      "name": "ai.trustysquire/trusty-squire",
+      "npm": "@trusty-squire/mcp",
+      "npmVersion": "1.1.9-rc.9",
+      "declaredEnvCount": 0,
+      "publisher": "ai.trustysquire"
+    },
+    {
+      "name": "ai.tuteliq/mcp",
+      "npm": "@tuteliq/mcp",
+      "npmVersion": "3.8.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.tuteliq"
+    },
+    {
+      "name": "ai.unpaper/cli",
+      "npm": "@unpaper/cli",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.unpaper"
+    },
+    {
+      "name": "ai.usestring/web-access",
+      "npm": "@usestring/mcp",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.usestring"
+    },
+    {
+      "name": "ai.vaaya/mcp",
+      "npm": "@vaaya/mcp",
+      "npmVersion": "0.6.8",
+      "declaredEnvCount": 0,
+      "publisher": "ai.vaaya"
+    },
+    {
+      "name": "ai.vanticlabs/vantic",
+      "npm": "@vantic/sdk",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 0,
+      "publisher": "ai.vanticlabs"
+    },
+    {
+      "name": "ai.variel/mcp-server",
+      "npm": "@variel/mcp-server",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 3,
+      "publisher": "ai.variel"
+    },
+    {
+      "name": "ai.verifox/email-verifier",
+      "npm": "verifox-mcp",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.verifox"
+    },
+    {
+      "name": "ai.verlon/mcp",
+      "npm": "@verlon-ai/mcp",
+      "npmVersion": "0.4.1",
+      "declaredEnvCount": 2,
+      "publisher": "ai.verlon"
+    },
+    {
+      "name": "ai.verticalmarketplace/vertical-marketplace",
+      "npm": "vertical-marketplace-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.verticalmarketplace"
+    },
+    {
+      "name": "ai.vidofy/mcp",
+      "npm": "@vidofy/mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.vidofy"
+    },
+    {
+      "name": "ai.voris.mcp/server",
+      "npm": "@voris-ai/mcp",
+      "npmVersion": "0.0.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.voris.mcp"
+    },
+    {
+      "name": "ai.voxell/forge",
+      "npm": "@voxell/forge-mcp",
+      "npmVersion": "0.1.5",
+      "declaredEnvCount": 1,
+      "publisher": "ai.voxell"
+    },
+    {
+      "name": "ai.voxplo/voxplo",
+      "npm": "voxplo-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.voxplo"
+    },
+    {
+      "name": "ai.vruum/mcp",
+      "npm": "@vruum/mcp",
+      "npmVersion": "0.6.0",
+      "declaredEnvCount": 0,
+      "publisher": "ai.vruum"
+    },
+    {
+      "name": "ai.wavespeed/mcp",
+      "npm": "@wavespeed/mcp",
+      "npmVersion": "1.0.7",
+      "declaredEnvCount": 3,
+      "publisher": "ai.wavespeed"
+    },
+    {
+      "name": "ai.webhound/webhound",
+      "npm": "webhound-mcp",
+      "npmVersion": "0.5.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.webhound"
+    },
+    {
+      "name": "ai.webuplink/mcp",
+      "npm": "@webuplink/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.webuplink"
+    },
+    {
+      "name": "ai.wild-card/deepcontext",
+      "npm": "@wildcard-ai/deepcontext",
+      "npmVersion": "0.1.15",
+      "declaredEnvCount": 3,
+      "publisher": "ai.wild-card"
+    },
+    {
+      "name": "ai.windsock/windsock",
+      "npm": "windsock-mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "ai.windsock"
+    },
+    {
+      "name": "ai.withone/mcp",
+      "npm": "@withone/mcp",
+      "npmVersion": "1.4.1",
+      "declaredEnvCount": 7,
+      "publisher": "ai.withone"
+    },
+    {
+      "name": "ai.wpconvert/mcp",
+      "npm": "@wpconvert/mcp",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.wpconvert"
+    },
+    {
+      "name": "ai.zensation/zenbrain",
+      "npm": "@zensation/mcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 2,
+      "publisher": "ai.zensation"
+    },
+    {
+      "name": "ai.zihin/mcp-server",
+      "npm": "@zihin/mcp-server",
+      "npmVersion": "2.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "ai.zihin"
+    },
+    {
+      "name": "app.3dstreet/3dstreet",
+      "npm": "3dstreet-mcp",
+      "npmVersion": "0.2.2",
+      "declaredEnvCount": 0,
+      "publisher": "app.3dstreet"
+    },
+    {
+      "name": "app.apick/all",
+      "npm": "apick-mcp",
+      "npmVersion": "3.4.0",
+      "declaredEnvCount": 2,
+      "publisher": "app.apick"
+    },
+    {
+      "name": "app.apiguru/amazon-data",
+      "npm": "apiguru-mcp",
+      "npmVersion": "1.1.9",
+      "declaredEnvCount": 2,
+      "publisher": "app.apiguru"
+    },
+    {
+      "name": "app.businys/mcp-server",
+      "npm": "@businys/mcp-server",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "app.businys"
+    },
+    {
+      "name": "app.cellarion/cellarion",
+      "npm": "cellarion-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "app.cellarion"
+    },
+    {
+      "name": "app.cleanor/cleanor",
+      "npm": "@cleanor/mcp",
+      "npmVersion": "0.6.1",
+      "declaredEnvCount": 0,
+      "publisher": "app.cleanor"
+    },
+    {
+      "name": "app.cloudmindmaps/mindmaps",
+      "npm": "cloudmindmaps-mcp",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "app.cloudmindmaps"
+    },
+    {
+      "name": "app.crawlio/crawlio-browser",
+      "npm": "crawlio-browser",
+      "npmVersion": "1.11.0",
+      "declaredEnvCount": 0,
+      "publisher": "app.crawlio"
+    },
+    {
+      "name": "app.creatica/backgrounds",
+      "npm": "@creatica/mcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 0,
+      "publisher": "app.creatica"
+    },
+    {
+      "name": "app.devglow/devglow",
+      "npm": "devglow-mcp",
+      "npmVersion": "1.3.2",
+      "declaredEnvCount": 0,
+      "publisher": "app.devglow"
+    },
+    {
+      "name": "app.devglow/noglow",
+      "npm": "noglow-mcp",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 0,
+      "publisher": "app.devglow"
+    },
+    {
+      "name": "app.devglow/todoglow",
+      "npm": "todoglow-mcp",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 0,
+      "publisher": "app.devglow"
+    },
+    {
+      "name": "app.faqai/mcp-server",
+      "npm": "@faqai/mcp-server",
+      "npmVersion": "0.5.1",
+      "declaredEnvCount": 2,
+      "publisher": "app.faqai"
+    },
+    {
+      "name": "app.formatika/mcp",
+      "npm": "@formatika/mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 2,
+      "publisher": "app.formatika"
+    },
+    {
+      "name": "app.formmy/formmy",
+      "npm": "@formmy.app/mcp-server",
+      "npmVersion": "0.9.1",
+      "declaredEnvCount": 3,
+      "publisher": "app.formmy"
+    },
+    {
+      "name": "app.hostbeam/mcp",
+      "npm": "@hostbeam/mcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 1,
+      "publisher": "app.hostbeam"
+    },
+    {
+      "name": "app.htmldrop/mcp",
+      "npm": "@htmldrop.app/mcp",
+      "npmVersion": "0.3.5",
+      "declaredEnvCount": 2,
+      "publisher": "app.htmldrop"
+    },
+    {
+      "name": "app.humanform/mcp",
+      "npm": "@humanform/mcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 2,
+      "publisher": "app.humanform"
+    },
+    {
+      "name": "app.icemoon/automation-studio",
+      "npm": "icemoon-mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 2,
+      "publisher": "app.icemoon"
+    },
+    {
+      "name": "app.lasers.guildcontrol/discord",
+      "npm": "guildctl",
+      "npmVersion": "2.3.0",
+      "declaredEnvCount": 1,
+      "publisher": "app.lasers.guildcontrol"
+    },
+    {
+      "name": "app.llmaudit/llmaudit",
+      "npm": "llmaudit-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "app.llmaudit"
+    },
+    {
+      "name": "app.miromiro/miromiro",
+      "npm": "miromiro-mcp",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 1,
+      "publisher": "app.miromiro"
+    },
+    {
+      "name": "app.octapi/mcp",
+      "npm": "octapi-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "app.octapi"
+    },
+    {
+      "name": "app.odyssey365/mcp-server",
+      "npm": "@odyssey365/mcp-server",
+      "npmVersion": "0.6.4",
+      "declaredEnvCount": 1,
+      "publisher": "app.odyssey365"
+    },
+    {
+      "name": "app.onvaou/itineraires",
+      "npm": "onvaou-itineraires-mcp",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 2,
+      "publisher": "app.onvaou"
+    },
+    {
+      "name": "app.percher/percher",
+      "npm": "@percher/mcp",
+      "npmVersion": "1.0.3",
+      "declaredEnvCount": 0,
+      "publisher": "app.percher"
+    },
+    {
+      "name": "app.promptcoin/giveaway-raffle-winner-picker",
+      "npm": "provably-fair-mcp",
+      "npmVersion": "1.0.4",
+      "declaredEnvCount": 0,
+      "publisher": "app.promptcoin"
+    },
+    {
+      "name": "app.promptcoin/provably-fair",
+      "npm": "provably-fair-mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "app.promptcoin"
+    },
+    {
+      "name": "app.qwady/borough",
+      "npm": "@borough/mcp",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "app.qwady"
+    },
+    {
+      "name": "app.scanbim/scanbim-mcp",
+      "npm": "@scanbim-labs/scanbim-mcp",
+      "npmVersion": "1.0.6",
+      "declaredEnvCount": 0,
+      "publisher": "app.scanbim"
+    },
+    {
+      "name": "app.scfcontrolsplatform/mcp-server-scf",
+      "npm": "mcp-server-scf",
+      "npmVersion": "3.4.2",
+      "declaredEnvCount": 2,
+      "publisher": "app.scfcontrolsplatform"
+    },
+    {
+      "name": "app.selis.mcp/pmo",
+      "npm": "@calx/selis-mcp",
+      "npmVersion": "0.2.2",
+      "declaredEnvCount": 0,
+      "publisher": "app.selis.mcp"
+    },
+    {
+      "name": "app.srift/srift",
+      "npm": "srift-transfer",
+      "npmVersion": "4.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "app.srift"
+    },
+    {
+      "name": "app.tabtree/tabtree",
+      "npm": "tabtree-mcp",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 2,
+      "publisher": "app.tabtree"
+    },
+    {
+      "name": "app.takehub/mcp",
+      "npm": "@takehub/mcp",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 0,
+      "publisher": "app.takehub"
+    },
+    {
+      "name": "app.trustrails/server",
+      "npm": "@trustrails/mcp-server",
+      "npmVersion": "1.0.7",
+      "declaredEnvCount": 0,
+      "publisher": "app.trustrails"
+    },
+    {
+      "name": "app.trysonar/sonar",
+      "npm": "@sonarapp/mcp",
+      "npmVersion": "0.7.0",
+      "declaredEnvCount": 2,
+      "publisher": "app.trysonar"
+    },
+    {
+      "name": "app.undisk.mcp/stdio-proxy",
+      "npm": "@undisk-mcp/stdio-proxy",
+      "npmVersion": "0.46.2",
+      "declaredEnvCount": 1,
+      "publisher": "app.undisk.mcp"
+    },
+    {
+      "name": "app.uploadcheck/uploadcheck",
+      "npm": "@drantoniou/uploadcheck-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "app.uploadcheck"
+    },
+    {
+      "name": "app.vayapin/mcp",
+      "npm": "@vayacore/mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 3,
+      "publisher": "app.vayapin"
+    },
+    {
+      "name": "app.zurc/kleos",
+      "npm": "kleos-cli",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 1,
+      "publisher": "app.zurc"
+    },
+    {
+      "name": "ar.com.muovi/mcp-server",
+      "npm": "@muovi/mcp-server",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 0,
+      "publisher": "ar.com.muovi"
+    },
+    {
+      "name": "at.memebo/memeboat-mcp",
+      "npm": "memeboat-mcp",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 0,
+      "publisher": "at.memebo"
+    },
+    {
+      "name": "au.com.ato-mcp/ato-mcp",
+      "npm": "ato-mcp",
+      "npmVersion": "2.2.1",
+      "declaredEnvCount": 0,
+      "publisher": "au.com.ato-mcp"
+    },
+    {
+      "name": "bid.scope/aec",
+      "npm": "@scope-bid/scope-aec-mcp",
+      "npmVersion": "1.0.9",
+      "declaredEnvCount": 0,
+      "publisher": "bid.scope"
+    },
+    {
+      "name": "bid.scope/claims",
+      "npm": "@scope-bid/scope-claims-mcp",
+      "npmVersion": "1.0.9",
+      "declaredEnvCount": 0,
+      "publisher": "bid.scope"
+    },
+    {
+      "name": "bid.scope/legal",
+      "npm": "@scope-bid/scope-mcp",
+      "npmVersion": "1.0.9",
+      "declaredEnvCount": 3,
+      "publisher": "bid.scope"
+    },
+    {
+      "name": "blog.tenjin/tenjin",
+      "npm": "tenjin-cli",
+      "npmVersion": "0.1.0-alpha.15",
+      "declaredEnvCount": 0,
+      "publisher": "blog.tenjin"
+    },
+    {
+      "name": "bot.ranch/mcp-server",
+      "npm": "@ranchbot/mcp-server",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "bot.ranch"
+    },
+    {
+      "name": "br.com.mupag/mcp-server",
+      "npm": "@mupag/mcp-server",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "br.com.mupag"
+    },
+    {
+      "name": "br.com.pushinpay/mcp",
+      "npm": "@pushinpaybr/mcp-server",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "br.com.pushinpay"
+    },
+    {
+      "name": "br.com.signdocs/mcp-server",
+      "npm": "@signdocs-brasil/mcp-server",
+      "npmVersion": "0.9.1",
+      "declaredEnvCount": 3,
+      "publisher": "br.com.signdocs"
+    },
+    {
+      "name": "build.uplink/uplink",
+      "npm": "@uplink-code/mcp",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 0,
+      "publisher": "build.uplink"
+    },
+    {
+      "name": "ca.honkio/mcp",
+      "npm": "@honkio/mcp",
+      "npmVersion": "1.9.0",
+      "declaredEnvCount": 1,
+      "publisher": "ca.honkio"
+    },
+    {
+      "name": "capital.hove/read-only-local-mysql-mcp-server",
+      "npm": "@hovecapital/read-only-mysql-mcp-server",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "capital.hove"
+    },
+    {
+      "name": "capital.hove/read-only-local-postgres-mcp-server",
+      "npm": "@hovecapital/read-only-postgres-mcp-server",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "capital.hove"
+    },
+    {
+      "name": "cc.servelink/serve",
+      "npm": "@servelink/serve",
+      "npmVersion": "0.8.8",
+      "declaredEnvCount": 0,
+      "publisher": "cc.servelink"
+    },
+    {
+      "name": "cc.ssave/tiktok-instagram-downloader",
+      "npm": "@ssavecc/mcp-server",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "cc.ssave"
+    },
+    {
+      "name": "ch.prospex/swissco",
+      "npm": "swissco-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "ch.prospex"
+    },
+    {
+      "name": "ch.stratta/mcp",
+      "npm": "@stratta/mcp",
+      "npmVersion": "1.16.0",
+      "declaredEnvCount": 1,
+      "publisher": "ch.stratta"
+    },
+    {
+      "name": "cheap.doc/mcp",
+      "npm": "@doc-cheap/mcp",
+      "npmVersion": "0.3.7",
+      "declaredEnvCount": 2,
+      "publisher": "cheap.doc"
+    },
+    {
+      "name": "cloud.agkit/agkit",
+      "npm": "@storybloq/agkit",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 0,
+      "publisher": "cloud.agkit"
+    },
+    {
+      "name": "cloud.easybits/easybits",
+      "npm": "@easybits.cloud/mcp",
+      "npmVersion": "0.3.4",
+      "declaredEnvCount": 1,
+      "publisher": "cloud.easybits"
+    },
+    {
+      "name": "cloud.krova/mcp",
+      "npm": "@krovacloud/mcp",
+      "npmVersion": "0.3.9",
+      "declaredEnvCount": 3,
+      "publisher": "cloud.krova"
+    },
+    {
+      "name": "cloud.nordicdata/nordic-data",
+      "npm": "@nordic-data/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "cloud.nordicdata"
+    },
+    {
+      "name": "club.atlasyield/mcp",
+      "npm": "@atlasyield/mcp",
+      "npmVersion": "0.2.4",
+      "declaredEnvCount": 0,
+      "publisher": "club.atlasyield"
+    },
+    {
+      "name": "club.inite/inite-club",
+      "npm": "@inite/club-mcp",
+      "npmVersion": "1.3.0",
+      "declaredEnvCount": 1,
+      "publisher": "club.inite"
+    },
+    {
+      "name": "cn.3ceng/kuailian",
+      "npm": "@kuailian/mcp-server",
+      "npmVersion": "0.1.5",
+      "declaredEnvCount": 3,
+      "publisher": "cn.3ceng"
+    },
+    {
+      "name": "co.addressintel/permits",
+      "npm": "addressintel-mcp",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "co.addressintel"
+    },
+    {
+      "name": "co.cuvo/website",
+      "npm": "cuvo-health",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "co.cuvo"
+    },
+    {
+      "name": "co.everypage/mcp",
+      "npm": "everypage-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 3,
+      "publisher": "co.everypage"
+    },
+    {
+      "name": "co.instantreply/mcp",
+      "npm": "@instantreply.co/mcp",
+      "npmVersion": "0.2.2",
+      "declaredEnvCount": 1,
+      "publisher": "co.instantreply"
+    },
+    {
+      "name": "co.itseasy/easy-mcp",
+      "npm": "@easylabs/mcp-server",
+      "npmVersion": "0.5.0",
+      "declaredEnvCount": 2,
+      "publisher": "co.itseasy"
+    },
+    {
+      "name": "co.leafwright/leafwright",
+      "npm": "@leafwright/mcp",
+      "npmVersion": "0.2.4",
+      "declaredEnvCount": 4,
+      "publisher": "co.leafwright"
+    },
+    {
+      "name": "co.lovie/company-formation",
+      "npm": "lovie",
+      "npmVersion": "1.0.10",
+      "declaredEnvCount": 0,
+      "publisher": "co.lovie"
+    },
+    {
+      "name": "co.marketmayhem/mcp",
+      "npm": "@marketmayhem/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 6,
+      "publisher": "co.marketmayhem"
+    },
+    {
+      "name": "co.openwebhook/mcp",
+      "npm": "openwebhook",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "co.openwebhook"
+    },
+    {
+      "name": "co.pentatrail/ctem",
+      "npm": "@pentatrail/mcp-server",
+      "npmVersion": "0.8.0",
+      "declaredEnvCount": 2,
+      "publisher": "co.pentatrail"
+    },
+    {
+      "name": "co.pepys/pepys-mcp",
+      "npm": "pepys-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "co.pepys"
+    },
+    {
+      "name": "co.policyforge/mcp",
+      "npm": "@policyforge/mcp",
+      "npmVersion": "0.6.1",
+      "declaredEnvCount": 1,
+      "publisher": "co.policyforge"
+    },
+    {
+      "name": "co.promptguard/security",
+      "npm": "@promptguard/mcp-server",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "co.promptguard"
+    },
+    {
+      "name": "co.quickpeek/quickpeek",
+      "npm": "@spark-apps/quickpeek",
+      "npmVersion": "1.2.4",
+      "declaredEnvCount": 0,
+      "publisher": "co.quickpeek"
+    },
+    {
+      "name": "co.ship-safe/scanner",
+      "npm": "@ship-safe/mcp",
+      "npmVersion": "0.6.3",
+      "declaredEnvCount": 0,
+      "publisher": "co.ship-safe"
+    },
+    {
+      "name": "co.tempguru/event-staffing",
+      "npm": "tempguru-mcp",
+      "npmVersion": "1.7.2",
+      "declaredEnvCount": 0,
+      "publisher": "co.tempguru"
+    },
+    {
+      "name": "co.trawlia/trawlia-mcp",
+      "npm": "trawlia-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "co.trawlia"
+    },
+    {
+      "name": "co.truncus/mcp-server",
+      "npm": "@truncus/mcp-server",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "co.truncus"
+    },
+    {
+      "name": "co.whooshly/whooshly-mcp",
+      "npm": "whooshly-mcp",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "co.whooshly"
+    },
+    {
+      "name": "co.workix/mcp",
+      "npm": "@workix/mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 2,
+      "publisher": "co.workix"
+    },
+    {
+      "name": "co.yungle/yungle",
+      "npm": "yungle-mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 2,
+      "publisher": "co.yungle"
+    },
+    {
+      "name": "coffee.402/mcp",
+      "npm": "402coffee-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "coffee.402"
+    },
+    {
+      "name": "com.636865636b73756d/mcp-v1",
+      "npm": "@636865636b73756d/mcp-v1",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.636865636b73756d"
+    },
+    {
+      "name": "com.7275/adwhiz",
+      "npm": "@dexun/adwhiz-mcp",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.7275"
+    },
+    {
+      "name": "com.a11ychk/mcp",
+      "npm": "@a11ychk/mcp",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 0,
+      "publisher": "com.a11ychk"
+    },
+    {
+      "name": "com.aave/mcp",
+      "npm": "@aave/mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.aave"
+    },
+    {
+      "name": "com.abutly/abutly-tools",
+      "npm": "@ellul-estate/abutly-com-abutly-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.abutly"
+    },
+    {
+      "name": "com.adbutler/mcp-server",
+      "npm": "@adbutler/mcp-server",
+      "npmVersion": "2.4.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.adbutler"
+    },
+    {
+      "name": "com.adrianczuczka/mason",
+      "npm": "mason-context",
+      "npmVersion": "0.6.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.adrianczuczka"
+    },
+    {
+      "name": "com.adsuploader/mcp",
+      "npm": "@adsuploader/mcp",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.adsuploader"
+    },
+    {
+      "name": "com.afeleos/af360",
+      "npm": "af360",
+      "npmVersion": "0.1.6",
+      "declaredEnvCount": 0,
+      "publisher": "com.afeleos"
+    },
+    {
+      "name": "com.agentsconsultants.api/docqa",
+      "npm": "docqa-mcp",
+      "npmVersion": "1.0.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.agentsconsultants.api"
+    },
+    {
+      "name": "com.agtnames/agt",
+      "npm": "@agtnames/mcp",
+      "npmVersion": "1.5.2",
+      "declaredEnvCount": 8,
+      "publisher": "com.agtnames"
+    },
+    {
+      "name": "com.ai-rook.agents/trading-mcp",
+      "npm": "ai-rook-trading-mcp",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.ai-rook.agents"
+    },
+    {
+      "name": "com.aiapplyd/aiapplyd",
+      "npm": "aiapplyd-mcp",
+      "npmVersion": "1.8.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.aiapplyd"
+    },
+    {
+      "name": "com.aicandidatehub/mcp",
+      "npm": "@aicandidatehub/mcp",
+      "npmVersion": "0.5.2",
+      "declaredEnvCount": 2,
+      "publisher": "com.aicandidatehub"
+    },
+    {
+      "name": "com.ainetcafe/ai-netcafe",
+      "npm": "ai-netcafe",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.ainetcafe"
+    },
+    {
+      "name": "com.aioproductos/mcp",
+      "npm": "@aioproductoscom/mcp",
+      "npmVersion": "0.19.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.aioproductos"
+    },
+    {
+      "name": "com.aioproductos/mcp-studio",
+      "npm": "@aioproductoscom/mcp-studio",
+      "npmVersion": "0.2.3",
+      "declaredEnvCount": 0,
+      "publisher": "com.aioproductos"
+    },
+    {
+      "name": "com.aiwatercolorgenerator/watercolor",
+      "npm": "@ai-watercolor-generator/mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.aiwatercolorgenerator"
+    },
+    {
+      "name": "com.alderflux/msgmesh",
+      "npm": "@msgmesh/mcp-server",
+      "npmVersion": "0.1.8",
+      "declaredEnvCount": 4,
+      "publisher": "com.alderflux"
+    },
+    {
+      "name": "com.allratestoday/central-bank-mcp",
+      "npm": "@allratestoday/central-bank-mcp",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.allratestoday"
+    },
+    {
+      "name": "com.altmetric.mcp/altmetric-mcp",
+      "npm": "altmetric-mcp",
+      "npmVersion": "1.2.2",
+      "declaredEnvCount": 3,
+      "publisher": "com.altmetric.mcp"
+    },
+    {
+      "name": "com.amortlane/amortlane-worksheets",
+      "npm": "@ellul-estate/amortlane-com-amortlane-worksheets-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.amortlane"
+    },
+    {
+      "name": "com.anaxer/mcp",
+      "npm": "@anaxer/mcp",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 3,
+      "publisher": "com.anaxer"
+    },
+    {
+      "name": "com.antideploy/antideploy-mcp",
+      "npm": "antideploy-mcp",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 2,
+      "publisher": "com.antideploy"
+    },
+    {
+      "name": "com.apideck/mcp",
+      "npm": "@apideck/mcp",
+      "npmVersion": "0.1.13",
+      "declaredEnvCount": 3,
+      "publisher": "com.apideck"
+    },
+    {
+      "name": "com.apogeoapi/apogeoapi-mcp",
+      "npm": "@apogeoapi/mcp",
+      "npmVersion": "1.0.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.apogeoapi"
+    },
+    {
+      "name": "com.app-dex/appdex",
+      "npm": "appdex-mcp",
+      "npmVersion": "1.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "com.app-dex"
+    },
+    {
+      "name": "com.appfigures/mcp",
+      "npm": "@appfigures/cli",
+      "npmVersion": "3.0.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.appfigures"
+    },
+    {
+      "name": "com.appscreenshotstudio/mcp",
+      "npm": "@appscreenshotstudio/mcp",
+      "npmVersion": "0.6.3",
+      "declaredEnvCount": 1,
+      "publisher": "com.appscreenshotstudio"
+    },
+    {
+      "name": "com.arcnautical/mcp",
+      "npm": "@arcnautical/mcp",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.arcnautical"
+    },
+    {
+      "name": "com.arcself/arc-security",
+      "npm": "arc-security-mcp",
+      "npmVersion": "0.5.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.arcself"
+    },
+    {
+      "name": "com.argosvix/server",
+      "npm": "@argosvix/mcp-server",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.argosvix"
+    },
+    {
+      "name": "com.artifyde/artifyde-mcp",
+      "npm": "artifyde-mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 2,
+      "publisher": "com.artifyde"
+    },
+    {
+      "name": "com.askedthrice/askedthrice",
+      "npm": "askedthrice-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.askedthrice"
+    },
+    {
+      "name": "com.asksakina/islamic-knowledge",
+      "npm": "@asksakina/islamic-knowledge-mcp",
+      "npmVersion": "1.4.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.asksakina"
+    },
+    {
+      "name": "com.asyntai/support-agent",
+      "npm": "@asyntai/mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.asyntai"
+    },
+    {
+      "name": "com.atagon/kogiqa-mcp",
+      "npm": "kogiqa-mcp",
+      "npmVersion": "1.3.29",
+      "declaredEnvCount": 0,
+      "publisher": "com.atagon"
+    },
+    {
+      "name": "com.attestroom/attestroom-tools",
+      "npm": "@ellul-estate/attestroom-com-attestroom-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.attestroom"
+    },
+    {
+      "name": "com.attestvio/attestvio-sheets",
+      "npm": "@ellul-estate/attestvio-com-attestvio-sheets-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.attestvio"
+    },
+    {
+      "name": "com.attestwire/en16931",
+      "npm": "@attestwire/mcp",
+      "npmVersion": "1.2.1",
+      "declaredEnvCount": 2,
+      "publisher": "com.attestwire"
+    },
+    {
+      "name": "com.attribloom/mcp",
+      "npm": "@attribloom/mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.attribloom"
+    },
+    {
+      "name": "com.attrove/mcp",
+      "npm": "@attrove/mcp",
+      "npmVersion": "0.6.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.attrove"
+    },
+    {
+      "name": "com.audioeye/testing-sdk-mcp",
+      "npm": "@audioeye/testing-sdk-mcp",
+      "npmVersion": "6.1.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.audioeye"
+    },
+    {
+      "name": "com.ausca/agent-services",
+      "npm": "ausca",
+      "npmVersion": "0.0.8",
+      "declaredEnvCount": 2,
+      "publisher": "com.ausca"
+    },
+    {
+      "name": "com.auth0/mcp",
+      "npm": "@auth0/auth0-mcp-server",
+      "npmVersion": "0.1.0-beta.10",
+      "declaredEnvCount": 0,
+      "publisher": "com.auth0"
+    },
+    {
+      "name": "com.azurecarbon/kodiak",
+      "npm": "kodiak-mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 2,
+      "publisher": "com.azurecarbon"
+    },
+    {
+      "name": "com.b20check/b20check",
+      "npm": "b20check-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.b20check"
+    },
+    {
+      "name": "com.backpow/pow-mining-oracle",
+      "npm": "@backpow/mcp-server",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.backpow"
+    },
+    {
+      "name": "com.balmasai/balmas-mcp",
+      "npm": "balmas-mcp",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.balmasai"
+    },
+    {
+      "name": "com.bankstatementsheet/bank-statement-sheet-mcp",
+      "npm": "bank-statement-sheet-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 3,
+      "publisher": "com.bankstatementsheet"
+    },
+    {
+      "name": "com.batesio/batesio-document-management-tools",
+      "npm": "@ellul-estate/batesio-com-batesio-document-management-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.batesio"
+    },
+    {
+      "name": "com.beacio/mcp",
+      "npm": "@beacio/mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.beacio"
+    },
+    {
+      "name": "com.bellwethermetrics/bellwether-mcp",
+      "npm": "bellwether-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.bellwethermetrics"
+    },
+    {
+      "name": "com.bereviewable/reviewable-artifacts",
+      "npm": "reviewable-artifacts-mcp",
+      "npmVersion": "0.4.1",
+      "declaredEnvCount": 3,
+      "publisher": "com.bereviewable"
+    },
+    {
+      "name": "com.bidsparq/mcp",
+      "npm": "bidsparq-mcp-server",
+      "npmVersion": "0.1.7",
+      "declaredEnvCount": 2,
+      "publisher": "com.bidsparq"
+    },
+    {
+      "name": "com.billingserv/mcp",
+      "npm": "@billingserv/mcp-server",
+      "npmVersion": "0.2.1",
+      "declaredEnvCount": 3,
+      "publisher": "com.billingserv"
+    },
+    {
+      "name": "com.binaryandthread/store",
+      "npm": "@binaryandthread/mcp",
+      "npmVersion": "0.4.7",
+      "declaredEnvCount": 0,
+      "publisher": "com.binaryandthread"
+    },
+    {
+      "name": "com.binstockly/binstockly-tools",
+      "npm": "@ellul-estate/binstockly-com-binstockly-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.binstockly"
+    },
+    {
+      "name": "com.bisibility/mcp",
+      "npm": "@bisibility/mcp",
+      "npmVersion": "0.7.0",
+      "declaredEnvCount": 5,
+      "publisher": "com.bisibility"
+    },
+    {
+      "name": "com.bitsbound/contract-analysis",
+      "npm": "@bitsbound/mcp-server",
+      "npmVersion": "1.0.6",
+      "declaredEnvCount": 0,
+      "publisher": "com.bitsbound"
+    },
+    {
+      "name": "com.bitsbound/contract-automation",
+      "npm": "@bitsbound/mcp-server",
+      "npmVersion": "1.0.8",
+      "declaredEnvCount": 0,
+      "publisher": "com.bitsbound"
+    },
+    {
+      "name": "com.blackduck/mcp-server",
+      "npm": "@black-duck/mcp-server",
+      "npmVersion": "1.1.8",
+      "declaredEnvCount": 0,
+      "publisher": "com.blackduck"
+    },
+    {
+      "name": "com.blackveilsecurity/dns",
+      "npm": "blackveil-dns",
+      "npmVersion": "2.9.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.blackveilsecurity"
+    },
+    {
+      "name": "com.blackwalltier/blackwall",
+      "npm": "blackwall-mcp",
+      "npmVersion": "1.4.2",
+      "declaredEnvCount": 2,
+      "publisher": "com.blackwalltier"
+    },
+    {
+      "name": "com.blindpay/mcp",
+      "npm": "@blindpay/mcp",
+      "npmVersion": "1.8.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.blindpay"
+    },
+    {
+      "name": "com.blixtworks.www/tools",
+      "npm": "blixtworks-mcp",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.blixtworks.www"
+    },
+    {
+      "name": "com.blockventurechaincapital/bvcc-agent-wallet",
+      "npm": "@bvcc/agent-mcp",
+      "npmVersion": "0.2.2",
+      "declaredEnvCount": 6,
+      "publisher": "com.blockventurechaincapital"
+    },
+    {
+      "name": "com.bluecloudcyber/guestbook",
+      "npm": "@bluecloudcyberai/guestbook-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.bluecloudcyber"
+    },
+    {
+      "name": "com.boostedchat/travel",
+      "npm": "boostedtravel-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.boostedchat"
+    },
+    {
+      "name": "com.bounceprotect.www/mcp",
+      "npm": "@bounceprotect/mcp",
+      "npmVersion": "1.0.6",
+      "declaredEnvCount": 1,
+      "publisher": "com.bounceprotect.www"
+    },
+    {
+      "name": "com.braincloudservers/braincloud-mcp-helper",
+      "npm": "@braincloud/mcp-helper",
+      "npmVersion": "6.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.braincloudservers"
+    },
+    {
+      "name": "com.breakerdesk/breakerdesk-electrician-tools",
+      "npm": "@ellul-estate/breakerdesk-com-breakerdesk-electrician-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.breakerdesk"
+    },
+    {
+      "name": "com.brick-byte/footnote",
+      "npm": "@brick-byte/footnote",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 3,
+      "publisher": "com.brick-byte"
+    },
+    {
+      "name": "com.brydge-ai/brydge",
+      "npm": "brydge-mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.brydge-ai"
+    },
+    {
+      "name": "com.burdenrateledger/burdenrateledger-tools",
+      "npm": "@ellul-estate/burdenrateledger-com-burdenrateledger-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.burdenrateledger"
+    },
+    {
+      "name": "com.bykaranteli/mcp",
+      "npm": "bykaranteli-mcp",
+      "npmVersion": "0.9.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.bykaranteli"
+    },
+    {
+      "name": "com.cadencercs/cadence",
+      "npm": "@cadencercs/mcp",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 3,
+      "publisher": "com.cadencercs"
+    },
+    {
+      "name": "com.cafmlane/cafmlane-tools",
+      "npm": "@ellul-estate/cafmlane-com-cafmlane-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.cafmlane"
+    },
+    {
+      "name": "com.caliuapp/caliu-notes",
+      "npm": "@caliu-notes/mcp",
+      "npmVersion": "1.7.3",
+      "declaredEnvCount": 2,
+      "publisher": "com.caliuapp"
+    },
+    {
+      "name": "com.capanix/capanix-tools",
+      "npm": "@ellul-estate/capanix-com-capanix-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.capanix"
+    },
+    {
+      "name": "com.carbikly/carbikly-tools",
+      "npm": "@ellul-estate/carbikly-com-carbikly-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.carbikly"
+    },
+    {
+      "name": "com.casemargin/casemargin-mcp-server",
+      "npm": "casemargin-mcp-server",
+      "npmVersion": "1.0.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.casemargin"
+    },
+    {
+      "name": "com.chaingrantor/grantor-mcp",
+      "npm": "@grantor/mcp",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.chaingrantor"
+    },
+    {
+      "name": "com.chartforgeai/chartforge",
+      "npm": "chartforge-mcp",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 1,
+      "publisher": "com.chartforgeai"
+    },
+    {
+      "name": "com.cituna/cituna-mcp",
+      "npm": "cituna-mcp",
+      "npmVersion": "1.5.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.cituna"
+    },
+    {
+      "name": "com.claidex/failure-intelligence",
+      "npm": "@claidex-mcp/claidex-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.claidex"
+    },
+    {
+      "name": "com.clauderecall/recall",
+      "npm": "@clauderecallhq/cli",
+      "npmVersion": "0.96.9",
+      "declaredEnvCount": 0,
+      "publisher": "com.clauderecall"
+    },
+    {
+      "name": "com.clauselane/clauselane-contract-register-tools",
+      "npm": "@ellul-estate/clauselane-com-clauselane-contract-register-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.clauselane"
+    },
+    {
+      "name": "com.clearedindex/mcp",
+      "npm": "@n747ai/clearedindex-mcp-server",
+      "npmVersion": "1.4.2",
+      "declaredEnvCount": 0,
+      "publisher": "com.clearedindex"
+    },
+    {
+      "name": "com.clicksend/clicksend-mcp-server",
+      "npm": "@clicksend/clicksend-mcp-server",
+      "npmVersion": "2026.8.23",
+      "declaredEnvCount": 2,
+      "publisher": "com.clicksend"
+    },
+    {
+      "name": "com.clientvo/clientvo-tools",
+      "npm": "@ellul-estate/clientvo-com-clientvo-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.clientvo"
+    },
+    {
+      "name": "com.clihub/clihub",
+      "npm": "@clihub/cli",
+      "npmVersion": "0.1.0-beta.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.clihub"
+    },
+    {
+      "name": "com.clipboardo/clipboardo-tools",
+      "npm": "@ellul-estate/clipboardo-com-clipboardo-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.clipboardo"
+    },
+    {
+      "name": "com.cloudeide/cloudeide",
+      "npm": "cloudeide",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 2,
+      "publisher": "com.cloudeide"
+    },
+    {
+      "name": "com.cmmsly/cmmsly-tools",
+      "npm": "@ellul-estate/cmmsly-com-cmmsly-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.cmmsly"
+    },
+    {
+      "name": "com.codescene/codescene-mcp-server",
+      "npm": "@codescene/codehealth-mcp",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.codescene"
+    },
+    {
+      "name": "com.codmir/mcp",
+      "npm": "@codmir/mcp",
+      "npmVersion": "0.2.3",
+      "declaredEnvCount": 0,
+      "publisher": "com.codmir"
+    },
+    {
+      "name": "com.coildesk/coildesk-hvac-tools",
+      "npm": "@ellul-estate/coildesk-com-coildesk-hvac-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.coildesk"
+    },
+    {
+      "name": "com.coinlobster/whale-data",
+      "npm": "coinlobster-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.coinlobster"
+    },
+    {
+      "name": "com.collhub/collhub",
+      "npm": "@collhub/mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.collhub"
+    },
+    {
+      "name": "com.consentvia/consentvia-tools",
+      "npm": "@ellul-estate/consentvia-com-consentvia-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.consentvia"
+    },
+    {
+      "name": "com.contadeo/mcp",
+      "npm": "contadeo-mcp",
+      "npmVersion": "0.25.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.contadeo"
+    },
+    {
+      "name": "com.correctover/mcp-server",
+      "npm": "correctover-mcp-server",
+      "npmVersion": "1.2.3",
+      "declaredEnvCount": 0,
+      "publisher": "com.correctover"
+    },
+    {
+      "name": "com.cortex-mem/memory",
+      "npm": "cortex-memory-mcp",
+      "npmVersion": "1.2.5",
+      "declaredEnvCount": 0,
+      "publisher": "com.cortex-mem"
+    },
+    {
+      "name": "com.coshhvo/coshhvo-tools",
+      "npm": "@ellul-estate/coshhvo-com-coshhvo-tools-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.coshhvo"
+    },
+    {
+      "name": "com.cosmicjs/mcp",
+      "npm": "@cosmicjs/mcp",
+      "npmVersion": "1.6.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.cosmicjs"
+    },
+    {
+      "name": "com.crawlconsole/crawlconsole",
+      "npm": "@crawlconsole/mcp",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 0,
+      "publisher": "com.crawlconsole"
+    },
+    {
+      "name": "com.crisphive/mcp",
+      "npm": "@crisphive/mcp",
+      "npmVersion": "2.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.crisphive"
+    },
+    {
+      "name": "com.crixin/voice",
+      "npm": "crixin",
+      "npmVersion": "0.7.2",
+      "declaredEnvCount": 5,
+      "publisher": "com.crixin"
+    },
+    {
+      "name": "com.cross-deck/prism",
+      "npm": "@cross-deck/ai",
+      "npmVersion": "0.4.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.cross-deck"
+    },
+    {
+      "name": "com.crosscheckapi/crosscheck",
+      "npm": "crosscheckapi",
+      "npmVersion": "0.5.4",
+      "declaredEnvCount": 3,
+      "publisher": "com.crosscheckapi"
+    },
+    {
+      "name": "com.crustapi/search",
+      "npm": "crustapi-mcp",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.crustapi"
+    },
+    {
+      "name": "com.damagerestorehq/claims-index",
+      "npm": "@ellul-estate/damagerestorehq-com-claims-index-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.damagerestorehq"
+    },
+    {
+      "name": "com.dashboardbase/mcp",
+      "npm": "@dashboardbase/mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.dashboardbase"
+    },
+    {
+      "name": "com.datanexusmcp/mcp-server",
+      "npm": "@datanexusmcp/mcp-server",
+      "npmVersion": "2.4.7",
+      "declaredEnvCount": 0,
+      "publisher": "com.datanexusmcp"
+    },
+    {
+      "name": "com.datasparc/dbhawk",
+      "npm": "@dbhawk/mcp",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.datasparc"
+    },
+    {
+      "name": "com.dbconvert/streams",
+      "npm": "@dbconvert/stream-mcp",
+      "npmVersion": "2.7.3",
+      "declaredEnvCount": 0,
+      "publisher": "com.dbconvert"
+    },
+    {
+      "name": "com.dealsurface/dealsurface",
+      "npm": "@dealsurface/mcp-server",
+      "npmVersion": "2.5.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.dealsurface"
+    },
+    {
+      "name": "com.debugbundle/mcp",
+      "npm": "@debugbundle/mcp",
+      "npmVersion": "1.9.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.debugbundle"
+    },
+    {
+      "name": "com.decaframe/decaframe",
+      "npm": "decaframe",
+      "npmVersion": "0.4.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.decaframe"
+    },
+    {
+      "name": "com.dechonet/mcp",
+      "npm": "dechonet-mcp",
+      "npmVersion": "1.2.3",
+      "declaredEnvCount": 2,
+      "publisher": "com.dechonet"
+    },
+    {
+      "name": "com.decionis/commerce-gate",
+      "npm": "@decionis/commerce",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 3,
+      "publisher": "com.decionis"
+    },
+    {
+      "name": "com.decionis/mcp",
+      "npm": "@decionis/mcp",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.decionis"
+    },
+    {
+      "name": "com.deeppane/focus-space",
+      "npm": "@deeppane/mcp-server",
+      "npmVersion": "0.1.3",
+      "declaredEnvCount": 0,
+      "publisher": "com.deeppane"
+    },
+    {
+      "name": "com.deerdawn/deerdawn",
+      "npm": "@deerdawn/mcp-server",
+      "npmVersion": "1.0.53",
+      "declaredEnvCount": 1,
+      "publisher": "com.deerdawn"
+    },
+    {
+      "name": "com.dethboy/vedetta",
+      "npm": "vedetta-mcp",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.dethboy"
+    },
+    {
+      "name": "com.dialmcp/dialmcp",
+      "npm": "dialmcp-connector",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.dialmcp"
+    },
+    {
+      "name": "com.diemdesk/mcp",
+      "npm": "diemdesk-mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.diemdesk"
+    },
+    {
+      "name": "com.dmzagent/skill-builder-mcp",
+      "npm": "@dmzagent/skill-builder-mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 4,
+      "publisher": "com.dmzagent"
+    },
+    {
+      "name": "com.dnsmint/mcp",
+      "npm": "dnsmint-mcp-server",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 2,
+      "publisher": "com.dnsmint"
+    },
+    {
+      "name": "com.docfork/docfork-mcp",
+      "npm": "docfork",
+      "npmVersion": "1.3.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.docfork"
+    },
+    {
+      "name": "com.donnyautomation/dex-data",
+      "npm": "dex-data-mcp",
+      "npmVersion": "1.7.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.donnyautomation"
+    },
+    {
+      "name": "com.doomscrollr/mcp",
+      "npm": "@doomscrollr/mcp-server",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.doomscrollr"
+    },
+    {
+      "name": "com.dpf-it/mcp-server",
+      "npm": "@dpf-it/mcp-server",
+      "npmVersion": "0.1.8",
+      "declaredEnvCount": 0,
+      "publisher": "com.dpf-it"
+    },
+    {
+      "name": "com.dragapp/mcp-server",
+      "npm": "@dragapp/mcp-server",
+      "npmVersion": "0.1.5",
+      "declaredEnvCount": 1,
+      "publisher": "com.dragapp"
+    },
+    {
+      "name": "com.dribba/dribba",
+      "npm": "dribba",
+      "npmVersion": "1.1.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.dribba"
+    },
+    {
+      "name": "com.driflyte/driflyte-mcp-server",
+      "npm": "@driflyte/mcp-server",
+      "npmVersion": "0.1.8",
+      "declaredEnvCount": 0,
+      "publisher": "com.driflyte"
+    },
+    {
+      "name": "com.dropwarp/mcp",
+      "npm": "@dropwarp/mcp",
+      "npmVersion": "0.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.dropwarp"
+    },
+    {
+      "name": "com.dustforge/demipass",
+      "npm": "demipass",
+      "npmVersion": "2.5.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.dustforge"
+    },
+    {
+      "name": "com.dveracity/semantic-mcp",
+      "npm": "@dveracity/semantic-mcp",
+      "npmVersion": "0.6.0",
+      "declaredEnvCount": 4,
+      "publisher": "com.dveracity"
+    },
+    {
+      "name": "com.dzgapp/mint",
+      "npm": "@dzg-studio/mcp-server-mint",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.dzgapp"
+    },
+    {
+      "name": "com.earnidle/mcp",
+      "npm": "@idleprotocol/mcp",
+      "npmVersion": "1.0.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.earnidle"
+    },
+    {
+      "name": "com.easyonward/mcp-server",
+      "npm": "@easyonward/mcp-server",
+      "npmVersion": "0.2.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.easyonward"
+    },
+    {
+      "name": "com.easyparser/easyparser",
+      "npm": "easyparser-mcp",
+      "npmVersion": "1.3.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.easyparser"
+    },
+    {
+      "name": "com.echosaw/mcp-server",
+      "npm": "@echosaw/mcp-server",
+      "npmVersion": "2.1.0",
+      "declaredEnvCount": 2,
+      "publisher": "com.echosaw"
+    },
+    {
+      "name": "com.eclipsesource/review-guard",
+      "npm": "@eclipsesource/review-guard-mcp",
+      "npmVersion": "0.3.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.eclipsesource"
+    },
+    {
+      "name": "com.edgedepth/research",
+      "npm": "@edgedepth/research-mcp",
+      "npmVersion": "0.9.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.edgedepth"
+    },
+    {
+      "name": "com.elopstudio.aiwave/ai-wave",
+      "npm": "@elopstudio/ai-wave-mcp",
+      "npmVersion": "1.0.3",
+      "declaredEnvCount": 1,
+      "publisher": "com.elopstudio.aiwave"
+    },
+    {
+      "name": "com.enconvert/mcp",
+      "npm": "@enconvert/mcp",
+      "npmVersion": "0.5.1",
+      "declaredEnvCount": 0,
+      "publisher": "com.enconvert"
+    },
+    {
+      "name": "com.eorcompass/eor-pricing-index",
+      "npm": "@ellul-estate/eorcompass-com-eor-pricing-index-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.eorcompass"
+    },
+    {
+      "name": "com.esigndev/siglio-mcp",
+      "npm": "siglio-mcp",
+      "npmVersion": "1.0.5",
+      "declaredEnvCount": 2,
+      "publisher": "com.esigndev"
+    },
+    {
+      "name": "com.exactpdf/mcp",
+      "npm": "@exactpdf/mcp",
+      "npmVersion": "0.2.3",
+      "declaredEnvCount": 0,
+      "publisher": "com.exactpdf"
+    },
+    {
+      "name": "com.execbro/execbro",
+      "npm": "execbro",
+      "npmVersion": "2.9.8",
+      "declaredEnvCount": 1,
+      "publisher": "com.execbro"
+    },
+    {
+      "name": "com.extentos/mcp-server",
+      "npm": "@extentos/mcp-server",
+      "npmVersion": "0.11.63",
+      "declaredEnvCount": 0,
+      "publisher": "com.extentos"
+    },
+    {
+      "name": "com.eztexting/mcp",
+      "npm": "@eztexting/mcp-server",
+      "npmVersion": "1.0.4",
+      "declaredEnvCount": 0,
+      "publisher": "com.eztexting"
+    },
+    {
+      "name": "com.factuarea/mcp",
+      "npm": "@factuarea/mcp",
+      "npmVersion": "0.1.0",
+      "declaredEnvCount": 3,
+      "publisher": "com.factuarea"
+    },
+    {
+      "name": "com.failecho/failecho",
+      "npm": "failecho-mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "com.failecho"
+    },
+    {
+      "name": "com.faldaro/mcp",
+      "npm": "@faldaro/mcp",
+      "npmVersion": "0.1.1",
+      "declaredEnvCount": 2,
+      "publisher": "com.faldaro"
+    },
+    {
+      "name": "com.familiarvtt/familiar",
+      "npm": "familiar-vtt",
+      "npmVersion": "2.25.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.familiarvtt"
+    },
+    {
+      "name": "com.feedback-magic/feedback-magic",
+      "npm": "feedback-magic-mcp",
+      "npmVersion": "1.3.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.feedback-magic"
+    },
+    {
+      "name": "com.ffmpeg-micro/mcp-server",
+      "npm": "@ffmpeg-micro/mcp-server",
+      "npmVersion": "0.4.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.ffmpeg-micro"
+    },
+    {
+      "name": "com.fiatdock/fiatdock-mcp",
+      "npm": "fiatdock-mcp",
+      "npmVersion": "1.9.1",
+      "declaredEnvCount": 4,
+      "publisher": "com.fiatdock"
+    },
+    {
+      "name": "com.fidacy/ai-agent-firewall",
+      "npm": "@fidacy/mcp",
+      "npmVersion": "0.7.1",
+      "declaredEnvCount": 3,
+      "publisher": "com.fidacy"
+    },
+    {
+      "name": "com.fidacy/mcp",
+      "npm": "@fidacy/mcp",
+      "npmVersion": "0.2.7",
+      "declaredEnvCount": 2,
+      "publisher": "com.fidacy"
+    },
+    {
+      "name": "com.fidensa/mcp-server",
+      "npm": "@fidensa/mcp-server",
+      "npmVersion": "0.4.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.fidensa"
+    },
+    {
+      "name": "com.findagencyhq/agency-pricing-index",
+      "npm": "@ellul-estate/findagencyhq-com-agency-pricing-index-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 0,
+      "publisher": "com.findagencyhq"
+    },
+    {
+      "name": "com.fintechstudios/studio",
+      "npm": "@fts-studio/studio-mcp",
+      "npmVersion": "1.0.0",
+      "declaredEnvCount": 1,
+      "publisher": "com.fintechstudios"
+    },
+    {
+      "name": "com.firsthandapi/mcp-server",
+      "npm": "@firsthandapi/mcp-server",
+      "npmVersion": "0.3.1",
+      "declaredEnvCount": 1,
+      "publisher": "com.firsthandapi"
+    },
+    {
+      "name": "com.flatlandfi/flatland",
+      "npm": "flatland-client",
+      "npmVersion": "0.1.4",
+      "declaredEnvCount": 1,
+      "publisher": "com.flatlandfi"
+    },
+    {
+      "name": "com.fluxdots/mcp",
+      "npm": "fluxdots-mcp",
+      "npmVersion": "1.1.2",
+      "declaredEnvCount": 1,
+      "publisher": "com.fluxdots"
+    },
+    {
+      "name": "com.focusgts/aep",
+      "npm": "@focusgts/aep-mcp-server",
+      "npmVersion": "0.9.0",
+      "declaredEnvCount": 6,
+      "publisher": "com.focusgts"
+    }
+  ]
+}

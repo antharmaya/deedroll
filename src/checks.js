@@ -7,6 +7,20 @@
 
 const SECRETISH = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH|PRIVATE|ACCESS|BEARER|DSN|WEBHOOK)/i;
 
+/**
+ * Names that point AT something rather than being the secret: OAUTH_AUTH_SERVER_URL,
+ * INITE_TOKEN_FILE. Matching "AUTH" or "TOKEN" in them was a false positive found on
+ * a real machine (2026-09-27). Webhook URLs are the exception — the URL is the secret.
+ */
+const LOCATOR_SUFFIX = /_(URL|URI|ENDPOINT|HOST|HOSTNAME|DOMAIN|ISSUER|AUDIENCE|FILE|PATH|DIR|PORT)$/i;
+
+/** One definition of "this env var name holds a credential", shared by every check. */
+export function isCredentialName(name) {
+  if (!SECRETISH.test(name)) return false;
+  if (LOCATOR_SUFFIX.test(name) && !/WEBHOOK/i.test(name)) return false;
+  return true;
+}
+
 /** Environment variables that are ambient, not credentials the user must supply. */
 const AMBIENT = new Set([
   'NODE_ENV', 'NODE_OPTIONS', 'NODE_PATH', 'PATH', 'HOME', 'USER', 'USERPROFILE', 'PWD', 'CWD',
@@ -92,7 +106,7 @@ export function checkUndeclaredSecrets(pkg, entry, declared) {
       });
       continue;
     }
-    const secretish = SECRETISH.test(name);
+    const secretish = isCredentialName(name);
     findings.push({
       check: 'undeclared-env',
       subject: name,
@@ -109,12 +123,15 @@ export function checkUndeclaredSecrets(pkg, entry, declared) {
 /** CHECK 2 — lifecycle scripts, the classic supply-chain vector. */
 export function checkInstallScripts(pkg) {
   const scripts = pkg.manifest?.scripts ?? {};
-  const risky = ['preinstall', 'install', 'postinstall', 'prepare', 'prepublish'];
+  // Only these run when a package is installed as a dependency or via npx. `prepare`
+  // does not ("does not run when installing specific packages like npm install
+  // express" — npm docs); flagging it was a false positive on every official server.
+  const risky = ['preinstall', 'install', 'postinstall'];
   return risky
     .filter((k) => scripts[k])
     .map((k) => ({
       check: 'install-script',
-      severity: k === 'prepare' || k === 'prepublish' ? 'low' : 'high',
+      severity: 'high',
       message: `runs a ${k} script on install: ${trim(scripts[k], 80)}`,
       evidence: [{ file: 'package.json', line: 0, text: `"${k}": "${trim(scripts[k], 100)}"` }],
     }));

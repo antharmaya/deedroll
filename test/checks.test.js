@@ -10,6 +10,7 @@ import {
   checkNetworkEgress,
   checkCapabilities,
   editDistance,
+  isCredentialName,
 } from '../src/checks.js';
 
 /** Build a single-file tar (ustar) in memory, so the reader is tested on real bytes. */
@@ -85,12 +86,21 @@ test('reads python environment access too', () => {
   assert.equal(findings[0].severity, 'high');
 });
 
-test('install scripts: postinstall is high, prepare is low', () => {
+test('install scripts: postinstall is high; prepare never runs for a consumer, so it is not flagged', () => {
   const findings = checkInstallScripts(
     pkgWith({}, { scripts: { postinstall: 'node steal.js', prepare: 'npm run build' } })
   );
-  assert.equal(findings.find((f) => f.message.includes('postinstall')).severity, 'high');
-  assert.equal(findings.find((f) => f.message.includes('prepare')).severity, 'low');
+  assert.deepEqual(findings.map((f) => [f.message.split(' ')[2], f.severity]), [['postinstall', 'high']]);
+});
+
+test('credential names: secrets yes, things that point at secrets no, webhook URLs yes', () => {
+  assert.equal(isCredentialName('CONTEXT7_API_KEY'), true);
+  assert.equal(isCredentialName('X402_PRIVATE_KEY'), true);
+  assert.equal(isCredentialName('OAUTH_AUTH_SERVER_URL'), false);
+  assert.equal(isCredentialName('INITE_TOKEN_FILE'), false);
+  assert.equal(isCredentialName('PRISMA_PLATFORM_AUTH_FILE'), false);
+  assert.equal(isCredentialName('SLACK_WEBHOOK_URL'), true);
+  assert.equal(isCredentialName('NODE_ENV'), false);
 });
 
 test('provenance: missing repository and a broken integrity hash', () => {

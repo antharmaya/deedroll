@@ -1,4 +1,4 @@
-# A quarter of MCP servers ask for credentials their registry entry never mentions
+# More than one in five MCP servers read credentials their registry entry never mentions
 
 *Draft launch post. Publish from the GitHub repo, not from antharmaya.com.*
 
@@ -24,13 +24,13 @@ environment variables the code actually reads against the ones the registry entr
 ```
   scanned successfully                  57   across 53 publishers
   declare no environment variables      23 (40%)  19 publishers
-  read a credential they never declare  14 (25%)  11 publishers
-      95% CI                            15% – 37%
+  read a credential they never declare  13 (23%)  10 publishers
+      95% CI                            14% – 35%
   run an install script                 1 (2%)
   no repository field                   11 (19%)
 ```
 
-Among the 14: four servers reading an undeclared `X402_PRIVATE_KEY`, and one reading
+Among the 13: four servers reading an undeclared `X402_PRIVATE_KEY`, and one reading
 `PAYER_PRIVATE_KEY`. Those are agent payment keys — asked for by the code, absent from the metadata
 a user reads before installing.
 
@@ -65,6 +65,22 @@ is non-zero on high-severity findings, so it drops into CI.
 scanner that had to run `npm install` first would have already executed three lifecycle hooks
 belonging to the thing you asked it to check.
 
+## How this differs from Snyk Agent Scan and Cisco's mcp-scanner
+
+Both are good and both exist; use them. They answer a different question at a different moment.
+
+[Snyk Agent Scan](https://github.com/snyk/agent-scan) (formerly Invariant's `mcp-scan`) starts your
+configured servers to read their tools, sends tool names and descriptions to Snyk for analysis, and
+needs a Snyk token. It is strongest at tool poisoning and prompt injection.
+[Cisco's mcp-scanner](https://github.com/cisco-ai-defense/mcp-scanner) connects to live servers or
+scans PyPI source in a Docker sandbox, with YARA rules and an LLM that checks descriptions against
+code.
+
+mcpscan is the check **before** you install: it never runs the server, needs no account, sends
+nothing anywhere, reads npm packages (where most MCP servers ship), and runs in a browser. It is the
+only one of the three that compares a server's **registry metadata** against its code — which is
+where the number above comes from. It does not detect prompt injection; they do.
+
 ## Reproducing this
 
 ```
@@ -86,3 +102,7 @@ One more, because it changed the headline: my first sample was the registry's ow
 order and gave 21 of 30 — until I noticed 17 of those 21 were a single publisher's near-identical
 servers, which sit together in that ordering. Random sampling and publisher-level counts fixed it.
 The worse number was the wrong one.
+
+And a second correction, found by pointing the scanner at a real machine: it first counted names
+like `OAUTH_AUTH_SERVER_URL` as credentials. They point at a secret; they are not one. Excluding
+them moved the headline from 14 (25%) to 13 (23%).

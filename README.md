@@ -54,6 +54,7 @@ asks for them — or doesn't ask, and reads one you already exported.
 | `install-script` | high / low | `preinstall`, `install` or `postinstall` runs on `npm install`. The classic supply-chain vector. |
 | `provenance` | high / medium / low | No repository field, tarball does not match npm's integrity hash, single version, published days ago. |
 | `typosquat` | high / medium | Name is an unscoped clone of, or within two characters of, an official package. |
+| `deprecated` | medium | npm itself marks this version deprecated — often with a pointer to where the vendor moved (for several, a hosted server). |
 | `network-egress` | info | Every external host reachable from the source, minus hosts the entry declares. |
 | `capability` | info | Process execution, dynamic evaluation, filesystem writes, raw sockets. |
 

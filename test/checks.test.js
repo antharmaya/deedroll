@@ -11,6 +11,7 @@ import {
   checkCapabilities,
   editDistance,
   isCredentialName,
+  checkDeprecated,
 } from '../src/checks.js';
 
 /** Build a single-file tar (ustar) in memory, so the reader is tested on real bytes. */
@@ -164,4 +165,11 @@ test('a computed env var name is reported as unresolvable, not as a credential',
   assert.equal(findings.length, 1);
   assert.equal(findings[0].check, 'dynamic-env');
   assert.equal(findings[0].severity, 'info');
+});
+
+test('a deprecated version is flagged with the npm message; a live one is not', () => {
+  const dead = { ...pkgWith({}, { deprecated: 'Package no longer supported.' }), name: 'x' };
+  assert.equal(checkDeprecated(dead)[0].severity, 'medium');
+  assert.match(checkDeprecated(dead)[0].message, /no longer supported/);
+  assert.deepEqual(checkDeprecated(pkgWith({}, {})), []);
 });

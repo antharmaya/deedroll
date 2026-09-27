@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import { scan } from '../src/index.js';
-import { render, exitCode } from '../src/report.js';
+import { render, renderInstalled, exitCode } from '../src/report.js';
+import { auditInstalled } from '../src/audit.js';
 
 const USAGE = `
 mcpscan — static trust scanner for MCP servers
 
+  mcpscan --installed            audit every MCP server your agents already trust
+                                 (Claude Code, Codex, Claude Desktop, Cursor, Windsurf, Gemini CLI)
   mcpscan <registry-name>        scan a server listed in the official MCP registry
   mcpscan npm:<package>          scan an npm package directly
   mcpscan <target> --json        machine-readable output
@@ -20,11 +23,13 @@ Examples
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false };
+  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
     else if (a === '--semantic') args.semantic = true;
+    else if (a === '--installed') args.installed = true;
+    else if (a === '--all') args.all = true;
     else if (a === '--fail-on') args.failOn = argv[++i];
     else if (a === '--version-of') args.version = argv[++i];
     else if (a === '-h' || a === '--help') args.help = true;
@@ -34,6 +39,19 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2));
+
+if (args.installed && !args.help) {
+  try {
+    const result = await auditInstalled({ semantic: args.semantic });
+    if (args.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    else process.stdout.write(`${renderInstalled(result, { all: args.all })}\n`);
+    const all = result.servers.flatMap((s) => s.findings);
+    process.exit(args.failOn === 'never' ? 0 : exitCode(all, { failOn: args.failOn }));
+  } catch (err) {
+    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.exit(2);
+  }
+}
 
 if (args.help || !args.target) {
   process.stdout.write(USAGE);

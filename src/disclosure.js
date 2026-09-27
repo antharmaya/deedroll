@@ -137,6 +137,9 @@ export async function checkDisclosure({ pkg, entry, findings, judge, thresholds 
     questions[q.id] = { type: 'noul', instructions: q.instructions, criteria: q.criteria };
   }
 
+  const partialTools = tools.filter((t) => t.partial).length;
+  disclosure.partialTools = partialTools;
+
   const res = await judge.ask(state, questions);
   disclosure.judged = true;
   disclosure.model = res.model ?? null;
@@ -148,7 +151,16 @@ export async function checkDisclosure({ pkg, entry, findings, judge, thresholds 
     const p = res.answers[q.id].noul;
     disclosure.judgments[key] = p;
 
-    if (p <= thresholds.no) {
+    if (p <= thresholds.no && partialTools > 0) {
+      // Missing text could hold the disclosure: unknown is neither clean nor guilty.
+      out.push({
+        check: 'disclosure-unclear',
+        subject: key,
+        severity: 'info',
+        message: `can ${q.capability}; no description says so (p=${p.toFixed(2)}), but ${partialTools} description(s) could only be read in part, so this is not called undisclosed`,
+        evidence,
+      });
+    } else if (p <= thresholds.no) {
       out.push({
         check: 'undisclosed-capability',
         subject: key,

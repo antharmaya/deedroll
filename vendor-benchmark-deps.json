@@ -1,0 +1,682 @@
+{
+  "scannedAt": "2026-09-27T06:11:52.317Z",
+  "rows": [
+    {
+      "vendor": "Microsoft",
+      "name": "@playwright/mcp",
+      "version": "0.0.82",
+      "files": 82,
+      "tools": 0,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution",
+        "dynamic code evaluation",
+        "filesystem writes or deletes"
+      ],
+      "egressHosts": 49,
+      "ms": 7154,
+      "bytes": 4076324,
+      "depsFollowed": 2,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Microsoft",
+      "name": "@azure/mcp",
+      "version": "3.0.0-beta.47",
+      "files": 3,
+      "tools": 0,
+      "high": 1,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [
+        "runs a postinstall script on install: node ./scripts/post-install-script.js"
+      ],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "filesystem writes or deletes",
+        "process execution"
+      ],
+      "egressHosts": 1,
+      "ms": 1552,
+      "bytes": 18925,
+      "depsFollowed": 0,
+      "depsSkipped": [
+        {
+          "name": "@azure/mcp-linux-x64",
+          "spec": "3.0.0-beta.47",
+          "reason": "too large (151 MB unpacked)"
+        },
+        {
+          "name": "@azure/mcp-linux-arm64",
+          "spec": "3.0.0-beta.47",
+          "reason": "too large (116 MB unpacked)"
+        },
+        {
+          "name": "@azure/mcp-win32-x64",
+          "spec": "3.0.0-beta.47",
+          "reason": "too large (117 MB unpacked)"
+        },
+        {
+          "name": "@azure/mcp-win32-arm64",
+          "spec": "3.0.0-beta.47",
+          "reason": "too large (118 MB unpacked)"
+        },
+        {
+          "name": "@azure/mcp-darwin-x64",
+          "spec": "3.0.0-beta.47",
+          "reason": "too large (123 MB unpacked)"
+        },
+        {
+          "name": "@azure/mcp-darwin-arm64",
+          "spec": "3.0.0-beta.47",
+          "reason": "too large (122 MB unpacked)"
+        }
+      ]
+    },
+    {
+      "vendor": "Stripe",
+      "name": "@stripe/mcp",
+      "version": "0.3.3",
+      "files": 5,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "STRIPE_SECRET_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 3,
+      "ms": 633,
+      "bytes": 5227,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Sentry",
+      "name": "@sentry/mcp-server",
+      "version": "0.42.0",
+      "files": 1001,
+      "tools": 2,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "VERCEL_OIDC_TOKEN",
+        "SENTRY_MCP_AUTH_CACHE",
+        "SENTRY_DSN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution",
+        "filesystem writes or deletes",
+        "raw network sockets"
+      ],
+      "egressHosts": 54,
+      "ms": 7197,
+      "bytes": 4322230,
+      "depsFollowed": 2,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Supabase",
+      "name": "@supabase/mcp-server-supabase",
+      "version": "0.13.0",
+      "files": 32,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "SUPABASE_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 5,
+      "ms": 2207,
+      "bytes": 202166,
+      "depsFollowed": 1,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Notion",
+      "name": "@notionhq/notion-mcp-server",
+      "version": "2.5.2",
+      "files": 31,
+      "tools": 9,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "NOTION_TOKEN",
+        "ENABLE_TOKEN_PASSTHROUGH",
+        "AUTH_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "dynamic code evaluation",
+        "filesystem writes or deletes",
+        "process execution"
+      ],
+      "egressHosts": 6,
+      "ms": 1770,
+      "bytes": 1656710,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Cloudflare",
+      "name": "@cloudflare/mcp-server-cloudflare",
+      "version": "0.2.0",
+      "files": 3,
+      "tools": 80,
+      "high": 0,
+      "medium": 2,
+      "undeclaredCredentials": [
+        "CLOUDFLARE_API_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 3,
+      "ms": 905,
+      "bytes": 36953,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Neon",
+      "name": "@neondatabase/mcp-server-neon",
+      "version": "0.6.5",
+      "files": 55,
+      "tools": 26,
+      "high": 0,
+      "medium": 6,
+      "undeclaredCredentials": [
+        "CLIENT_SECRET",
+        "COOKIE_SECRET",
+        "ANALYTICS_WRITE_KEY",
+        "SENTRY_DSN"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": true,
+      "capabilities": [
+        "filesystem writes or deletes",
+        "process execution"
+      ],
+      "egressHosts": 8,
+      "ms": 2893,
+      "bytes": 272623,
+      "depsFollowed": 2,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "MongoDB",
+      "name": "mongodb-mcp-server",
+      "version": "3.0.4",
+      "files": 484,
+      "tools": 0,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution",
+        "filesystem writes or deletes"
+      ],
+      "egressHosts": 10,
+      "ms": 4120,
+      "bytes": 1274924,
+      "depsFollowed": 14,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Upstash",
+      "name": "@upstash/context7-mcp",
+      "version": "4.1.1",
+      "files": 22,
+      "tools": 1,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "OPENAI_APPS_CHALLENGE_TOKEN",
+        "MCP_CLIENT_IP_ASSERTION_KEY",
+        "CONTEXT7_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 5,
+      "ms": 1556,
+      "bytes": 47679,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Firecrawl",
+      "name": "firecrawl-mcp",
+      "version": "3.25.5",
+      "files": 85,
+      "tools": 29,
+      "high": 0,
+      "medium": 10,
+      "undeclaredCredentials": [
+        "MCP_DELEGATED_CREDENTIAL_SECRET",
+        "FIRECRAWL_API_KEY",
+        "FIRECRAWL_OAUTH_TOKEN",
+        "FIRECRAWL_OAUTH_INTROSPECT_SECRET",
+        "OPENAI_APPS_CHALLENGE_TOKEN",
+        "MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD",
+        "FIRECRAWL_MCP_SEARCH_OAUTH_ONLY",
+        "FIRECRAWL_MCP_ACTION_LOG_SECRET",
+        "KEYLESS_PROXY_SECRET",
+        "TEST_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 16,
+      "ms": 661,
+      "bytes": 292214,
+      "depsFollowed": 1,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Exa",
+      "name": "exa-mcp-server",
+      "version": "3.4.1",
+      "files": 19,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "EXA_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution",
+        "filesystem writes or deletes"
+      ],
+      "egressHosts": 6,
+      "ms": 1699,
+      "bytes": 654507,
+      "depsFollowed": 2,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Brave",
+      "name": "@brave/brave-search-mcp-server",
+      "version": "2.1.4",
+      "files": 55,
+      "tools": 8,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "BRAVE_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 13,
+      "ms": 480,
+      "bytes": 41212,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Browserbase",
+      "name": "@browserbasehq/mcp-server-browserbase",
+      "version": "2.4.3",
+      "files": 1047,
+      "tools": 9,
+      "high": 0,
+      "medium": 15,
+      "undeclaredCredentials": [
+        "GEMINI_API_KEY",
+        "GOOGLE_API_KEY",
+        "GOOGLE_GENERATIVE_AI_API_KEY",
+        "BROWSERBASE_API_KEY",
+        "BRAVE_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "VERIFIER_ARIATREE_TOKEN_BUDGET",
+        "CEREBRAS_API_KEY",
+        "GROQ_API_KEY",
+        "AZURE_API_KEY",
+        "FIREWORKS_API_KEY",
+        "OPENAI_API_KEY",
+        "BB_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": true,
+      "capabilities": [
+        "process execution",
+        "filesystem writes or deletes",
+        "dynamic code evaluation"
+      ],
+      "egressHosts": 27,
+      "ms": 5044,
+      "bytes": 3871709,
+      "depsFollowed": 3,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "HubSpot",
+      "name": "@hubspot/mcp-server",
+      "version": "0.4.0",
+      "files": 36,
+      "tools": 21,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "PRIVATE_APP_ACCESS_TOKEN",
+        "HUBSPOT_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 2,
+      "ms": 513,
+      "bytes": 20709,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Shopify",
+      "name": "@shopify/dev-mcp",
+      "version": "1.16.0",
+      "files": 1063,
+      "tools": 18,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [
+        "process execution",
+        "dynamic code evaluation",
+        "filesystem writes or deletes"
+      ],
+      "egressHosts": 80,
+      "ms": 13936,
+      "bytes": 16767136,
+      "depsFollowed": 8,
+      "depsSkipped": [
+        {
+          "name": "@shopify/cli",
+          "spec": ">=3.93.1",
+          "reason": "too large (27 MB unpacked)"
+        }
+      ]
+    },
+    {
+      "vendor": "PayPal",
+      "name": "@paypal/mcp",
+      "version": "1.8.1",
+      "files": 23,
+      "tools": 0,
+      "high": 0,
+      "medium": 2,
+      "undeclaredCredentials": [
+        "PAYPAL_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 5,
+      "ms": 2994,
+      "bytes": 767983,
+      "depsFollowed": 1,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Heroku",
+      "name": "@heroku/mcp-server",
+      "version": "1.2.9",
+      "files": 53,
+      "tools": 39,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "HEROKU_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "filesystem writes or deletes",
+        "process execution"
+      ],
+      "egressHosts": 9,
+      "ms": 2125,
+      "bytes": 76447,
+      "depsFollowed": 1,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Netlify",
+      "name": "@netlify/mcp",
+      "version": "1.16.0",
+      "files": 30,
+      "tools": 1,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "JWE_SECRET",
+        "NETLIFY_PERSONAL_ACCESS_TOKEN",
+        "NETLIFY_PURGE_API_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 7,
+      "ms": 1376,
+      "bytes": 68481,
+      "depsFollowed": 2,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Elastic",
+      "name": "@elastic/mcp-server-elasticsearch",
+      "version": "0.3.1",
+      "files": 458,
+      "tools": 4,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "ES_API_KEY",
+        "ES_PASSWORD"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 8,
+      "ms": 5038,
+      "bytes": 1480693,
+      "depsFollowed": 3,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Apify",
+      "name": "@apify/actors-mcp-server",
+      "version": "0.16.0",
+      "files": 349,
+      "tools": 8,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "APIFY_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution",
+        "dynamic code evaluation"
+      ],
+      "egressHosts": 31,
+      "ms": 6129,
+      "bytes": 2177148,
+      "depsFollowed": 4,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Pinecone",
+      "name": "@pinecone-database/mcp",
+      "version": "0.3.0",
+      "files": 1403,
+      "tools": 9,
+      "high": 0,
+      "medium": 2,
+      "undeclaredCredentials": [
+        "PINECONE_CLIENT_SECRET",
+        "PINECONE_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "filesystem writes or deletes"
+      ],
+      "egressHosts": 27,
+      "ms": 3557,
+      "bytes": 627460,
+      "depsFollowed": 1,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Twilio",
+      "name": "@twilio-alpha/mcp",
+      "version": "0.7.0",
+      "files": 93,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 94,
+      "ms": 3439,
+      "bytes": 1243268,
+      "depsFollowed": 1,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "LaunchDarkly",
+      "name": "@launchdarkly/mcp-server",
+      "version": "0.6.2",
+      "files": 1201,
+      "tools": 20,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "LAUNCHDARKLY_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 8,
+      "ms": 2813,
+      "bytes": 1822316,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "Sanity",
+      "name": "@sanity/mcp-server",
+      "version": "0.12.2",
+      "files": 2,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 0,
+      "ms": 1459,
+      "bytes": 903,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "MCP reference",
+      "name": "@modelcontextprotocol/server-github",
+      "version": "2025.4.8",
+      "files": 13,
+      "tools": 26,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "GITHUB_PERSONAL_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 1,
+      "ms": 717,
+      "bytes": 13635,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    },
+    {
+      "vendor": "MCP reference",
+      "name": "@modelcontextprotocol/server-everything",
+      "version": "2026.8.31",
+      "files": 44,
+      "tools": 2,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 0,
+      "ms": 489,
+      "bytes": 57343,
+      "depsFollowed": 0,
+      "depsSkipped": []
+    }
+  ]
+}

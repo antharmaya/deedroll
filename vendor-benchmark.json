@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-09-27T06:06:43.837Z",
+  "scannedAt": "2026-09-27T06:09:55.124Z",
   "rows": [
     {
       "vendor": "Microsoft",
@@ -14,7 +14,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 2
+      "egressHosts": 2,
+      "ms": 1335,
+      "bytes": 24070,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Microsoft",
@@ -34,7 +38,11 @@
         "filesystem writes or deletes",
         "process execution"
       ],
-      "egressHosts": 1
+      "egressHosts": 1,
+      "ms": 1001,
+      "bytes": 18925,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Stripe",
@@ -51,7 +59,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 3
+      "egressHosts": 3,
+      "ms": 480,
+      "bytes": 5227,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Sentry",
@@ -72,7 +84,11 @@
         "process execution",
         "filesystem writes or deletes"
       ],
-      "egressHosts": 6
+      "egressHosts": 6,
+      "ms": 2734,
+      "bytes": 3134800,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Supabase",
@@ -91,7 +107,11 @@
       "capabilities": [
         "process execution"
       ],
-      "egressHosts": 5
+      "egressHosts": 5,
+      "ms": 1088,
+      "bytes": 182296,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Notion",
@@ -114,7 +134,11 @@
         "filesystem writes or deletes",
         "process execution"
       ],
-      "egressHosts": 6
+      "egressHosts": 6,
+      "ms": 1794,
+      "bytes": 1656710,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Cloudflare",
@@ -133,7 +157,11 @@
       "capabilities": [
         "process execution"
       ],
-      "egressHosts": 3
+      "egressHosts": 3,
+      "ms": 927,
+      "bytes": 36953,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Neon",
@@ -155,7 +183,11 @@
       "capabilities": [
         "filesystem writes or deletes"
       ],
-      "egressHosts": 4
+      "egressHosts": 4,
+      "ms": 382,
+      "bytes": 47475,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "MongoDB",
@@ -170,7 +202,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 0
+      "egressHosts": 0,
+      "ms": 406,
+      "bytes": 36662,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Upstash",
@@ -189,7 +225,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 5
+      "egressHosts": 5,
+      "ms": 589,
+      "bytes": 47679,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Firecrawl",
@@ -214,7 +254,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 5
+      "egressHosts": 5,
+      "ms": 435,
+      "bytes": 68144,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Exa",
@@ -229,7 +273,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 3
+      "egressHosts": 3,
+      "ms": 313,
+      "bytes": 358099,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Brave",
@@ -248,7 +296,11 @@
       "capabilities": [
         "process execution"
       ],
-      "egressHosts": 13
+      "egressHosts": 13,
+      "ms": 1059,
+      "bytes": 41212,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Browserbase",
@@ -268,7 +320,11 @@
       "deprecated": true,
       "noRepository": true,
       "capabilities": [],
-      "egressHosts": 5
+      "egressHosts": 5,
+      "ms": 1609,
+      "bytes": 1371942,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "HubSpot",
@@ -286,7 +342,11 @@
       "deprecated": false,
       "noRepository": true,
       "capabilities": [],
-      "egressHosts": 2
+      "egressHosts": 2,
+      "ms": 1005,
+      "bytes": 20709,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Shopify",
@@ -304,7 +364,11 @@
         "process execution",
         "dynamic code evaluation"
       ],
-      "egressHosts": 13
+      "egressHosts": 13,
+      "ms": 6065,
+      "bytes": 13899929,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "PayPal",
@@ -321,7 +385,11 @@
       "deprecated": false,
       "noRepository": true,
       "capabilities": [],
-      "egressHosts": 0
+      "egressHosts": 0,
+      "ms": 784,
+      "bytes": 8847,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Heroku",
@@ -341,7 +409,11 @@
         "filesystem writes or deletes",
         "process execution"
       ],
-      "egressHosts": 8
+      "egressHosts": 8,
+      "ms": 649,
+      "bytes": 56291,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Netlify",
@@ -361,7 +433,11 @@
       "capabilities": [
         "process execution"
       ],
-      "egressHosts": 4
+      "egressHosts": 4,
+      "ms": 1103,
+      "bytes": 18985,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Elastic",
@@ -379,7 +455,11 @@
       "deprecated": true,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 0
+      "egressHosts": 0,
+      "ms": 246,
+      "bytes": 42280,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Apify",
@@ -398,7 +478,11 @@
       "capabilities": [
         "process execution"
       ],
-      "egressHosts": 15
+      "egressHosts": 15,
+      "ms": 1689,
+      "bytes": 1442259,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Pinecone",
@@ -413,7 +497,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 3
+      "egressHosts": 3,
+      "ms": 927,
+      "bytes": 19989,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Twilio",
@@ -428,7 +516,11 @@
       "deprecated": false,
       "noRepository": true,
       "capabilities": [],
-      "egressHosts": 94
+      "egressHosts": 94,
+      "ms": 1920,
+      "bytes": 1225164,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "LaunchDarkly",
@@ -445,7 +537,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 8
+      "egressHosts": 8,
+      "ms": 2498,
+      "bytes": 1822316,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "Sanity",
@@ -460,7 +556,11 @@
       "deprecated": true,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 0
+      "egressHosts": 0,
+      "ms": 457,
+      "bytes": 903,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "MCP reference",
@@ -477,7 +577,11 @@
       "deprecated": true,
       "noRepository": true,
       "capabilities": [],
-      "egressHosts": 1
+      "egressHosts": 1,
+      "ms": 1507,
+      "bytes": 13635,
+      "depsFollowed": 0,
+      "depsSkipped": []
     },
     {
       "vendor": "MCP reference",
@@ -492,7 +596,11 @@
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 0
+      "egressHosts": 0,
+      "ms": 1649,
+      "bytes": 57343,
+      "depsFollowed": 0,
+      "depsSkipped": []
     }
   ]
 }

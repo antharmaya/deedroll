@@ -53,7 +53,8 @@ process.stderr.write(`sampling ${chosen.length} of ${pop.population.length} npm-
 const rows = [];
 for (const entry of chosen) {
   try {
-    const r = await scan(entry.name);
+    // OSV off: the published number's method must not change underneath it.
+    const r = await scan(entry.name, { osv: false });
     const sev = (s) => r.findings.filter((f) => f.severity === s);
     const undeclaredSecrets = r.findings
       .filter((f) => f.check === 'undeclared-env' && f.severity === 'high')

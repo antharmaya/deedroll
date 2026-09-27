@@ -2,6 +2,7 @@ import { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers } 
 import { runAllChecks, SEVERITY_ORDER } from './checks.js';
 import { checkDisclosure } from './disclosure.js';
 import { createTypeSafeJudge } from './judge.js';
+import { expandDependencies, mergeDependencies } from './deps.js';
 
 /** Official server package names, used only for the typosquat check. */
 export const OFFICIAL_NAMES = [
@@ -23,7 +24,7 @@ export const OFFICIAL_NAMES = [
  * @param {object} [opts.judge]      a judge (see judge.js); defaults to TypeSafe
  * @returns {Promise<{target, pkg, entry, declared, findings, disclosure?}>}
  */
-export async function scan(target, { version = 'latest', semantic = false, judge = null } = {}) {
+export async function scan(target, { version = 'latest', semantic = false, judge = null, deps = false } = {}) {
   let entry = null;
   let npmName = null;
   let npmVersion = version;
@@ -54,11 +55,18 @@ export async function scan(target, { version = 'latest', semantic = false, judge
     if (version === 'latest' && ids[0].version) npmVersion = ids[0].version;
   }
 
-  const pkg = await fetchNpmPackage(npmName, npmVersion);
+  let pkg = await fetchNpmPackage(npmName, npmVersion);
+  let depInfo = null;
+  if (deps) {
+    // Off by default: it costs downloads (measured in scripts/vendor-benchmark.js --deps).
+    const expanded = await expandDependencies(pkg);
+    pkg = mergeDependencies(pkg, expanded.deps);
+    depInfo = { followed: pkg.dependencies.length, skipped: expanded.skipped, capped: expanded.capped };
+  }
   const declared = declaredEnvVars(entry);
   const findings = runAllChecks({ pkg, entry, declared, officialNames: OFFICIAL_NAMES });
 
-  if (!semantic) return { target, entry, pkg, declared, findings };
+  if (!semantic) return { target, entry, pkg, declared, findings, deps: depInfo };
 
   const result = await checkDisclosure({
     pkg,
@@ -69,11 +77,13 @@ export async function scan(target, { version = 'latest', semantic = false, judge
   const merged = [...findings, ...result.findings].sort(
     (a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]
   );
-  return { target, entry, pkg, declared, findings: merged, disclosure: result.disclosure };
+  return { target, entry, pkg, declared, findings: merged, disclosure: result.disclosure, deps: depInfo };
 }
 
 export { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers };
 export { checkDisclosure, DEFAULT_THRESHOLDS } from './disclosure.js';
 export { createTypeSafeJudge, JudgeConfigError } from './judge.js';
 export { extractTools } from './tools.js';
+export { selectDependencies, vendorToken } from './deps.js';
+export { resolveVersion } from './sources.js';
 export * from './checks.js';

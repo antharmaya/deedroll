@@ -5,12 +5,16 @@
  * It grades the scanner, not the vendors. Nothing is installed or run.
  *
  * The list was verified against npm on 2026-09-27 (every name resolves; weekly
- * downloads from api.npmjs.org). Usage: node scripts/vendor-benchmark.js
+ * downloads from api.npmjs.org). Usage: node scripts/vendor-benchmark.js [--deps]
+ *
+ * --deps also follows each vendor's own dependencies, and records bytes and seconds,
+ * so the cost of turning that on by default is measured rather than guessed.
  */
 import { writeFileSync } from 'node:fs';
 import { scan } from '../src/index.js';
 import { extractTools } from '../src/tools.js';
-import { fetchNpmPackage } from '../src/sources.js';
+
+const DEPS = process.argv.includes('--deps');
 
 export const VENDORS = [
   ['Microsoft', '@playwright/mcp'],
@@ -58,9 +62,10 @@ async function pool(items, limit, fn) {
 
 const rows = await pool(VENDORS, 4, async ([vendor, name]) => {
   try {
-    const r = await scan(`npm:${name}`);
-    const pkg = await fetchNpmPackage(name, r.pkg.version); // same bytes; for tool coverage
-    const { tools } = extractTools(pkg.files);
+    const started = Date.now();
+    const r = await scan(`npm:${name}`, { deps: DEPS });
+    const ms = Date.now() - started;
+    const { tools } = extractTools(r.pkg.files); // the scanned files themselves: no second download
     const by = (check) => r.findings.filter((f) => f.check === check);
     const caps = by('capability').map((f) => f.message.replace(/^uses /, ''));
     return {
@@ -77,6 +82,10 @@ const rows = await pool(VENDORS, 4, async ([vendor, name]) => {
       noRepository: by('provenance').some((f) => /repository/.test(f.message)),
       capabilities: caps,
       egressHosts: by('network-egress').length,
+      ms,
+      bytes: (r.pkg.tarballBytes ?? 0) + (r.pkg.dependencies ?? []).reduce((n, d) => n + (d.tarballBytes ?? 0), 0),
+      depsFollowed: r.deps?.followed ?? 0,
+      depsSkipped: r.deps?.skipped ?? [],
     };
   } catch (err) {
     return { vendor, name, error: err.message.slice(0, 160) };
@@ -84,7 +93,7 @@ const rows = await pool(VENDORS, 4, async ([vendor, name]) => {
 });
 
 writeFileSync(
-  new URL('../vendor-benchmark.json', import.meta.url),
+  new URL(DEPS ? '../vendor-benchmark-deps.json' : '../vendor-benchmark.json', import.meta.url),
   `${JSON.stringify({ scannedAt: new Date().toISOString(), rows }, null, 2)}\n`
 );
 
@@ -110,4 +119,8 @@ for (const r of rows) {
   );
 }
 const ok = rows.filter((r) => !r.error);
-console.log(`\n  ${ok.length}/${rows.length} scanned · tools found in ${ok.filter((r) => r.tools > 0).length}/${ok.length} · caps: x=exec w=writes e=eval n=network\n`);
+const mb = ok.reduce((n, r) => n + r.bytes, 0) / 1048576;
+const secs = ok.reduce((n, r) => n + r.ms, 0) / 1000;
+console.log(`\n  ${ok.length}/${rows.length} scanned · tools found in ${ok.filter((r) => r.tools > 0).length}/${ok.length} · caps: x=exec w=writes e=eval n=network`);
+console.log(`  ${DEPS ? 'with --deps' : 'top-level only'}: ${mb.toFixed(1)} MB downloaded · ${secs.toFixed(1)} s summed scan time · ${ok.reduce((n, r) => n + r.depsFollowed, 0)} dependencies followed\n`);
+for (const r of ok) for (const s of r.depsSkipped) console.log(`  skipped ${s.name} (${r.name}): ${s.reason}`);

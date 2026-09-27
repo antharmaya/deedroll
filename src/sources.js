@@ -58,18 +58,72 @@ export function npmIdentifiers(entry) {
     .map((p) => ({ identifier: p.identifier, version: p.version, fileSha256: p.fileSha256 }));
 }
 
+/** [major, minor, patch, prerelease] or null. */
+function parse(v) {
+  const m = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?/.exec(String(v));
+  return m ? [Number(m[1]), Number(m[2]), Number(m[3]), m[4] ?? null] : null;
+}
+
+function cmp(a, b) {
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] - b[i];
+  return 0;
+}
+
+/**
+ * Resolve an npm version spec against a packument, without a semver dependency.
+ *
+ * Covers what vendor packages actually use for their own dependencies: exact versions
+ * (including pre-release pins), dist-tags ("latest"), ^ and ~ ranges, * and empty.
+ * Anything else resolves to the latest tag and is reported as approximate rather
+ * than silently treated as exact. Trade-off: a full semver library would be more
+ * correct, and would be the first dependency of a security tool.
+ *
+ * @returns {{version: string|null, approximate: boolean}}
+ */
+export function resolveVersion(packument, spec) {
+  const versions = Object.keys(packument.versions ?? {});
+  const tags = packument['dist-tags'] ?? {};
+  const s = String(spec ?? '').trim();
+
+  if (!s || s === '*' || s === 'x') return { version: tags.latest ?? null, approximate: false };
+  if (tags[s]) return { version: tags[s], approximate: false };
+  if (packument.versions?.[s]) return { version: s, approximate: false };
+
+  const range = /^([\^~])\s*(\d+\.\d+\.\d+)$/.exec(s);
+  if (range) {
+    const base = parse(range[2]);
+    const ok = versions
+      .map((v) => [v, parse(v)])
+      .filter(([, p]) => p && !p[3] && cmp(p, base) >= 0)
+      .filter(([, p]) => {
+        if (range[1] === '~') return p[0] === base[0] && p[1] === base[1];
+        if (base[0] > 0) return p[0] === base[0];
+        if (base[1] > 0) return p[0] === 0 && p[1] === base[1];
+        return p[0] === 0 && p[1] === 0 && p[2] === base[2];
+      })
+      .sort((a, b) => cmp(b[1], a[1]));
+    if (ok.length) return { version: ok[0][0], approximate: false };
+  }
+  return { version: tags.latest ?? null, approximate: true };
+}
+
 /**
  * Download an npm package and read it in memory. Nothing is written to disk and
  * no lifecycle script runs — `npm install` would have run three of them by now.
+ *
+ * @param {string} spec  a version, dist-tag or range (see resolveVersion)
+ * @param {{maxUnpackedBytes?: number}} [opts]  skip, rather than download, anything larger
  */
-export async function fetchNpmPackage(name, version = 'latest') {
+export async function fetchNpmPackage(name, spec = 'latest', { maxUnpackedBytes = Infinity } = {}) {
   const packument = await getJson(`${NPM}/${encodeURIComponent(name).replace('%40', '@')}`);
-  const resolved =
-    version === 'latest' || !version
-      ? packument['dist-tags']?.latest
-      : packument['dist-tags']?.[version] ?? version;
+  const { version: resolved, approximate } = resolveVersion(packument, spec);
   const manifest = packument.versions?.[resolved];
-  if (!manifest) throw new Error(`version ${resolved} not found for ${name}`);
+  if (!manifest) throw new Error(`version ${spec} not found for ${name}`);
+
+  const unpackedSize = manifest.dist?.unpackedSize ?? null;
+  if (unpackedSize && unpackedSize > maxUnpackedBytes) {
+    return { name, version: resolved, manifest, skipped: 'too large', unpackedSize };
+  }
 
   const res = await fetch(manifest.dist.tarball);
   if (!res.ok) throw new Error(`tarball fetch failed: ${res.status}`);
@@ -86,9 +140,12 @@ export async function fetchNpmPackage(name, version = 'latest') {
   return {
     name,
     version: resolved,
+    approximate,
     manifest,
     files,
     integrityOk,
+    tarballBytes: tgz.length,
+    unpackedSize,
     sha256: createHash('sha256').update(tgz).digest('hex'),
     publishedAt: packument.time?.[resolved] ?? null,
     maintainers: (packument.maintainers ?? []).map((m) => m.name ?? String(m)),

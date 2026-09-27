@@ -59,7 +59,7 @@ const OFFICIAL_PREFIX = '@modelcontextprotocol/';
 
 function* eachLine(files) {
   for (const [path, buf] of files) {
-    if (path === 'package.json') continue;
+    if (path === 'package.json' || path.endsWith('/package.json')) continue; // manifests, not code
     const text = buf.toString('utf8');
     if (text.includes('\0')) continue; // binary
     const lines = text.split('\n');
@@ -135,6 +135,28 @@ export function checkInstallScripts(pkg) {
       message: `runs a ${k} script on install: ${trim(scripts[k], 80)}`,
       evidence: [{ file: 'package.json', line: 0, text: `"${k}": "${trim(scripts[k], 100)}"` }],
     }));
+}
+
+/**
+ * CHECK 2b — install scripts in followed dependencies. npm runs a dependency's
+ * preinstall/install/postinstall on the user's machine too, so they count as much as
+ * the root's. Only dependencies mcpscan actually followed (--deps) are covered.
+ */
+export function checkDependencyInstallScripts(pkg) {
+  const out = [];
+  for (const d of pkg.dependencies ?? []) {
+    const scripts = d.manifest?.scripts ?? {};
+    for (const k of ['preinstall', 'install', 'postinstall']) {
+      if (!scripts[k]) continue;
+      out.push({
+        check: 'install-script',
+        severity: 'high',
+        message: `dependency ${d.name}@${d.version} runs a ${k} script on install: ${trim(scripts[k], 80)}`,
+        evidence: [{ file: `node_modules/${d.name}/package.json`, line: 0, text: `"${k}": "${trim(scripts[k], 100)}"` }],
+      });
+    }
+  }
+  return out;
 }
 
 /** CHECK 3 — every external host the code can reach. */
@@ -304,6 +326,7 @@ export function runAllChecks({ pkg, entry, declared, officialNames }) {
   return [
     ...checkUndeclaredSecrets(pkg, entry, declared),
     ...checkInstallScripts(pkg),
+    ...checkDependencyInstallScripts(pkg),
     ...checkProvenance(pkg),
     ...checkDeprecated(pkg),
     ...checkTyposquat(pkg, officialNames),

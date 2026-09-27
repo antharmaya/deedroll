@@ -60,6 +60,24 @@ asks for them — or doesn't ask, and reads one you already exported.
 
 Exit code is 1 when anything at or above `--fail-on` (default `high`) is found, so it fits in CI.
 
+## Following dependencies (`--deps`)
+
+Many vendor servers are thin wrappers: `@playwright/mcp` is five files, and the code that launches
+browsers lives in `playwright-core`. `--deps` follows the vendor's own dependencies — same scope,
+the vendor's name, or `mcp` in the name; never `@modelcontextprotocol/*`; one level; at most 16;
+nothing over 25 MB — and scans them in memory like the root, under `node_modules/<name>/`.
+
+Measured on 27 vendor servers (`node scripts/vendor-benchmark.js --deps`):
+
+- it changed the capability picture for **10 of 27** — Playwright went from "network" to process
+  execution, file writes and code evaluation — and the credential count for 6;
+- it costs about **60% more download and roughly twice the time**, so it is off by default, and a
+  scan without it says which vendor dependencies it did not follow;
+- **tools are read from the server's own package only.** With dependencies included, 49 "tools"
+  appeared across five vendors and essentially none were real: SDK documentation examples, an
+  example `roll_dice`, Liquid template filters, another agent's internal tools, and a different MCP
+  server shipped in the same package.
+
 ## Semantic check (optional)
 
 ```
@@ -135,7 +153,7 @@ why the sampling is random and why publisher counts are reported next to server 
 ## Development
 
 ```
-npm test          # 46 tests, no network
+npm test          # 70 tests, no network
 node bin/mcpscan.js npm:<package>
 node scripts/collect-population.js   # cache the npm-backed population
 node scripts/registry-sweep.js 60    # seeded random sample of it

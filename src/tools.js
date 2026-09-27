@@ -140,6 +140,12 @@ export function extractTools(files) {
 
   for (const [path, buf] of files) {
     if (!CODE_FILE.test(path) || path.endsWith('.d.ts')) continue;
+    // A server's tools are registered by the server itself. Tool-shaped objects inside
+    // followed dependencies were measured on 5 vendors (2026-09-27): 49 found, ~0 real —
+    // SDK doc examples, an example roll_dice, Liquid filters, another agent's internal
+    // tools, a different MCP server shipped in the same package. Dependencies still count
+    // for capabilities, credentials, hosts and install scripts: that code runs in-process.
+    if (path.startsWith('node_modules/')) continue;
     const text = buf.toString('utf8');
     if (text.includes('\0')) continue;
     const consts = constantsIn(text);

@@ -1,4 +1,5 @@
 import { SEVERITY_ORDER } from './checks.js';
+import { selectDependencies } from './deps.js';
 
 const COLORS = {
   high: '\x1b[31m',
@@ -22,7 +23,19 @@ export function render(result) {
     declared?.size ? `${declared.size} env var(s) declared` : 'no env vars declared',
   ];
   if (pkg) bits.push(`${pkg.files.size} file(s) scanned`);
+  if (result.deps) {
+    bits.push(`${result.deps.followed} dependency(ies) followed`);
+    if (result.deps.skipped.length) bits.push(`${result.deps.skipped.length} skipped`);
+  }
   out.push(`  ${bits.join(' · ')}`);
+  if (pkg && !result.deps) {
+    // Say what was not looked at. Measured: top-level-only understated capabilities for
+    // 10 of 27 vendor servers (Playwright looked network-only; it launches browsers).
+    const { follow } = selectDependencies(pkg.manifest, pkg.name);
+    if (follow.length) {
+      out.push(`  not followed: ${follow.length} vendor dependency(ies) (${follow.slice(0, 3).map((d) => d.name).join(', ')}${follow.length > 3 ? ', …' : ''}) — capabilities may be understated; rerun with --deps`);
+    }
+  }
   const d = result.disclosure;
   if (d) {
     out.push(

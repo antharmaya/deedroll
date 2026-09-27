@@ -11,6 +11,7 @@
  * so the cost of turning that on by default is measured rather than guessed.
  */
 import { writeFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { scan } from '../src/index.js';
 import { extractTools } from '../src/tools.js';
 
@@ -46,6 +47,9 @@ export const VENDORS = [
   ['MCP reference', '@modelcontextprotocol/server-everything'],
 ];
 
+// Importing VENDORS must not run the benchmark (it did once, by accident).
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await main();
+
 async function pool(items, limit, fn) {
   const out = new Array(items.length);
   let next = 0;
@@ -60,6 +64,7 @@ async function pool(items, limit, fn) {
   return out;
 }
 
+async function main() {
 const rows = await pool(VENDORS, 4, async ([vendor, name]) => {
   try {
     const started = Date.now();
@@ -83,7 +88,8 @@ const rows = await pool(VENDORS, 4, async ([vendor, name]) => {
       capabilities: caps,
       egressHosts: by('network-egress').length,
       ms,
-      bytes: (r.pkg.tarballBytes ?? 0) + (r.pkg.dependencies ?? []).reduce((n, d) => n + (d.tarballBytes ?? 0), 0),
+      // bytes actually downloaded: a cache hit costs no network (this line used to count it anyway)
+      bytes: (r.pkg.fromCache ? 0 : r.pkg.tarballBytes ?? 0) + (r.pkg.dependencies ?? []).reduce((n, d) => n + (d.fromCache ? 0 : d.tarballBytes ?? 0), 0),
       depsFollowed: r.deps?.followed ?? 0,
       depsSkipped: r.deps?.skipped ?? [],
     };
@@ -124,3 +130,4 @@ const secs = ok.reduce((n, r) => n + r.ms, 0) / 1000;
 console.log(`\n  ${ok.length}/${rows.length} scanned · tools found in ${ok.filter((r) => r.tools > 0).length}/${ok.length} · caps: x=exec w=writes e=eval n=network`);
 console.log(`  ${DEPS ? 'with --deps' : 'top-level only'}: ${mb.toFixed(1)} MB downloaded · ${secs.toFixed(1)} s summed scan time · ${ok.reduce((n, r) => n + r.depsFollowed, 0)} dependencies followed\n`);
 for (const r of ok) for (const s of r.depsSkipped) console.log(`  skipped ${s.name} (${r.name}): ${s.reason}`);
+}

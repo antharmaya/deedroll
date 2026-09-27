@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-09-27T06:09:55.124Z",
+  "scannedAt": "2026-09-27T10:54:10.030Z",
   "rows": [
     {
       "vendor": "Microsoft",
@@ -15,8 +15,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 2,
-      "ms": 1335,
-      "bytes": 24070,
+      "ms": 2218,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -39,8 +39,8 @@
         "process execution"
       ],
       "egressHosts": 1,
-      "ms": 1001,
-      "bytes": 18925,
+      "ms": 2452,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -60,8 +60,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 3,
-      "ms": 480,
-      "bytes": 5227,
+      "ms": 1205,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -71,8 +71,8 @@
       "version": "0.42.0",
       "files": 97,
       "tools": 2,
-      "high": 0,
-      "medium": 2,
+      "high": 2,
+      "medium": 0,
       "undeclaredCredentials": [
         "VERCEL_OIDC_TOKEN",
         "SENTRY_MCP_AUTH_CACHE"
@@ -84,9 +84,9 @@
         "process execution",
         "filesystem writes or deletes"
       ],
-      "egressHosts": 6,
-      "ms": 2734,
-      "bytes": 3134800,
+      "egressHosts": 5,
+      "ms": 2487,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -97,10 +97,8 @@
       "files": 27,
       "tools": 0,
       "high": 0,
-      "medium": 1,
-      "undeclaredCredentials": [
-        "SUPABASE_ACCESS_TOKEN"
-      ],
+      "medium": 0,
+      "undeclaredCredentials": [],
       "installScripts": [],
       "deprecated": false,
       "noRepository": false,
@@ -108,8 +106,8 @@
         "process execution"
       ],
       "egressHosts": 5,
-      "ms": 1088,
-      "bytes": 182296,
+      "ms": 1699,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -135,8 +133,8 @@
         "process execution"
       ],
       "egressHosts": 6,
-      "ms": 1794,
-      "bytes": 1656710,
+      "ms": 1164,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -158,8 +156,8 @@
         "process execution"
       ],
       "egressHosts": 3,
-      "ms": 927,
-      "bytes": 36953,
+      "ms": 720,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -184,8 +182,8 @@
         "filesystem writes or deletes"
       ],
       "egressHosts": 4,
-      "ms": 382,
-      "bytes": 47475,
+      "ms": 1278,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -203,8 +201,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 0,
-      "ms": 406,
-      "bytes": 36662,
+      "ms": 1743,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -214,20 +212,19 @@
       "version": "4.1.1",
       "files": 22,
       "tools": 1,
-      "high": 0,
-      "medium": 3,
+      "high": 2,
+      "medium": 0,
       "undeclaredCredentials": [
         "OPENAI_APPS_CHALLENGE_TOKEN",
-        "MCP_CLIENT_IP_ASSERTION_KEY",
-        "CONTEXT7_API_KEY"
+        "MCP_CLIENT_IP_ASSERTION_KEY"
       ],
       "installScripts": [],
       "deprecated": false,
       "noRepository": false,
       "capabilities": [],
-      "egressHosts": 5,
-      "ms": 589,
-      "bytes": 47679,
+      "egressHosts": 4,
+      "ms": 1084,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -237,16 +234,13 @@
       "version": "3.25.5",
       "files": 4,
       "tools": 29,
-      "high": 0,
-      "medium": 9,
+      "high": 6,
+      "medium": 0,
       "undeclaredCredentials": [
         "MCP_DELEGATED_CREDENTIAL_SECRET",
-        "FIRECRAWL_API_KEY",
         "FIRECRAWL_OAUTH_TOKEN",
         "FIRECRAWL_OAUTH_INTROSPECT_SECRET",
         "OPENAI_APPS_CHALLENGE_TOKEN",
-        "MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD",
-        "FIRECRAWL_MCP_SEARCH_OAUTH_ONLY",
         "FIRECRAWL_MCP_ACTION_LOG_SECRET",
         "KEYLESS_PROXY_SECRET"
       ],
@@ -255,8 +249,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 5,
-      "ms": 435,
-      "bytes": 68144,
+      "ms": 852,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -274,8 +268,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 3,
-      "ms": 313,
-      "bytes": 358099,
+      "ms": 479,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -286,10 +280,8 @@
       "files": 55,
       "tools": 8,
       "high": 0,
-      "medium": 1,
-      "undeclaredCredentials": [
-        "BRAVE_API_KEY"
-      ],
+      "medium": 0,
+      "undeclaredCredentials": [],
       "installScripts": [],
       "deprecated": false,
       "noRepository": false,
@@ -297,8 +289,8 @@
         "process execution"
       ],
       "egressHosts": 13,
-      "ms": 1059,
-      "bytes": 41212,
+      "ms": 1073,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -308,21 +300,19 @@
       "version": "2.4.3",
       "files": 25,
       "tools": 9,
-      "high": 0,
-      "medium": 6,
+      "high": 2,
+      "medium": 2,
       "undeclaredCredentials": [
-        "GEMINI_API_KEY",
         "GOOGLE_API_KEY",
-        "GOOGLE_GENERATIVE_AI_API_KEY",
-        "BROWSERBASE_API_KEY"
+        "GOOGLE_GENERATIVE_AI_API_KEY"
       ],
       "installScripts": [],
       "deprecated": true,
       "noRepository": true,
       "capabilities": [],
       "egressHosts": 5,
-      "ms": 1609,
-      "bytes": 1371942,
+      "ms": 1616,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -343,8 +333,8 @@
       "noRepository": true,
       "capabilities": [],
       "egressHosts": 2,
-      "ms": 1005,
-      "bytes": 20709,
+      "ms": 1007,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -365,8 +355,8 @@
         "dynamic code evaluation"
       ],
       "egressHosts": 13,
-      "ms": 6065,
-      "bytes": 13899929,
+      "ms": 1040,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -377,17 +367,15 @@
       "files": 2,
       "tools": 0,
       "high": 0,
-      "medium": 2,
-      "undeclaredCredentials": [
-        "PAYPAL_ACCESS_TOKEN"
-      ],
+      "medium": 1,
+      "undeclaredCredentials": [],
       "installScripts": [],
       "deprecated": false,
       "noRepository": true,
       "capabilities": [],
       "egressHosts": 0,
-      "ms": 784,
-      "bytes": 8847,
+      "ms": 987,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -410,8 +398,8 @@
         "process execution"
       ],
       "egressHosts": 8,
-      "ms": 649,
-      "bytes": 56291,
+      "ms": 1113,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -434,8 +422,8 @@
         "process execution"
       ],
       "egressHosts": 4,
-      "ms": 1103,
-      "bytes": 18985,
+      "ms": 622,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -456,8 +444,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 0,
-      "ms": 246,
-      "bytes": 42280,
+      "ms": 625,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -479,8 +467,8 @@
         "process execution"
       ],
       "egressHosts": 15,
-      "ms": 1689,
-      "bytes": 1442259,
+      "ms": 1306,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -498,8 +486,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 3,
-      "ms": 927,
-      "bytes": 19989,
+      "ms": 1180,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -517,8 +505,8 @@
       "noRepository": true,
       "capabilities": [],
       "egressHosts": 94,
-      "ms": 1920,
-      "bytes": 1225164,
+      "ms": 1369,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -538,8 +526,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 8,
-      "ms": 2498,
-      "bytes": 1822316,
+      "ms": 1529,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -557,8 +545,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 0,
-      "ms": 457,
-      "bytes": 903,
+      "ms": 651,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -578,8 +566,8 @@
       "noRepository": true,
       "capabilities": [],
       "egressHosts": 1,
-      "ms": 1507,
-      "bytes": 13635,
+      "ms": 633,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     },
@@ -597,8 +585,8 @@
       "noRepository": false,
       "capabilities": [],
       "egressHosts": 0,
-      "ms": 1649,
-      "bytes": 57343,
+      "ms": 836,
+      "bytes": 0,
       "depsFollowed": 0,
       "depsSkipped": []
     }

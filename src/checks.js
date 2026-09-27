@@ -230,6 +230,24 @@ export function checkProvenance(pkg) {
   return findings;
 }
 
+/**
+ * CHECK 7 — npm itself has marked this version deprecated. Free: the notice is already
+ * in the manifest we downloaded. Found live: @modelcontextprotocol/server-github is
+ * deprecated ("Package no longer supported") yet still installed ~129k times a week.
+ */
+export function checkDeprecated(pkg) {
+  const note = pkg.manifest?.deprecated;
+  if (!note) return [];
+  return [
+    {
+      check: 'deprecated',
+      severity: 'medium',
+      message: `npm marks ${pkg.name}@${pkg.version} deprecated: ${String(note).slice(0, 140)}`,
+      evidence: [{ file: 'npm', line: 0, text: `deprecated: ${String(note).slice(0, 100)}` }],
+    },
+  ];
+}
+
 /** Levenshtein, iterative, two rows. */
 export function editDistance(a, b) {
   if (a === b) return 0;
@@ -287,6 +305,7 @@ export function runAllChecks({ pkg, entry, declared, officialNames }) {
     ...checkUndeclaredSecrets(pkg, entry, declared),
     ...checkInstallScripts(pkg),
     ...checkProvenance(pkg),
+    ...checkDeprecated(pkg),
     ...checkTyposquat(pkg, officialNames),
     ...checkNetworkEgress(pkg, entry),
     ...checkCapabilities(pkg),

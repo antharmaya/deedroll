@@ -23,6 +23,14 @@ export function render(result) {
   ];
   if (pkg) bits.push(`${pkg.files.size} file(s) scanned`);
   out.push(`  ${bits.join(' · ')}`);
+  const d = result.disclosure;
+  if (d) {
+    out.push(
+      d.judged
+        ? `  semantic: ${Object.keys(d.judgments).length} capability(ies) judged over ${d.tools} tool description(s) by ${d.model}`
+        : `  semantic: not judged — ${d.reason}`
+    );
+  }
   out.push('');
 
   if (findings.length === 0) {

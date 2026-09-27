@@ -35,6 +35,39 @@ asks for them — or doesn't ask, and reads one you already exported.
 
 Exit code is 1 when anything at or above `--fail-on` (default `high`) is found, so it fits in CI.
 
+## Semantic check (optional)
+
+```
+TYPESAFE_API_KEY=... npx @antharmaya/mcpscan npm:<package> --semantic
+```
+
+The static checks find what the code *can* do: run programs, write files, evaluate code, reach
+external hosts. `--semantic` asks the question they cannot: **does anything the user reads before
+installing actually say so?**
+
+It extracts each tool's name and description statically, then asks one yes/no question per
+capability that is really present — never speculative ones — in a single request to TypeSafe's
+[Jev](https://docs.typesafe.ai/api) System One model. A low probability becomes an
+`undisclosed-capability` finding, carrying the code evidence for the capability. A middle-band
+answer becomes `disclosure-unclear` and goes to a human rather than either code path.
+
+Three design rules, each there because the alternative fails quietly:
+
+- **The model only sees what the user sees**: the server description and the tool descriptions.
+  No code, no host list. Otherwise it would judge what the server does, which static analysis
+  already knows, instead of what the user was told.
+- **A missing or malformed answer is an error, never a zero.** Read as zero, every capability
+  would look undisclosed and the scanner would manufacture findings from an API hiccup.
+- **No tool descriptions found means "not judged"**, reported as such, never as clean.
+
+The thresholds (`0.8` yes, `0.2` no) are TypeSafe's documented starting split and **have not been
+calibrated on labelled MCP servers yet**. `--json` output keeps every raw probability under
+`disclosure.judgments` so they can be labelled and the thresholds set from data.
+
+The default scan never calls this, and stays deterministic and offline. The judge sits behind a
+one-method interface (`ask(state, questions)`), so a fine-tuned encoder or another provider can
+replace TypeSafe without the check changing.
+
 ## What it does not do
 
 It is static. It reads source, not behaviour, so a server that assembles a hostname at runtime or
@@ -72,7 +105,7 @@ why the sampling is random and why publisher counts are reported next to server 
 ## Development
 
 ```
-npm test          # 15 tests, no network
+npm test          # 35 tests, no network
 node bin/mcpscan.js npm:<package>
 node scripts/collect-population.js   # cache the npm-backed population
 node scripts/registry-sweep.js 60    # seeded random sample of it

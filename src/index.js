@@ -1,5 +1,7 @@
 import { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers } from './sources.js';
-import { runAllChecks } from './checks.js';
+import { runAllChecks, SEVERITY_ORDER } from './checks.js';
+import { checkDisclosure } from './disclosure.js';
+import { createTypeSafeJudge } from './judge.js';
 
 /** Official server package names, used only for the typosquat check. */
 export const OFFICIAL_NAMES = [
@@ -15,9 +17,13 @@ export const OFFICIAL_NAMES = [
  * Scan one MCP server.
  *
  * @param {string} target  a registry name ("io.github.owner/server") or "npm:<pkg>"
- * @returns {Promise<{target, pkg, entry, declared, findings}>}
+ * @param {object} [opts]
+ * @param {boolean} [opts.semantic]  also judge whether descriptions disclose capabilities.
+ *   Off by default: the static checks are deterministic and offline, and stay that way.
+ * @param {object} [opts.judge]      a judge (see judge.js); defaults to TypeSafe
+ * @returns {Promise<{target, pkg, entry, declared, findings, disclosure?}>}
  */
-export async function scan(target, { version = 'latest' } = {}) {
+export async function scan(target, { version = 'latest', semantic = false, judge = null } = {}) {
   let entry = null;
   let npmName = null;
   let npmVersion = version;
@@ -52,8 +58,22 @@ export async function scan(target, { version = 'latest' } = {}) {
   const declared = declaredEnvVars(entry);
   const findings = runAllChecks({ pkg, entry, declared, officialNames: OFFICIAL_NAMES });
 
-  return { target, entry, pkg, declared, findings };
+  if (!semantic) return { target, entry, pkg, declared, findings };
+
+  const result = await checkDisclosure({
+    pkg,
+    entry,
+    findings,
+    judge: judge ?? createTypeSafeJudge(),
+  });
+  const merged = [...findings, ...result.findings].sort(
+    (a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]
+  );
+  return { target, entry, pkg, declared, findings: merged, disclosure: result.disclosure };
 }
 
 export { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers };
+export { checkDisclosure, DEFAULT_THRESHOLDS } from './disclosure.js';
+export { createTypeSafeJudge, JudgeConfigError } from './judge.js';
+export { extractTools } from './tools.js';
 export * from './checks.js';

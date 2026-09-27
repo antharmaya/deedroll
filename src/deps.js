@@ -95,6 +95,7 @@ export function mergeDependencies(pkg, deps) {
       approximate: d.approximate,
       manifest: d.manifest,
       tarballBytes: d.tarballBytes,
+      fromCache: d.fromCache,
       files: d.files.size,
     })),
   };

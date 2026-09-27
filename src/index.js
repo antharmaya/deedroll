@@ -3,6 +3,8 @@ import { runAllChecks, SEVERITY_ORDER } from './checks.js';
 import { checkDisclosure } from './disclosure.js';
 import { createTypeSafeJudge } from './judge.js';
 import { expandDependencies, mergeDependencies } from './deps.js';
+import { findListing } from './lookup.js';
+import { checkKnownVulnerabilities } from './osv.js';
 
 /** Official server package names, used only for the typosquat check. */
 export const OFFICIAL_NAMES = [
@@ -24,7 +26,14 @@ export const OFFICIAL_NAMES = [
  * @param {object} [opts.judge]      a judge (see judge.js); defaults to TypeSafe
  * @returns {Promise<{target, pkg, entry, declared, findings, disclosure?}>}
  */
-export async function scan(target, { version = 'latest', semantic = false, judge = null, deps = false } = {}) {
+/**
+ * @param {boolean} [opts.lookup]  for npm: targets, find the registry listing that ships the package
+ * @param {boolean} [opts.osv]     look up known vulnerabilities (sends package names + versions to OSV.dev)
+ */
+export async function scan(
+  target,
+  { version = 'latest', semantic = false, judge = null, deps = false, lookup = true, osv = true } = {}
+) {
   let entry = null;
   let npmName = null;
   let npmVersion = version;
@@ -63,10 +72,37 @@ export async function scan(target, { version = 'latest', semantic = false, judge
     pkg = mergeDependencies(pkg, expanded.deps);
     depInfo = { followed: pkg.dependencies.length, skipped: expanded.skipped, capped: expanded.capped };
   }
+  // An npm: target may still have a registry listing; without it, "undeclared" has
+  // nothing to be judged against. The registry's own search cannot find it by package.
+  let listing = entry ? { found: true, source: 'target', listings: [entry.server.name] } : null;
+  if (!entry && lookup) {
+    const hit = await findListing(npmName);
+    entry = hit.entry;
+    listing = { found: Boolean(hit.entry), source: hit.source, listings: hit.listings, indexBuiltAt: hit.indexBuiltAt };
+  }
+
   const declared = declaredEnvVars(entry);
   const findings = runAllChecks({ pkg, entry, declared, officialNames: OFFICIAL_NAMES });
 
-  if (!semantic) return { target, entry, pkg, declared, findings, deps: depInfo };
+  if (listing?.listings?.length > 1) {
+    findings.push({
+      check: 'multiple-listings',
+      severity: 'info',
+      message: `${listing.listings.length} registry listings point at this package: ${listing.listings.slice(0, 4).join(', ')}`,
+      evidence: [{ file: 'registry', line: 0, text: listing.listings.join(', ').slice(0, 140) }],
+    });
+  }
+
+  let vulns = null;
+  if (osv) {
+    const coords = [{ name: pkg.name, version: pkg.version }, ...(pkg.dependencies ?? []).map((d) => ({ name: d.name, version: d.version }))];
+    const res = await checkKnownVulnerabilities(coords);
+    findings.push(...res.findings);
+    vulns = { checked: res.checked, error: res.error ?? null };
+  }
+  findings.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+
+  if (!semantic) return { target, entry, pkg, declared, findings, deps: depInfo, listing, vulns };
 
   const result = await checkDisclosure({
     pkg,
@@ -77,7 +113,7 @@ export async function scan(target, { version = 'latest', semantic = false, judge
   const merged = [...findings, ...result.findings].sort(
     (a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]
   );
-  return { target, entry, pkg, declared, findings: merged, disclosure: result.disclosure, deps: depInfo };
+  return { target, entry, pkg, declared, findings: merged, disclosure: result.disclosure, deps: depInfo, listing, vulns };
 }
 
 export { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers };
@@ -85,5 +121,7 @@ export { checkDisclosure, DEFAULT_THRESHOLDS } from './disclosure.js';
 export { createTypeSafeJudge, JudgeConfigError } from './judge.js';
 export { extractTools } from './tools.js';
 export { selectDependencies, vendorToken } from './deps.js';
-export { resolveVersion } from './sources.js';
+export { resolveVersion, provenanceHistory } from './sources.js';
+export { findListing, searchTerms } from './lookup.js';
+export { checkKnownVulnerabilities } from './osv.js';
 export * from './checks.js';

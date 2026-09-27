@@ -20,7 +20,7 @@ async function pool(items, limit, fn) {
   return results;
 }
 
-export async function auditInstalled({ home, cwd, concurrency = 4, semantic = false, judge = null, deps = false } = {}) {
+export async function auditInstalled({ home, cwd, concurrency = 4, semantic = false, judge = null, deps = false, osv = true } = {}) {
   const { configs, servers } = discoverInstalled({ home, cwd });
 
   // The same package often sits in several agents' configs: scan each name@version once.
@@ -35,7 +35,7 @@ export async function auditInstalled({ home, cwd, concurrency = 4, semantic = fa
   const scanned = new Map();
   await pool([...jobs], concurrency, async ([key, job]) => {
     try {
-      const r = await scan(`npm:${job.name}`, { version: job.version, semantic, judge, deps });
+      const r = await scan(`npm:${job.name}`, { version: job.version, semantic, judge, deps, osv });
       scanned.set(key, { pkg: { name: r.pkg.name, version: r.pkg.version }, findings: r.findings, disclosure: r.disclosure });
     } catch (err) {
       scanned.set(key, {

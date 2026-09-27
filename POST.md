@@ -76,10 +76,19 @@ needs a Snyk token. It is strongest at tool poisoning and prompt injection.
 scans PyPI source in a Docker sandbox, with YARA rules and an LLM that checks descriptions against
 code.
 
-mcpscan is the check **before** you install: it never runs the server, needs no account, sends
-nothing anywhere, reads npm packages (where most MCP servers ship), and runs in a browser. It is the
+mcpscan is the check **before** you install: it never runs the server, needs no account, and no
+scan result, config, key or tool description ever leaves your machine — it only looks up public
+package names and versions (on npm, the MCP registry and, unless you pass `--no-osv`, OSV.dev). It
+reads npm packages (where most MCP servers ship) and runs in a browser. It is the
 only one of the three that compares a server's **registry metadata** against its code — which is
 where the number above comes from. It does not detect prompt injection; they do.
+
+## One thing the registry cannot tell you
+
+The official registry's search matches listing names only, so it cannot answer "which listing
+ships the npm package `pretrip-mcp`?" (the answer is `agency.kesey/pretrip`). mcpscan ships an
+index built by walking every current listing — 36,586 of them, pointing at 9,744 npm packages — and
+267 of those packages are claimed by more than one listing.
 
 ## Reproducing this
 

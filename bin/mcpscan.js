@@ -14,6 +14,9 @@ mcpscan — static trust scanner for MCP servers
   mcpscan <target> --fail-on <high|medium|low|info|never>
   mcpscan <target> --deps        also scan the vendor's own dependencies (thin wrappers keep
                                  their tools there); one level, bounded, costs extra downloads
+  mcpscan <target> --no-osv      skip the known-vulnerability lookup (it sends package names and
+                                 versions to OSV.dev; nothing else ever leaves the machine)
+  mcpscan <target> --no-cache    do not read or write the local tarball cache
   mcpscan <target> --semantic    also judge whether descriptions disclose what the code can do
                                  (needs TYPESAFE_API_KEY; the default scan stays offline)
 
@@ -25,7 +28,7 @@ Examples
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false };
+  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
@@ -33,6 +36,8 @@ function parseArgs(argv) {
     else if (a === '--installed') args.installed = true;
     else if (a === '--all') args.all = true;
     else if (a === '--deps') args.deps = true;
+    else if (a === '--no-osv') args.osv = false;
+    else if (a === '--no-cache') process.env.MCPSCAN_NO_CACHE = '1';
     else if (a === '--fail-on') args.failOn = argv[++i];
     else if (a === '--version-of') args.version = argv[++i];
     else if (a === '-h' || a === '--help') args.help = true;
@@ -45,7 +50,7 @@ const args = parseArgs(process.argv.slice(2));
 
 if (args.installed && !args.help) {
   try {
-    const result = await auditInstalled({ semantic: args.semantic, deps: args.deps });
+    const result = await auditInstalled({ semantic: args.semantic, deps: args.deps, osv: args.osv });
     if (args.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     else process.stdout.write(`${renderInstalled(result, { all: args.all })}\n`);
     const all = result.servers.flatMap((s) => s.findings);
@@ -62,7 +67,7 @@ if (args.help || !args.target) {
 }
 
 try {
-  const result = await scan(args.target, { version: args.version, semantic: args.semantic, deps: args.deps });
+  const result = await scan(args.target, { version: args.version, semantic: args.semantic, deps: args.deps, osv: args.osv });
   if (args.json) {
     process.stdout.write(
       `${JSON.stringify(

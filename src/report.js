@@ -28,6 +28,20 @@ export function render(result) {
     if (result.deps.skipped.length) bits.push(`${result.deps.skipped.length} skipped`);
   }
   out.push(`  ${bits.join(' · ')}`);
+  const extra = [];
+  if (result.listing && !entry) {
+    extra.push(
+      result.listing.source === 'index-miss'
+        ? `registry: no listing ships this package as of ${result.listing.indexBuiltAt.slice(0, 10)} (complete index; rebuild with scripts/build-index.js)`
+        : `registry: no listing found for this package (${result.listing.indexBuiltAt ? `index of ${result.listing.indexBuiltAt.slice(0, 10)} + ` : ''}name search) — not proof it is unlisted`
+    );
+  } else if (result.listing?.source && result.listing.source !== 'target') {
+    extra.push(`registry: listed as ${result.listing.listings[0]} (found via ${result.listing.source === 'index' ? `index of ${result.listing.indexBuiltAt?.slice(0, 10)}` : 'live name search'})`);
+  }
+  if (pkg?.provenance) extra.push(`provenance: ${pkg.provenance.current ? 'yes (Sigstore attestation)' : 'none'}`);
+  if (result.vulns) extra.push(result.vulns.error ? 'known vulnerabilities: lookup FAILED' : `known vulnerabilities: checked ${result.vulns.checked} package(s) on OSV.dev (sends names + versions; --no-osv to skip)`);
+  if (pkg?.fromCache) extra.push('tarball: from local cache (hash verified)');
+  for (const e of extra) out.push(`  ${e}`);
   if (pkg && !result.deps) {
     // Say what was not looked at. Measured: top-level-only understated capabilities for
     // 10 of 27 vendor servers (Playwright looked network-only; it launches browsers).

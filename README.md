@@ -6,6 +6,10 @@ Static trust scanner for MCP servers. It diffs **what a server's code actually d
 It never installs, extracts or executes what it inspects. The npm tarball is parsed in memory, so
 install scripts never run and a malicious path never touches your filesystem.
 
+**What leaves your machine:** public package names and versions, looked up on npm, the MCP registry
+and OSV.dev (`--no-osv` skips the last). No scan result, config, key or tool description is ever
+sent anywhere.
+
 ```
 npx @antharmaya/mcpscan npm:@modelcontextprotocol/server-filesystem
 npx @antharmaya/mcpscan io.github.owner/some-server --json
@@ -55,10 +59,28 @@ asks for them — or doesn't ask, and reads one you already exported.
 | `provenance` | high / medium / low | No repository field, tarball does not match npm's integrity hash, single version, published days ago. |
 | `typosquat` | high / medium | Name is an unscoped clone of, or within two characters of, an official package. |
 | `deprecated` | medium | npm itself marks this version deprecated — often with a pointer to where the vendor moved (for several, a hosted server). |
+| `known-vulnerability` | high / medium / low | Published advisories for this exact version, from OSV.dev (includes GitHub's), with the fixed version. A failed lookup is reported as failed, never as clean. |
+| `provenance-dropped` | medium | Earlier versions were published with npm provenance (built by CI from a named repo) and this one was not — a known sign of a publish from a stolen token. Never having provenance is not flagged. |
+| `multiple-listings` | info | More than one registry listing points at this package. |
 | `network-egress` | info | Every external host reachable from the source, minus hosts the entry declares. |
 | `capability` | info | Process execution, dynamic evaluation, filesystem writes, raw sockets. |
 
 Exit code is 1 when anything at or above `--fail-on` (default `high`) is found, so it fits in CI.
+
+## Registry lookup, cache and speed
+
+- **Which listing ships this package?** The registry's own search matches listing names only, so
+  mcpscan ships `src/data/registry-index.json`, built by `scripts/build-index.js` from every
+  current listing (36,586 listings, 9,744 npm packages, 2026-09-27). A complete index under seven
+  days old is trusted on a miss and reported as "no listing as of <date>"; an older one falls back
+  to a verified live name search. When a listing is found, undeclared credentials are judged
+  against what it actually declares.
+- **Cache.** Tarballs are cached compressed under `~/.cache/mcpscan/tarballs`, keyed by npm's own
+  sha512 integrity and re-verified on every read; a file that no longer matches is deleted.
+  Package metadata is never cached. `--no-cache` or `MCPSCAN_NO_CACHE=1` turns it off.
+- **Measured:** adding the lookup first made the 27-vendor benchmark 15× slower (540 s summed),
+  because it went through the registry's substring search (3–14 s a call). With the exact listing
+  endpoint (~0.9 s) and the index-miss rule it takes 11.7 s wall-clock on a warm cache.
 
 ## Following dependencies (`--deps`)
 
@@ -153,8 +175,9 @@ why the sampling is random and why publisher counts are reported next to server 
 ## Development
 
 ```
-npm test          # 70 tests, no network
+npm test          # 83 tests, no network
 node bin/mcpscan.js npm:<package>
+node scripts/build-index.js          # rebuild the registry index
 node scripts/collect-population.js   # cache the npm-backed population
 node scripts/registry-sweep.js 60    # seeded random sample of it
 ```

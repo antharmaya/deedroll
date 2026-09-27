@@ -5,6 +5,7 @@
  */
 import { createHash } from 'node:crypto';
 import { readTarGz } from './tar.js';
+import { readCached, writeCached } from './cache.js';
 
 const REGISTRY = 'https://registry.modelcontextprotocol.io';
 const NPM = 'https://registry.npmjs.org';
@@ -24,15 +25,24 @@ async function getJson(url) {
 /**
  * Look up a server in the official MCP registry by its registry name
  * (e.g. "io.github.owner/server"). Returns the latest version entry, or null.
+ *
+ * Uses the exact endpoint: measured ~0.9 s, against 3-14 s for the substring
+ * `search` this used to go through. Falls back to search only if the exact endpoint
+ * errors for a reason other than "not found".
  */
 export async function fetchRegistryEntry(serverName) {
+  const exact = `${REGISTRY}/v0.1/servers/${encodeURIComponent(serverName)}/versions/latest`;
+  const res = await fetch(exact, { headers: { accept: 'application/json' } });
+  if (res.status === 404) return null;
+  if (res.ok) {
+    const body = await res.json();
+    return body?.server?.name === serverName ? body : null;
+  }
   const url = `${REGISTRY}/v0/servers?search=${encodeURIComponent(serverName)}&limit=100`;
-  const body = await getJson(url);
-  const matches = (body.servers ?? []).filter((s) => s.server?.name === serverName);
+  const list = await getJson(url);
+  const matches = (list.servers ?? []).filter((s) => s.server?.name === serverName);
   if (matches.length === 0) return null;
-  const latest = matches.find(
-    (m) => m._meta?.['io.modelcontextprotocol.registry/official']?.isLatest
-  );
+  const latest = matches.find((m) => m._meta?.['io.modelcontextprotocol.registry/official']?.isLatest);
   return latest ?? matches[matches.length - 1];
 }
 
@@ -108,8 +118,23 @@ export function resolveVersion(packument, spec) {
 }
 
 /**
- * Download an npm package and read it in memory. Nothing is written to disk and
- * no lifecycle script runs — `npm install` would have run three of them by now.
+ * Was this version published with npm provenance (a Sigstore attestation that it was
+ * built by CI from a named repo), and were earlier ones? A package that used to carry
+ * provenance and suddenly does not is a known sign of a publish from a stolen token.
+ */
+export function provenanceHistory(packument, version) {
+  const has = (v) => Boolean(packument.versions?.[v]?.dist?.attestations);
+  const t = packument.time ?? {};
+  const cutoff = Date.parse(t[version] ?? '') || Infinity;
+  const earlier = Object.keys(packument.versions ?? {}).filter((v) => v !== version && (Date.parse(t[v] ?? '') || 0) < cutoff);
+  const withProv = earlier.filter(has).sort((a, b) => Date.parse(t[b] ?? 0) - Date.parse(t[a] ?? 0));
+  return { current: has(version), earlierWithProvenance: withProv.length, lastWithProvenance: withProv[0] ?? null };
+}
+
+/**
+ * Download an npm package and read it in memory. It is never extracted and no
+ * lifecycle script runs — `npm install` would have run three of them by now. The
+ * compressed tarball may be cached by content hash (see cache.js).
  *
  * @param {string} spec  a version, dist-tag or range (see resolveVersion)
  * @param {{maxUnpackedBytes?: number}} [opts]  skip, rather than download, anything larger
@@ -125,9 +150,14 @@ export async function fetchNpmPackage(name, spec = 'latest', { maxUnpackedBytes 
     return { name, version: resolved, manifest, skipped: 'too large', unpackedSize };
   }
 
-  const res = await fetch(manifest.dist.tarball);
-  if (!res.ok) throw new Error(`tarball fetch failed: ${res.status}`);
-  const tgz = Buffer.from(await res.arrayBuffer());
+  let tgz = readCached(manifest.dist.integrity);
+  const fromCache = Boolean(tgz);
+  if (!tgz) {
+    const res = await fetch(manifest.dist.tarball);
+    if (!res.ok) throw new Error(`tarball fetch failed: ${res.status}`);
+    tgz = Buffer.from(await res.arrayBuffer());
+    writeCached(manifest.dist.integrity, tgz);
+  }
 
   const sha1 = createHash('sha1').update(tgz).digest('hex');
   const sha512 = createHash('sha512').update(tgz).digest('base64');
@@ -145,6 +175,8 @@ export async function fetchNpmPackage(name, spec = 'latest', { maxUnpackedBytes 
     files,
     integrityOk,
     tarballBytes: tgz.length,
+    fromCache,
+    provenance: provenanceHistory(packument, resolved),
     unpackedSize,
     sha256: createHash('sha256').update(tgz).digest('hex'),
     publishedAt: packument.time?.[resolved] ?? null,

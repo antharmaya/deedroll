@@ -102,6 +102,10 @@ test('credential names: secrets yes, things that point at secrets no, webhook UR
   assert.equal(isCredentialName('PRISMA_PLATFORM_AUTH_FILE'), false);
   assert.equal(isCredentialName('SLACK_WEBHOOK_URL'), true);
   assert.equal(isCredentialName('NODE_ENV'), false);
+  assert.equal(isCredentialName('FIRECRAWL_MCP_SEARCH_OAUTH_ONLY'), false);
+  assert.equal(isCredentialName('MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD'), false);
+  assert.equal(isCredentialName('MCP_DELEGATED_CREDENTIAL_SECRET'), true);
+  assert.equal(isCredentialName('KEYLESS_PROXY_SECRET'), true);
 });
 
 test('provenance: missing repository and a broken integrity hash', () => {

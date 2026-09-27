@@ -14,10 +14,14 @@ const SECRETISH = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH|PRIVATE|ACC
  */
 const LOCATOR_SUFFIX = /_(URL|URI|ENDPOINT|HOST|HOSTNAME|DOMAIN|ISSUER|AUDIENCE|FILE|PATH|DIR|PORT)$/i;
 
+/** On/off switches that mention AUTH: FIRECRAWL_MCP_SEARCH_OAUTH_ONLY, MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD (found live). */
+const FLAG_SUFFIX = /_(ONLY|ENABLED|ENABLE|DISABLED|DISABLE|MODE|AUD|STRICT|REQUIRED|DEBUG|VERBOSE|TIMEOUT|TTL|LIMIT|COUNT|RETRIES)$/i;
+
 /** One definition of "this env var name holds a credential", shared by every check. */
 export function isCredentialName(name) {
   if (!SECRETISH.test(name)) return false;
   if (LOCATOR_SUFFIX.test(name) && !/WEBHOOK/i.test(name)) return false;
+  if (FLAG_SUFFIX.test(name)) return false;
   return true;
 }
 
@@ -270,6 +274,24 @@ export function checkDeprecated(pkg) {
   ];
 }
 
+/**
+ * CHECK 8 — provenance dropped. Earlier versions carried an npm provenance attestation
+ * (built by CI from a named repo) and this one does not. Absence alone is normal for
+ * small packages and is not flagged; the drop is what matters.
+ */
+export function checkProvenanceDrop(pkg) {
+  const p = pkg.provenance;
+  if (!p || p.current || p.earlierWithProvenance === 0) return [];
+  return [
+    {
+      check: 'provenance-dropped',
+      severity: 'medium',
+      message: `${pkg.name}@${pkg.version} has no provenance attestation, but ${p.earlierWithProvenance} earlier version(s) did (last: ${p.lastWithProvenance}) — published outside the usual CI pipeline?`,
+      evidence: [{ file: 'npm', line: 0, text: `dist.attestations: absent (present on ${p.lastWithProvenance})` }],
+    },
+  ];
+}
+
 /** Levenshtein, iterative, two rows. */
 export function editDistance(a, b) {
   if (a === b) return 0;
@@ -329,6 +351,7 @@ export function runAllChecks({ pkg, entry, declared, officialNames }) {
     ...checkDependencyInstallScripts(pkg),
     ...checkProvenance(pkg),
     ...checkDeprecated(pkg),
+    ...checkProvenanceDrop(pkg),
     ...checkTyposquat(pkg, officialNames),
     ...checkNetworkEgress(pkg, entry),
     ...checkCapabilities(pkg),

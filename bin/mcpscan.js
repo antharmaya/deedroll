@@ -9,6 +9,8 @@ mcpscan — static trust scanner for MCP servers
   mcpscan npm:<package>          scan an npm package directly
   mcpscan <target> --json        machine-readable output
   mcpscan <target> --fail-on <high|medium|low|info|never>
+  mcpscan <target> --semantic    also judge whether descriptions disclose what the code can do
+                                 (needs TYPESAFE_API_KEY; the default scan stays offline)
 
 It never installs, extracts or executes what it inspects: the tarball is read in memory.
 
@@ -18,10 +20,11 @@ Examples
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, failOn: 'high', version: 'latest' };
+  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
+    else if (a === '--semantic') args.semantic = true;
     else if (a === '--fail-on') args.failOn = argv[++i];
     else if (a === '--version-of') args.version = argv[++i];
     else if (a === '-h' || a === '--help') args.help = true;
@@ -38,7 +41,7 @@ if (args.help || !args.target) {
 }
 
 try {
-  const result = await scan(args.target, { version: args.version });
+  const result = await scan(args.target, { version: args.version, semantic: args.semantic });
   if (args.json) {
     process.stdout.write(
       `${JSON.stringify(
@@ -48,6 +51,7 @@ try {
           inRegistry: Boolean(result.entry),
           declaredEnv: [...(result.declared?.keys() ?? [])],
           findings: result.findings,
+          ...(result.disclosure ? { disclosure: result.disclosure } : {}),
         },
         null,
         2

@@ -1,0 +1,498 @@
+{
+  "scannedAt": "2026-09-27T05:27:37.072Z",
+  "rows": [
+    {
+      "vendor": "Microsoft",
+      "name": "@playwright/mcp",
+      "version": "0.0.82",
+      "files": 5,
+      "tools": 0,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 2
+    },
+    {
+      "vendor": "Microsoft",
+      "name": "@azure/mcp",
+      "version": "3.0.0-beta.47",
+      "files": 3,
+      "tools": 0,
+      "high": 1,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [
+        "runs a postinstall script on install: node ./scripts/post-install-script.js"
+      ],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "filesystem writes or deletes",
+        "process execution"
+      ],
+      "egressHosts": 1
+    },
+    {
+      "vendor": "Stripe",
+      "name": "@stripe/mcp",
+      "version": "0.3.3",
+      "files": 5,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "STRIPE_SECRET_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 3
+    },
+    {
+      "vendor": "Sentry",
+      "name": "@sentry/mcp-server",
+      "version": "0.42.0",
+      "files": 97,
+      "tools": 2,
+      "high": 0,
+      "medium": 2,
+      "undeclaredCredentials": [
+        "VERCEL_OIDC_TOKEN",
+        "SENTRY_MCP_AUTH_CACHE"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution",
+        "filesystem writes or deletes"
+      ],
+      "egressHosts": 6
+    },
+    {
+      "vendor": "Supabase",
+      "name": "@supabase/mcp-server-supabase",
+      "version": "0.13.0",
+      "files": 27,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "SUPABASE_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 5
+    },
+    {
+      "vendor": "Notion",
+      "name": "@notionhq/notion-mcp-server",
+      "version": "2.5.2",
+      "files": 31,
+      "tools": 9,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "NOTION_TOKEN",
+        "ENABLE_TOKEN_PASSTHROUGH",
+        "AUTH_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "dynamic code evaluation",
+        "filesystem writes or deletes",
+        "process execution"
+      ],
+      "egressHosts": 6
+    },
+    {
+      "vendor": "Cloudflare",
+      "name": "@cloudflare/mcp-server-cloudflare",
+      "version": "0.2.0",
+      "files": 3,
+      "tools": 80,
+      "high": 0,
+      "medium": 2,
+      "undeclaredCredentials": [
+        "CLOUDFLARE_API_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 3
+    },
+    {
+      "vendor": "Neon",
+      "name": "@neondatabase/mcp-server-neon",
+      "version": "0.6.5",
+      "files": 42,
+      "tools": 26,
+      "high": 0,
+      "medium": 6,
+      "undeclaredCredentials": [
+        "CLIENT_SECRET",
+        "COOKIE_SECRET",
+        "ANALYTICS_WRITE_KEY",
+        "SENTRY_DSN"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": true,
+      "capabilities": [
+        "filesystem writes or deletes"
+      ],
+      "egressHosts": 4
+    },
+    {
+      "vendor": "MongoDB",
+      "name": "mongodb-mcp-server",
+      "version": "3.0.4",
+      "files": 32,
+      "tools": 0,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 0
+    },
+    {
+      "vendor": "Upstash",
+      "name": "@upstash/context7-mcp",
+      "version": "4.1.1",
+      "files": 22,
+      "tools": 1,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "OPENAI_APPS_CHALLENGE_TOKEN",
+        "MCP_CLIENT_IP_ASSERTION_KEY",
+        "CONTEXT7_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 5
+    },
+    {
+      "vendor": "Firecrawl",
+      "name": "firecrawl-mcp",
+      "version": "3.25.5",
+      "files": 4,
+      "tools": 29,
+      "high": 0,
+      "medium": 9,
+      "undeclaredCredentials": [
+        "MCP_DELEGATED_CREDENTIAL_SECRET",
+        "FIRECRAWL_API_KEY",
+        "FIRECRAWL_OAUTH_TOKEN",
+        "FIRECRAWL_OAUTH_INTROSPECT_SECRET",
+        "OPENAI_APPS_CHALLENGE_TOKEN",
+        "MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD",
+        "FIRECRAWL_MCP_SEARCH_OAUTH_ONLY",
+        "FIRECRAWL_MCP_ACTION_LOG_SECRET",
+        "KEYLESS_PROXY_SECRET"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 5
+    },
+    {
+      "vendor": "Exa",
+      "name": "exa-mcp-server",
+      "version": "3.4.1",
+      "files": 3,
+      "tools": 0,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 3
+    },
+    {
+      "vendor": "Brave",
+      "name": "@brave/brave-search-mcp-server",
+      "version": "2.1.4",
+      "files": 55,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "BRAVE_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 13
+    },
+    {
+      "vendor": "Browserbase",
+      "name": "@browserbasehq/mcp-server-browserbase",
+      "version": "2.4.3",
+      "files": 25,
+      "tools": 9,
+      "high": 0,
+      "medium": 6,
+      "undeclaredCredentials": [
+        "GEMINI_API_KEY",
+        "GOOGLE_API_KEY",
+        "GOOGLE_GENERATIVE_AI_API_KEY",
+        "BROWSERBASE_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 5
+    },
+    {
+      "vendor": "HubSpot",
+      "name": "@hubspot/mcp-server",
+      "version": "0.4.0",
+      "files": 36,
+      "tools": 21,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "PRIVATE_APP_ACCESS_TOKEN",
+        "HUBSPOT_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 2
+    },
+    {
+      "vendor": "Shopify",
+      "name": "@shopify/dev-mcp",
+      "version": "1.16.0",
+      "files": 33,
+      "tools": 18,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [
+        "process execution",
+        "dynamic code evaluation"
+      ],
+      "egressHosts": 13
+    },
+    {
+      "vendor": "PayPal",
+      "name": "@paypal/mcp",
+      "version": "1.8.1",
+      "files": 2,
+      "tools": 0,
+      "high": 0,
+      "medium": 2,
+      "undeclaredCredentials": [
+        "PAYPAL_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 0
+    },
+    {
+      "vendor": "Heroku",
+      "name": "@heroku/mcp-server",
+      "version": "1.2.9",
+      "files": 51,
+      "tools": 38,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "HEROKU_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "filesystem writes or deletes",
+        "process execution"
+      ],
+      "egressHosts": 8
+    },
+    {
+      "vendor": "Netlify",
+      "name": "@netlify/mcp",
+      "version": "1.16.0",
+      "files": 2,
+      "tools": 1,
+      "high": 0,
+      "medium": 2,
+      "undeclaredCredentials": [
+        "JWE_SECRET",
+        "NETLIFY_PERSONAL_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 4
+    },
+    {
+      "vendor": "Elastic",
+      "name": "@elastic/mcp-server-elasticsearch",
+      "version": "0.3.1",
+      "files": 6,
+      "tools": 4,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "ES_API_KEY",
+        "ES_PASSWORD"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 0
+    },
+    {
+      "vendor": "Apify",
+      "name": "@apify/actors-mcp-server",
+      "version": "0.16.0",
+      "files": 253,
+      "tools": 8,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "APIFY_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [
+        "process execution"
+      ],
+      "egressHosts": 15
+    },
+    {
+      "vendor": "Pinecone",
+      "name": "@pinecone-database/mcp",
+      "version": "0.3.0",
+      "files": 47,
+      "tools": 0,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 3
+    },
+    {
+      "vendor": "Twilio",
+      "name": "@twilio-alpha/mcp",
+      "version": "0.7.0",
+      "files": 72,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 94
+    },
+    {
+      "vendor": "LaunchDarkly",
+      "name": "@launchdarkly/mcp-server",
+      "version": "0.6.2",
+      "files": 1201,
+      "tools": 20,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [
+        "LAUNCHDARKLY_API_KEY"
+      ],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 8
+    },
+    {
+      "vendor": "Sanity",
+      "name": "@sanity/mcp-server",
+      "version": "0.12.2",
+      "files": 2,
+      "tools": 0,
+      "high": 0,
+      "medium": 1,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 0
+    },
+    {
+      "vendor": "MCP reference",
+      "name": "@modelcontextprotocol/server-github",
+      "version": "2025.4.8",
+      "files": 13,
+      "tools": 26,
+      "high": 0,
+      "medium": 3,
+      "undeclaredCredentials": [
+        "GITHUB_PERSONAL_ACCESS_TOKEN"
+      ],
+      "installScripts": [],
+      "deprecated": true,
+      "noRepository": true,
+      "capabilities": [],
+      "egressHosts": 1
+    },
+    {
+      "vendor": "MCP reference",
+      "name": "@modelcontextprotocol/server-everything",
+      "version": "2026.8.31",
+      "files": 44,
+      "tools": 1,
+      "high": 0,
+      "medium": 0,
+      "undeclaredCredentials": [],
+      "installScripts": [],
+      "deprecated": false,
+      "noRepository": false,
+      "capabilities": [],
+      "egressHosts": 0
+    }
+  ]
+}

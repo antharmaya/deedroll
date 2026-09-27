@@ -244,3 +244,104 @@ test('a registerTool without a description does not borrow the next tool\'s', ()
   const { tools } = extractTools(files({ 'index.js': src }));
   assert.deepEqual(tools.map((t) => [t.name, t.description]), [['has_desc', 'Does a thing']]);
 });
+
+// ---------- same-file constants and tool-helper calls (Brave, Pinecone shapes) ----------
+
+test('resolves a name and description held in same-file constants (Brave shape)', () => {
+  const src = [
+    "export const name = 'brave_image_search';",
+    'export const description = `',
+    '    Performs an image search using the Brave Search API.',
+    '`;',
+    'export const register = (mcpServer) => {',
+    '    mcpServer.registerTool(name, {',
+    '        title: name,',
+    '        description: description,',
+    '        inputSchema: params,',
+    '    }, execute);',
+    '};',
+  ].join('\n');
+  const { tools } = extractTools(files({ 'dist/tools/images/index.js': src }));
+  assert.deepEqual(tools.map((t) => [t.name, t.description]), [
+    ['brave_image_search', 'Performs an image search using the Brave Search API.'],
+  ]);
+});
+
+test('matches vendor wrapper helpers and literal-name registerTool with a constant description (Pinecone shape)', () => {
+  const a = [
+    'const INSTRUCTIONS = `Search across multiple indexes`;',
+    "registerDatabaseTool(server, 'cascading-search', {",
+    "    title: 'Cascading Search',",
+    '    description: INSTRUCTIONS,',
+    '}, handler);',
+  ].join('\n');
+  const b = [
+    "const INSTRUCTIONS = 'Search Pinecone documentation';",
+    "server.registerTool('search-docs', { description: INSTRUCTIONS }, h);",
+  ].join('\n');
+  const { tools } = extractTools(files({ 'a.js': a, 'b.js': b }));
+  const byName = Object.fromEntries(tools.map((t) => [t.name, t.description]));
+  assert.equal(byName['cascading-search'], 'Search across multiple indexes');
+  assert.equal(byName['search-docs'], 'Search Pinecone documentation', 'constants are resolved per file');
+});
+
+test('never resolves member access or runtime values into a description', () => {
+  const src = 'export function reg(server, name, config) { server.registerTool(name, { description: config.description }, h); }';
+  assert.deepEqual(extractTools(files({ 'r.js': src })).tools, []);
+});
+
+test('a constant from another file is not borrowed', () => {
+  const { tools } = extractTools(
+    files({
+      'a.js': "const INSTRUCTIONS = 'from file a';",
+      'b.js': "server.registerTool('x', { description: INSTRUCTIONS }, h);",
+    })
+  );
+  assert.deepEqual(tools, []);
+});
+
+test('tooltip helpers are not tools', () => {
+  const src = "useTooltip('save', { description: 'Saves the thing' });";
+  assert.deepEqual(extractTools(files({ 'ui.js': src })).tools, []);
+});
+
+test('follows a + chain of same-file constants and literals (adeu shape)', () => {
+  const src = [
+    "const COMMON = 'Processes documents in bulk.';",
+    "const OPS = ' Can delete files.';",
+    "server.registerTool('process_batch', { description: COMMON + OPS + ' Done.' }, h);",
+  ].join('\n');
+  const [t] = extractTools(files({ 'i.js': src })).tools;
+  assert.equal(t.description, 'Processes documents in bulk. Can delete files. Done.');
+  assert.equal(t.partial, undefined);
+});
+
+test('an unresolvable piece in a + chain marks the tool partial rather than truncating silently', () => {
+  const src = "const A = 'Part one.'; server.registerTool('t', { description: A + buildRest() }, h);";
+  const [t] = extractTools(files({ 'i.js': src })).tools;
+  assert.equal(t.description, 'Part one.');
+  assert.equal(t.partial, true);
+});
+
+test('a partial description can never produce an undisclosed-capability finding', async () => {
+  const partialPkg = {
+    name: 'p',
+    manifest: {},
+    files: files({ 'i.js': "const A = 'Reads files.'; server.registerTool('t', { description: A + more() }, h);" }),
+  };
+  const { findings, disclosure } = await checkDisclosure({
+    pkg: partialPkg,
+    entry: null,
+    findings: [capabilityFinding('filesystem writes or deletes')],
+    judge: staticJudge({ discloses_file_writes: 0.02 }),
+  });
+  assert.equal(disclosure.partialTools, 1);
+  assert.deepEqual(findings.map((f) => [f.check, f.severity]), [['disclosure-unclear', 'info']]);
+});
+
+test('a description cut by the length cap is marked partial', () => {
+  const long = 'x'.repeat(2500);
+  const [t] = extractTools(files({ 'i.js': `server.tool("big", "${long}", s, h);` })).tools;
+  assert.equal(t.description.length, 2000);
+  assert.equal(t.partial, true);
+});

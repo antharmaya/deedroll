@@ -66,3 +66,67 @@ export function exitCode(findings, { failOn = 'high' } = {}) {
   const threshold = SEVERITY_ORDER[failOn];
   return findings.some((f) => SEVERITY_ORDER[f.severity] <= threshold) ? 1 : 0;
 }
+
+const clip = (s, n) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+const tilde = (p) => (process.env.HOME && p?.startsWith(process.env.HOME) ? `~${p.slice(process.env.HOME.length)}` : p);
+
+function launchLabel(l) {
+  switch (l.kind) {
+    case 'npm':
+      return `npm  ${l.name}${l.version ? `@${l.version}` : ''}${l.pinned ? '' : '  (unpinned)'}`;
+    case 'pypi':
+      return `pypi ${l.name ?? '?'}${l.pinned ? '' : '  (unpinned)'}`;
+    case 'remote':
+      return `remote ${l.host}`;
+    case 'local':
+      return `local ${l.runtime} script`;
+    case 'container':
+      return 'container';
+    default:
+      return `binary ${l.command}`;
+  }
+}
+
+function countLine(findings) {
+  const c = findings.reduce((acc, f) => ((acc[f.severity] = (acc[f.severity] ?? 0) + 1), acc), {});
+  const parts = ['high', 'medium', 'low'].filter((s) => c[s]).map((s) => paint(s, `${c[s]} ${s}`));
+  return parts.length ? parts.join(' · ') : '—';
+}
+
+/** Wireshark-shaped: an overview row per server, then detail only where it matters. */
+export function renderInstalled(result, { all = false } = {}) {
+  const { configs, servers, packagesScanned } = result;
+  const out = [''];
+  out.push(
+    `  mcpscan --installed · ${configs.length} config file(s) · ${servers.length} server(s) · ${packagesScanned} npm package(s) scanned · nothing launched`
+  );
+  for (const c of configs) {
+    out.push(`    ${c.agent.padEnd(15)} ${tilde(c.file)}${c.error ? `  (unreadable: ${c.error})` : `  ${c.servers} server(s)`}`);
+  }
+  out.push('');
+  out.push(`  ${'AGENT'.padEnd(15)} ${'SERVER'.padEnd(24)} ${'LAUNCH'.padEnd(52)} FINDINGS`);
+  for (const s of servers) {
+    const name = s.scope?.startsWith('project:') ? `${s.name} (project)` : s.name;
+    out.push(`  ${s.agent.padEnd(15)} ${clip(name, 24).padEnd(24)} ${clip(launchLabel(s.launch), 52).padEnd(52)} ${countLine(s.findings)}`);
+  }
+
+  const shown = all ? ['high', 'medium', 'low', 'info'] : ['high', 'medium', 'low'];
+  for (const s of servers) {
+    const list = s.findings.filter((f) => shown.includes(f.severity));
+    if (list.length === 0) continue;
+    out.push('');
+    const scope = s.scope?.startsWith('project:') ? `, project ${tilde(s.scope.slice(8))}` : '';
+    out.push(`  ── ${s.name}  (${s.agent}, ${tilde(s.file)}${scope}${s.pkg ? `, scanned ${s.pkg.name}@${s.pkg.version}` : ''})`);
+    for (const f of list) {
+      out.push(`  ${paint(f.severity, f.severity.toUpperCase().padEnd(6))} ${f.check}  ${f.message}`);
+      for (const e of f.evidence ?? []) out.push(`         ${e.line ? `${tilde(e.file)}:${e.line}` : tilde(e.file)}  ${e.text}`);
+    }
+  }
+
+  const everything = servers.flatMap((s) => s.findings);
+  const notScanned = servers.filter((s) => s.findings.some((f) => f.check === 'not-scanned')).length;
+  out.push('');
+  out.push(`  ${countLine(everything)} across ${servers.length} server(s) · ${notScanned} not statically scannable${all ? '' : ' · --all shows info'}`);
+  out.push('');
+  return out.join('\n');
+}

@@ -11,6 +11,30 @@ npx @antharmaya/mcpscan npm:@modelcontextprotocol/server-filesystem
 npx @antharmaya/mcpscan io.github.owner/some-server --json
 ```
 
+## Audit what you already trust
+
+```
+npx @antharmaya/mcpscan --installed
+```
+
+Reads the MCP configs of Claude Code, Codex, Claude Desktop, Cursor, Windsurf and Gemini CLI,
+lists every server your agents trust, and statically scans each npm-launched one. **Nothing is
+launched.** On top of the package checks it reports two risks that need no package at all:
+
+- **unpinned launches** — `npx some-mcp` or `@latest` runs whatever was published most recently,
+  every time the agent starts. (On the first machine this ran on, `npx prisma mcp` was running
+  `8.0.0-rc.17`, a release candidate, because that is where npm's `latest` tag pointed.)
+- **plaintext secrets** — API keys written as literal values in `env`, headers or arguments rather
+  than referenced as `${VAR}`.
+
+Your config files contain live keys, so values are dropped the moment they are parsed: every later
+stage sees a variable's *name* and whether it was a literal, never its value, and raw arguments and
+URL query strings are never printed. A test plants a fake secret in every place a config can hold
+one and fails if it appears in any output.
+
+Remote servers, PyPI launches, containers and local binaries are listed with the reason they could
+not be scanned statically, so coverage is visible rather than silently partial.
+
 ## Why
 
 The official MCP registry's schema has a place to declare the environment variables a server needs,
@@ -83,8 +107,8 @@ Population: every npm-backed server found by walking 12,000 registry entries —
 ```
   scanned successfully                  57   across 53 publishers
   declare no environment variables      23 (40%)  19 publishers
-  read a credential they never declare  14 (25%)  11 publishers
-      95% CI                            15% - 37%
+  read a credential they never declare  13 (23%)  10 publishers
+      95% CI                            14% - 35%
   run an install script                 1 (2%)
   no repository field                   11 (19%)
   errored                               3
@@ -93,6 +117,11 @@ Population: every npm-backed server found by walking 12,000 registry entries —
 Among them: four servers that read an undeclared `X402_PRIVATE_KEY`, and one reading
 `PAYER_PRIVATE_KEY` — agent payment keys, requested by code, absent from the metadata a user would
 read before installing.
+
+**Corrected 2026-09-27:** first published as 14 (25%). Running the scanner on a real machine
+showed that names like `OAUTH_AUTH_SERVER_URL` and `INITE_TOKEN_FILE` were being counted as
+credentials because they contain "AUTH" or "TOKEN" — they point *at* a secret, they are not one.
+With locator names excluded, one server drops out. Recomputed from the stored rows, same seed.
 
 **Limits, stated up front.** The sample is random within npm-backed servers in the first 12,000
 registry entries, not the whole registry, and not remote-only servers. Seed `20260926` reproduces
@@ -105,7 +134,7 @@ why the sampling is random and why publisher counts are reported next to server 
 ## Development
 
 ```
-npm test          # 35 tests, no network
+npm test          # 46 tests, no network
 node bin/mcpscan.js npm:<package>
 node scripts/collect-population.js   # cache the npm-backed population
 node scripts/registry-sweep.js 60    # seeded random sample of it

@@ -8,7 +8,8 @@ import { readFileSync } from 'node:fs';
 import { buildDisclosureRequest } from '../src/disclosure.js';
 import { buildAgentRequest, createAgentJudge } from '../src/agent-judge.js';
 import { toJsonV1, installedToJsonV1, scanToSarif, toRegistryMeta } from '../src/output.js';
-import { explain, egressAllowlist } from '../src/report.js';
+import { explain, egressAllowlist, renderLocal } from '../src/report.js';
+import { scanLocal } from '../src/local.js';
 
 const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 const print = (doc) => process.stdout.write(`${JSON.stringify(doc, null, 2)}\n`);
@@ -26,6 +27,9 @@ WHAT TO SCAN
                                    pins them, and reports any change on later runs
   mcpscan --installed              every server your agents already trust: Claude Code, Codex,
                                    Claude Desktop, Cursor, Devin, Gemini CLI (--all for details)
+  mcpscan --local                  MCP servers listening on this machine: every listening port,
+                                   checked for network exposure, sign-in and Origin validation
+  mcpscan --local --subnet <cidr>  the same across a private network range you own (at most a /24)
 
 OUTPUT
   (default)                        readable report with file:line evidence
@@ -62,13 +66,15 @@ EXAMPLES
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, sarif: false, registryMeta: false, egress: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
+  const args = { target: null, json: false, sarif: false, registryMeta: false, egress: false, local: false, subnet: null, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
     else if (a === '--sarif') args.sarif = true;
     else if (a === '--registry-meta') args.registryMeta = true;
     else if (a === '--egress') args.egress = true;
+    else if (a === '--local') args.local = true;
+    else if (a === '--subnet') args.subnet = argv[++i];
     else if (a === '--semantic') args.semantic = true;
     else if (a === '--semantic=agent') args.agentRequest = true;
     else if (a === '--answers') args.answers = argv[++i];
@@ -148,6 +154,20 @@ if (args.answers) {
     else if (args.json) print(await toJsonV1(result, { version: VERSION }));
     else process.stdout.write(`${render(result)}\n`);
     process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
+  } catch (err) {
+    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.exit(2);
+  }
+}
+
+if (args.local && !args.help) {
+  try {
+    const result = await scanLocal({ subnet: args.subnet ?? undefined });
+    if (args.sarif) print(await scanToSarif(result.servers.map((s) => ({ target: s.target, pkg: null, findings: s.findings })), { version: VERSION }));
+    else if (args.json) print({ schema: 'mcpscan/v1', tool: { name: 'mcpscan', version: VERSION }, ...result });
+    else process.stdout.write(`${renderLocal(result)}\n`);
+    const all = result.servers.flatMap((s) => s.findings);
+    process.exit(args.failOn === 'never' ? 0 : exitCode(all, { failOn: args.failOn }));
   } catch (err) {
     process.stderr.write(`mcpscan: ${err.message}\n`);
     process.exit(2);

@@ -152,6 +152,24 @@ Usual severity: **info**
 
 **What to do.** Probe its remote endpoint instead.
 
+## MCP servers on your own machine or network (--local)
+
+### `local-network-exposed`: Reachable from your network
+
+Usual severity: **medium**
+
+**Why it matters.** It listens on every network interface, so other machines on your network (a café, an office, a hotel) can reach it. With no sign-in, anyone there can list and call its tools. The MCP specification says local servers should bind to localhost.
+
+**What to do.** Bind to 127.0.0.1, or require sign-in.
+
+### `no-origin-validation`: Any website can drive it
+
+Usual severity: **high**
+
+**Why it matters.** It answers requests carrying another website's Origin. Through DNS rebinding, any page you open can then list and call its tools from your own browser: the class of the MCP Inspector remote-code-execution bug (CVE-2025-49596). The MCP specification requires servers to reject these requests.
+
+**What to do.** Reject requests whose Origin is not your own (HTTP 403), and bind to localhost.
+
 ## Hosted servers: sign-in
 
 ### `unauthenticated`: Answers without sign-in

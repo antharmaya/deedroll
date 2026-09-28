@@ -9,6 +9,8 @@
  */
 
 export const SCHEMA = 'mcpscan/v1';
+/** Kept equal to package.json's version by a test; the browser cannot read package.json. */
+export const TOOL_VERSION = '0.1.0';
 export const SCHEMA_URL = 'https://github.com/varbees/mcpscan/blob/main/docs/schema-v1.md';
 
 /** id -> title, why it matters, what to do. Severities vary per finding; `level` is the usual one. */
@@ -39,6 +41,8 @@ export const RULES = {
   'scan-error': { title: 'The scan failed', level: 'info', why: 'Something went wrong fetching or reading this server.', fix: 'Run it again; report it if it persists.' },
   'deprecated-transport': { title: 'Uses a deprecated transport', level: 'low', why: 'HTTP+SSE was deprecated in 2025-03-26 and is eligible for removal from the protocol; clients will drop it, and it predates the transport\'s current security guidance.', fix: 'Move the server to Streamable HTTP.' },
   'listing-status': { title: 'Deprecated or removed from the registry', level: 'high', why: 'Registry maintainers mark a listing deleted when it breaks the moderation policy (spam, malware, impersonation); a publisher marks it deprecated when it should not be used.', fix: 'Do not install a deleted listing. For a deprecated one, find its replacement.' },
+  'local-network-exposed': { title: 'Reachable from your network', level: 'medium', why: 'It listens on every network interface, so other machines on your network (a café, an office, a hotel) can reach it. With no sign-in, anyone there can list and call its tools. The MCP specification says local servers should bind to localhost.', fix: 'Bind to 127.0.0.1, or require sign-in.' },
+  'no-origin-validation': { title: 'Any website can drive it', level: 'high', why: 'It answers requests carrying another website\'s Origin. Through DNS rebinding, any page you open can then list and call its tools from your own browser: the class of the MCP Inspector remote-code-execution bug (CVE-2025-49596). The MCP specification requires servers to reject these requests.', fix: 'Reject requests whose Origin is not your own (HTTP 403), and bind to localhost.' },
   unauthenticated: { title: 'Answers without sign-in', level: 'info', why: 'Anyone who has the URL can list the tools and usually call them. Right for a public documentation server; wrong for anything that touches private data (the NSA MCP guidance lists unauthenticated servers first among what to look for).', fix: 'If it reaches anything private, put it behind OAuth as the MCP authorization specification describes.' },
   'custom-auth': { title: 'Uses its own sign-in', level: 'info', why: 'The server asks for its own key or token rather than MCP\'s OAuth flow, which the specification allows. It means a long-lived credential in a config file, usually with the full rights of the account that made it.', fix: 'Use a key scoped to what the server needs, and reference it from the environment rather than pasting it into a config.' },
   'oauth-metadata-missing': { title: 'Sign-in cannot be discovered', level: 'medium', why: 'The MCP specification requires a server that needs sign-in to publish OAuth protected resource metadata (RFC 9728) naming its authorization server. Without it, standard clients cannot sign in, and users get pushed toward pasting long-lived tokens instead.', fix: 'Serve /.well-known/oauth-protected-resource with authorization_servers, and point to it from WWW-Authenticate.' },
@@ -74,3 +78,15 @@ export async function fingerprint(f) {
 export async function withIds(findings) {
   return Promise.all(findings.map(async (f) => ({ id: await fingerprint(f), ...f })));
 }
+
+/** How the catalog is grouped, for docs/checks.md and the web page. Every id must appear once. */
+export const CHECK_GROUPS = [
+  ['Package code and metadata (npm, PyPI)', ['undeclared-env', 'dynamic-env', 'install-script', 'network-egress', 'capability', 'instruction-like-text', 'typosquat', 'known-vulnerability', 'vuln-lookup-failed']],
+  ['Where the code came from', ['provenance', 'provenance-dropped', 'publisher-mismatch', 'deprecated', 'archived-upstream']],
+  ['The registry listing', ['listing-status', 'multiple-listings', 'no-package']],
+  ['MCP servers on your own machine or network (--local)', ['local-network-exposed', 'no-origin-validation']],
+  ['Hosted servers: sign-in', ['unauthenticated', 'custom-auth', 'oauth-metadata-missing', 'oauth-resource-mismatch', 'oauth-issuer-mismatch', 'oauth-no-pkce', 'oauth-dcr-only']],
+  ['Hosted servers (probe and pins)', ['remote-not-probed', 'deprecated-transport', 'pinned', 'pins-updated', 'tool-description-changed', 'tool-schema-changed', 'tool-added', 'tool-removed', 'tools-truncated']],
+  ['What your agents already trust (--installed)', ['plaintext-secret', 'credential-unresolved', 'unpinned-launch', 'not-scanned', 'scan-error']],
+  ['Semantic judgment (optional)', ['undisclosed-capability', 'disclosure-unclear', 'disclosure-not-judged']],
+];

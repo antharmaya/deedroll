@@ -189,3 +189,18 @@ test('a deprecated version is flagged with the npm message; a live one is not', 
   assert.match(checkDeprecated(dead)[0].message, /no longer supported/);
   assert.deepEqual(checkDeprecated(pkgWith({}, {})), []);
 });
+
+test('archived reference servers are flagged when their registry does not say so', async () => {
+  const { checkArchivedUpstream } = await import('../src/checks.js');
+  assert.equal(checkArchivedUpstream({ ecosystem: 'pypi', name: 'MCP_Server_SQLite', manifest: {} })[0].check, 'archived-upstream');
+  assert.deepEqual(checkArchivedUpstream({ ecosystem: 'npm', name: '@modelcontextprotocol/server-github', manifest: { deprecated: 'Package no longer supported' } }), [], 'already deprecated: no double report');
+  assert.deepEqual(checkArchivedUpstream({ ecosystem: 'pypi', name: 'mcp-server-git', manifest: {} }), [], 'mcp-server-git is maintained');
+});
+
+test('an attested source repository counts as traceable; Python runtime variables are ambient', () => {
+  const pkg = { ecosystem: 'pypi', name: 'x', manifest: {}, files: new Map(), provenance: { current: true, publisher: { repository: 'o/r' } } };
+  assert.ok(!checkProvenance(pkg).some((f) => /repository/.test(f.message)));
+  assert.ok(checkProvenance({ ...pkg, provenance: { current: false } }).some((f) => /repository/.test(f.message)));
+  const py = pkgWith({ 'server.py': 'import os\nenc = os.environ.get("PYTHONIOENCODING")\nv = os.environ.get("VIRTUAL_ENV")\n' });
+  assert.deepEqual(checkUndeclaredSecrets(py, null, new Map()), []);
+});

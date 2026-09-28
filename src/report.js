@@ -217,3 +217,27 @@ export function explainHint(findings) {
   const ids = [...new Set((findings ?? []).filter((f) => f.severity !== 'info').map((f) => f.check))];
   return ids.length ? `  What these mean: ${ids.map((i) => `mcpscan explain ${i}`).slice(0, 3).join(' · ')}` : '';
 }
+
+/**
+ * `--egress`: the hosts a server's code names, as a starting allowlist for an egress proxy
+ * (the NSA MCP guidance recommends "a filtering outgoing proxy … with specific resource
+ * URLs"). Static, so a starting point: a server can build other hostnames at runtime.
+ */
+export function egressAllowlist(result) {
+  const name = result.pkg ? `${result.pkg.name}@${result.pkg.version}` : result.target;
+  const hosts = new Set();
+  for (const f of result.findings ?? []) if (f.check === 'network-egress') hosts.add(f.message.replace(/^contacts /, ''));
+  for (const r of result.entry?.server?.remotes ?? []) {
+    try { hosts.add(new URL(r.url).hostname); } catch { /* templated */ }
+  }
+  if (result.remote?.url) hosts.add(new URL(result.remote.url).hostname);
+  const dynamic = (result.findings ?? []).some((f) => f.check === 'dynamic-env');
+  return [
+    `# Hosts ${name} names in its code or listing, for an egress allowlist.`,
+    '# Static: a server can build other hostnames at runtime, so treat this as a starting point',
+    '# and watch the proxy log for anything else.',
+    ...(dynamic ? ['# Note: it also builds environment variable names at runtime; check its config for URLs.'] : []),
+    ...(hosts.size ? [...hosts].sort() : ['# (no external hosts found in the code)']),
+    '',
+  ].join('\n');
+}

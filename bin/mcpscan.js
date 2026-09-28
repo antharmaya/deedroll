@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { buildDisclosureRequest } from '../src/disclosure.js';
 import { buildAgentRequest, createAgentJudge } from '../src/agent-judge.js';
 import { toJsonV1, installedToJsonV1, scanToSarif, toRegistryMeta } from '../src/output.js';
-import { explain } from '../src/report.js';
+import { explain, egressAllowlist } from '../src/report.js';
 
 const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 const print = (doc) => process.stdout.write(`${JSON.stringify(doc, null, 2)}\n`);
@@ -32,6 +32,7 @@ OUTPUT
   --json                           machine-readable, schema mcpscan/v1 (docs/schema-v1.md)
   --sarif                          SARIF 2.1.0 for GitHub code scanning and security dashboards
   --registry-meta                  a _meta block a registry or marketplace can attach to a listing
+  --egress                         the hosts its code names, as a starting allowlist for an egress proxy
   --fail-on <level>                exit 1 at or above high|medium|low|info, or never (default high)
 
 OPTIONS
@@ -61,12 +62,13 @@ EXAMPLES
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, sarif: false, registryMeta: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
+  const args = { target: null, json: false, sarif: false, registryMeta: false, egress: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
     else if (a === '--sarif') args.sarif = true;
     else if (a === '--registry-meta') args.registryMeta = true;
+    else if (a === '--egress') args.egress = true;
     else if (a === '--semantic') args.semantic = true;
     else if (a === '--semantic=agent') args.agentRequest = true;
     else if (a === '--answers') args.answers = argv[++i];
@@ -175,6 +177,7 @@ try {
   const result = await scan(args.target, { version: args.version, semantic: args.semantic, deps: args.deps, osv: args.osv });
   if (args.sarif) print(await scanToSarif([result], { version: VERSION }));
   else if (args.registryMeta) print(await toRegistryMeta(result, { version: VERSION }));
+  else if (args.egress) process.stdout.write(egressAllowlist(result));
   else if (args.json) print(await toJsonV1(result, { version: VERSION }));
   else {
     process.stdout.write(`${result.remote ? renderRemote(result) : render(result)}\n`);

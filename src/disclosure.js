@@ -97,29 +97,33 @@ function presentCapabilities(findings) {
 }
 
 /**
- * @returns {Promise<{findings: object[], disclosure: object}>}
- *   disclosure carries the raw probabilities so they can be labelled and used to
- *   calibrate thresholds later, instead of being thrown away after thresholding.
+ * Step 1 of every judgment: decide whether there is anything to ask, and build the
+ * exact request. Deterministic for a given package version, so a request can be
+ * handed to an agent and its answers applied later (see agent-judge.js).
+ *
+ * @returns {{skip: {findings, disclosure}} | {request: {state, questions, present, tools, partialTools, truncated}}}
  */
-export async function checkDisclosure({ pkg, entry, findings, judge, thresholds = DEFAULT_THRESHOLDS }) {
+export function buildDisclosureRequest({ pkg, entry, findings }) {
   const present = presentCapabilities(findings);
   const { tools, truncated } = extractTools(pkg.files);
-  const disclosure = { judged: false, model: null, tools: tools.length, truncated, judgments: {} };
+  const base = { judged: false, model: null, tools: tools.length, truncated, judgments: {} };
 
   if (present.size === 0) {
-    return { findings: [], disclosure: { ...disclosure, reason: 'no capabilities to disclose' } };
+    return { skip: { findings: [], disclosure: { ...base, reason: 'no capabilities to disclose' } } };
   }
   if (tools.length === 0) {
     return {
-      findings: [
-        {
-          check: 'disclosure-not-judged',
-          severity: 'info',
-          message: 'no tool descriptions could be found statically, so disclosure was not judged',
-          evidence: [{ file: pkg.name, line: 0, text: `capabilities present: ${[...present.keys()].join(', ')}` }],
-        },
-      ],
-      disclosure: { ...disclosure, reason: 'no tool descriptions found' },
+      skip: {
+        findings: [
+          {
+            check: 'disclosure-not-judged',
+            severity: 'info',
+            message: 'no tool descriptions could be found statically, so disclosure was not judged',
+            evidence: [{ file: pkg.name, line: 0, text: `capabilities present: ${[...present.keys()].join(', ')}` }],
+          },
+        ],
+        disclosure: { ...base, reason: 'no tool descriptions found' },
+      },
     };
   }
 
@@ -130,26 +134,41 @@ export async function checkDisclosure({ pkg, entry, findings, judge, thresholds 
     },
     tools: tools.map((t) => ({ name: t.name, description: t.description })),
   };
-
   const questions = {};
   for (const key of present.keys()) {
     const q = QUESTIONS[key];
     questions[q.id] = { type: 'noul', instructions: q.instructions, criteria: q.criteria };
   }
+  return {
+    request: { state, questions, present, tools, truncated, partialTools: tools.filter((t) => t.partial).length },
+  };
+}
 
-  const partialTools = tools.filter((t) => t.partial).length;
-  disclosure.partialTools = partialTools;
-
-  const res = await judge.ask(state, questions);
-  disclosure.judged = true;
-  disclosure.model = res.model ?? null;
-  disclosure.usage = res.usage ?? null;
+/**
+ * Step 2: turn a judge's answers into findings. Shared by every judge, so the
+ * three-way split and the partial-description rule cannot drift between them.
+ */
+export function applyJudgments({ request, response, thresholds = DEFAULT_THRESHOLDS }) {
+  const { present, tools, truncated, partialTools } = request;
+  const disclosure = {
+    judged: true,
+    model: response.model ?? null,
+    usage: response.usage ?? null,
+    tools: tools.length,
+    truncated,
+    partialTools,
+    judgments: {},
+  };
 
   const out = [];
   for (const [key, evidence] of present) {
     const q = QUESTIONS[key];
-    const p = res.answers[q.id].noul;
-    disclosure.judgments[key] = p;
+    const a = response.answers[q.id];
+    const p = a.noul;
+    const note = a.note ? ` — ${a.note}` : '';
+    // A categorical judge said yes/no/unsure; printing it as p=0.00 would fake a measurement.
+    const how = a.label ? `judge: ${a.label}` : `p=${p.toFixed(2)}`;
+    disclosure.judgments[key] = a.quote ? { p, quote: a.quote } : p;
 
     if (p <= thresholds.no && partialTools > 0) {
       // Missing text could hold the disclosure: unknown is neither clean nor guilty.
@@ -157,7 +176,7 @@ export async function checkDisclosure({ pkg, entry, findings, judge, thresholds 
         check: 'disclosure-unclear',
         subject: key,
         severity: 'info',
-        message: `can ${q.capability}; no description says so (p=${p.toFixed(2)}), but ${partialTools} description(s) could only be read in part, so this is not called undisclosed`,
+        message: `can ${q.capability}; no description says so (${how}), but ${partialTools} description(s) could only be read in part, so this is not called undisclosed${note}`,
         evidence,
       });
     } else if (p <= thresholds.no) {
@@ -165,7 +184,7 @@ export async function checkDisclosure({ pkg, entry, findings, judge, thresholds 
         check: 'undisclosed-capability',
         subject: key,
         severity: 'medium',
-        message: `can ${q.capability}, but no description tells the user (p=${p.toFixed(2)})`,
+        message: `can ${q.capability}, but no description tells the user (${how})${note}`,
         evidence,
       });
     } else if (p < thresholds.yes) {
@@ -173,10 +192,22 @@ export async function checkDisclosure({ pkg, entry, findings, judge, thresholds 
         check: 'disclosure-unclear',
         subject: key,
         severity: 'info',
-        message: `can ${q.capability}; the model is split on whether the descriptions say so (p=${p.toFixed(2)}), review by hand`,
+        message: `can ${q.capability}; the judge is split on whether the descriptions say so (${how}), review by hand${note}`,
         evidence,
       });
     }
   }
   return { findings: out, disclosure };
+}
+
+/**
+ * @returns {Promise<{findings: object[], disclosure: object}>}
+ *   disclosure carries the raw judgments so they can be labelled and used to
+ *   calibrate thresholds later, instead of being thrown away after thresholding.
+ */
+export async function checkDisclosure({ pkg, entry, findings, judge, thresholds = DEFAULT_THRESHOLDS }) {
+  const built = buildDisclosureRequest({ pkg, entry, findings });
+  if (built.skip) return built.skip;
+  const response = await judge.ask(built.request.state, built.request.questions);
+  return applyJudgments({ request: built.request, response, thresholds });
 }

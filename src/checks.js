@@ -5,6 +5,8 @@
  * a manifest. A check that cannot point at something does not get to report.
  */
 
+import { extractTools } from './tools.js';
+
 const SECRETISH = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH|PRIVATE|ACCESS|BEARER|DSN|WEBHOOK)/i;
 
 /**
@@ -292,6 +294,61 @@ export function checkProvenanceDrop(pkg) {
   ];
 }
 
+/**
+ * CHECK 9 — tool descriptions written to instruct the model rather than inform the
+ * user: the shape of tool-poisoning attacks. It also protects the agent judge, which
+ * reads these same descriptions.
+ *
+ * Patterns were measured before they shipped, on 312 real descriptions from 27 vendor
+ * servers (2026-09-28): the two high-severity ones hit 0. Dropped after measuring:
+ * "you must call ..." (Shopify's legitimate usage guidance), bare `.env` (Neon telling
+ * users where their own config goes) and XML-style tags on their own (Neon structures
+ * every description with <use_case>, <instructions>, <important_notes>).
+ */
+const INJECTION_PATTERNS = [
+  {
+    id: 'ignore-instructions',
+    severity: 'high',
+    re: /\b(ignore|disregard|forget)\b[^.\n]{0,30}\b(previous|prior|above|earlier|all)\b[^.\n]{0,20}\b(instructions?|prompts?|rules)\b/i,
+    label: 'tells the model to ignore its instructions',
+  },
+  {
+    id: 'hide-from-user',
+    severity: 'high',
+    re: /\b(do not|don't|never)\b[^.\n]{0,20}\b(tell|inform|mention|reveal|show|notify)\b[^.\n]{0,60}\bthe user\b/i,
+    label: 'tells the model to keep something from the user',
+  },
+  {
+    id: 'credential-store',
+    severity: 'medium',
+    // Directing the model to READ or SEND the file is the attack; merely mentioning it is not.
+    // Measured: flatland-client says "Back up ~/.flatland/models/ like ~/.ssh/" — an analogy,
+    // the only hit in 5,499 long-tail descriptions before this verb was required.
+    re: /\b(read|open|cat|load|send|pass|include|upload|attach|forward|copy|print|return|exfiltrate)\b[^.\n]{0,40}(~\/\.ssh|\bid_rsa\b|\bid_ed25519\b|\.aws\/credentials|\bmcp\.json\b|claude_desktop_config|\.cursor\/mcp)/i,
+    label: 'tells the model to read or send a credential store or agent config file',
+  },
+];
+const HIDDEN_TAG = /<\s*\/?\s*(important|system|secret|hidden)\s*>/i;
+
+export function checkInstructionLikeText(pkg) {
+  const out = [];
+  for (const t of extractTools(pkg.files).tools) {
+    for (const p of INJECTION_PATTERNS) {
+      const m = p.re.exec(t.description);
+      if (!m) continue;
+      const tag = HIDDEN_TAG.test(t.description) ? ', inside a hidden-instruction tag' : '';
+      out.push({
+        check: 'instruction-like-text',
+        subject: `${t.name}:${p.id}`,
+        severity: p.severity,
+        message: `tool "${t.name}" description ${p.label}${tag}: "${m[0].slice(0, 90)}"`,
+        evidence: [{ file: t.file, line: t.line, text: t.description.slice(Math.max(0, m.index - 40), m.index + 100) }],
+      });
+    }
+  }
+  return out;
+}
+
 /** Levenshtein, iterative, two rows. */
 export function editDistance(a, b) {
   if (a === b) return 0;
@@ -352,6 +409,7 @@ export function runAllChecks({ pkg, entry, declared, officialNames }) {
     ...checkProvenance(pkg),
     ...checkDeprecated(pkg),
     ...checkProvenanceDrop(pkg),
+    ...checkInstructionLikeText(pkg),
     ...checkTyposquat(pkg, officialNames),
     ...checkNetworkEgress(pkg, entry),
     ...checkCapabilities(pkg),

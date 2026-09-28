@@ -186,7 +186,7 @@ node scripts/snapshot.js --status     # the last runs, and a warning if the reco
 node scripts/snapshot.js --verify     # re-hash every file and check every link in the chain
 ```
 
-Stored under `archive/` (not in git), about 1 MB a day. Where it will be published is not decided.
+Stored under `archive/` (not in git). Measured on the first run: about 4 MB a day (3.4 MB of listings, 0.6 MB of tool lists), roughly 1.5 GB a year before deduplication. At 500 endpoints a day, every hosted endpoint comes round about every 46 days. Where it will be published is not decided.
 
 ## Audit what you already trust
 

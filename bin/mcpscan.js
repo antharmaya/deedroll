@@ -14,7 +14,7 @@ mcpscan — static trust scanner for MCP servers
   mcpscan https://<host>/mcp     probe a hosted server read-only (initialize + tools/list only),
                                  pin its tools, and report any change since the last probe
   mcpscan --installed            audit every MCP server your agents already trust
-                                 (Claude Code, Codex, Claude Desktop, Cursor, Windsurf, Gemini CLI)
+                                 (Claude Code, Codex, Claude Desktop, Cursor, Devin, Gemini CLI)
   mcpscan --installed --remote   also probe the hosted ones (--auth-from-env sends \${VAR} headers)
   mcpscan <url> --update-pins    accept the changes found and re-pin
   mcpscan <url> --header 'Name: \${VAR}'   add a header; \${VAR} is read from the environment

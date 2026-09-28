@@ -32,7 +32,8 @@ function configLocations(home, cwd) {
     { agent: 'claude-desktop', file: join(home, '.config', 'Claude', 'claude_desktop_config.json'), format: 'mcp-json' },
     { agent: 'claude-desktop', file: join(home, 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json'), format: 'mcp-json' },
     { agent: 'cursor', file: join(home, '.cursor', 'mcp.json'), format: 'mcp-json' },
-    { agent: 'windsurf', file: join(home, '.codeium', 'windsurf', 'mcp_config.json'), format: 'mcp-json' },
+    // Windsurf was renamed Devin; the config still lives at the old path.
+    { agent: 'devin', file: join(home, '.codeium', 'windsurf', 'mcp_config.json'), format: 'mcp-json' },
     { agent: 'gemini-cli', file: join(home, '.gemini', 'settings.json'), format: 'mcp-json' },
   ];
 }

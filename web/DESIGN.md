@@ -139,8 +139,8 @@ scroll except the registry figure, which is data arriving.
 ## 7. Weight
 
 First load (before any scan): 211 KB uncompressed, of which 97 KB is fonts; the text assets
-gzip to about 33 KB. The first scan also fetches the registry index (577 KB, about 144 KB
-gzipped), which maps npm names to registry listings.
+gzip to about 33 KB. The first scan also fetches the registry index (803 KB, about 204 KB
+gzipped, 2026-09-28), which maps npm and PyPI names to registry listings.
 
 ## 8. Security rules for the page
 

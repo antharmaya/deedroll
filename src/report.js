@@ -1,4 +1,5 @@
 import { RULES } from './rules.js';
+export { egressAllowlist } from './output.js';
 import { SEVERITY_ORDER, editDistance } from './checks.js';
 import { selectDependencies } from './deps.js';
 
@@ -218,26 +219,23 @@ export function explainHint(findings) {
   return ids.length ? `  What these mean: ${ids.map((i) => `mcpscan explain ${i}`).slice(0, 3).join(' · ')}` : '';
 }
 
-/**
- * `--egress`: the hosts a server's code names, as a starting allowlist for an egress proxy
- * (the NSA MCP guidance recommends "a filtering outgoing proxy … with specific resource
- * URLs"). Static, so a starting point: a server can build other hostnames at runtime.
- */
-export function egressAllowlist(result) {
-  const name = result.pkg ? `${result.pkg.name}@${result.pkg.version}` : result.target;
-  const hosts = new Set();
-  for (const f of result.findings ?? []) if (f.check === 'network-egress') hosts.add(f.message.replace(/^contacts /, ''));
-  for (const r of result.entry?.server?.remotes ?? []) {
-    try { hosts.add(new URL(r.url).hostname); } catch { /* templated */ }
+
+/** `--local`: what is listening, what speaks MCP, and what that exposes. */
+export function renderLocal(result) {
+  const out = ['', `  MCP servers on ${result.scope}: checked ${result.checked} ${result.scope === 'this machine' ? 'listening port(s)' : 'address:port pair(s)'}${result.open != null ? `, ${result.open} open` : ''}, found ${result.servers.length}`, ''];
+  if (!result.servers.length) {
+    out.push('  No MCP server answered. Servers started by your agents over stdio do not listen on the network;', '  `mcpscan --installed` covers those.', '');
+    return out.join('\n');
   }
-  if (result.remote?.url) hosts.add(new URL(result.remote.url).hostname);
-  const dynamic = (result.findings ?? []).some((f) => f.check === 'dynamic-env');
-  return [
-    `# Hosts ${name} names in its code or listing, for an egress allowlist.`,
-    '# Static: a server can build other hostnames at runtime, so treat this as a starting point',
-    '# and watch the proxy log for anything else.',
-    ...(dynamic ? ['# Note: it also builds environment variable names at runtime; check its config for URLs.'] : []),
-    ...(hosts.size ? [...hosts].sort() : ['# (no external hosts found in the code)']),
-    '',
-  ].join('\n');
+  for (const s of result.servers) {
+    const r = s.remote;
+    const state = r.probed ? `${r.tools} tool(s), ${r.era === 'modern' ? `MCP ${r.protocolVersion}` : 'older MCP revision'}` : r.auth?.required ? 'requires sign-in' : 'deprecated SSE transport';
+    out.push(`  ${s.target}  ${s.bind ? `bound to ${s.bind}` : ''}${s.process ? `  ${s.process}` : ''}`);
+    out.push(`  ${state}${r.probed ? ` · Origin check: ${r.originValidated ? 'rejects other websites' : 'NONE'}` : ''}`);
+    for (const f of s.findings) out.push(`  ${paint(f.severity, f.severity.toUpperCase().padEnd(6))} ${f.check}  ${f.message}`);
+    out.push('');
+  }
+  const hint = explainHint(result.servers.flatMap((s) => s.findings));
+  if (hint) out.push(hint, '');
+  return out.join('\n');
 }

@@ -72,3 +72,8 @@ test('docs/checks.md is generated from the catalog and up to date', () => {
   const committed = readFileSync(new URL('../docs/checks.md', import.meta.url), 'utf8');
   assert.equal(committed, renderChecksDoc(), 'stale: run node scripts/build-docs.js');
 });
+
+test('the version the browser reports matches package.json', async () => {
+  const { TOOL_VERSION } = await import('../src/rules.js');
+  assert.equal(TOOL_VERSION, JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version);
+});

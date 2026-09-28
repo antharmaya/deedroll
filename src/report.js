@@ -38,7 +38,12 @@ export function render(result) {
   } else if (result.listing?.source && result.listing.source !== 'target') {
     extra.push(`registry: listed as ${result.listing.listings[0]} (found via ${result.listing.source === 'index' ? `index of ${result.listing.indexBuiltAt?.slice(0, 10)}` : 'live name search'})`);
   }
-  if (pkg?.provenance) extra.push(`provenance: ${pkg.provenance.current ? 'yes (Sigstore attestation)' : 'none'}`);
+  if (pkg?.provenance) {
+    const p = pkg.provenance;
+    const built = p.publisher?.repository ? `, built by ${p.publisher.kind ?? 'CI'} from ${p.publisher.repository}` : '';
+    extra.push(`provenance: ${p.current ? `yes (Sigstore attestation${built})` : p.state === 'unknown' ? 'unknown (the registry did not answer)' : 'none'}`);
+  }
+  if (pkg?.artifact) extra.push(`read: ${pkg.artifact.filename} (${pkg.artifact.kind === 'wheel' ? 'the wheel pip installs' : 'the sdist pip would build'})`);
   if (result.vulns) extra.push(result.vulns.error ? 'known vulnerabilities: lookup FAILED' : `known vulnerabilities: checked ${result.vulns.checked} package(s) on OSV.dev (sends names + versions; --no-osv to skip)`);
   if (pkg?.fromCache) extra.push('tarball: from local cache (hash verified)');
   for (const e of extra) out.push(`  ${e}`);

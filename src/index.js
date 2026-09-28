@@ -1,4 +1,6 @@
 import { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers } from './sources.js';
+import { fetchPypiPackage } from './pypi.js';
+import { packageIdentifiers } from './model.js';
 import { runAllChecks, SEVERITY_ORDER } from './checks.js';
 import { checkDisclosure } from './disclosure.js';
 import { createTypeSafeJudge } from './judge.js';
@@ -40,13 +42,21 @@ export async function scan(
   let entry = null;
   let npmName = null;
   let npmVersion = version;
+  let ecosystem = 'npm';
 
   if (target.startsWith('npm:')) {
     npmName = target.slice(4);
+  } else if (target.startsWith('pypi:')) {
+    npmName = target.slice(5);
+    ecosystem = 'pypi';
   } else {
     entry = await fetchRegistryEntry(target);
     if (!entry) throw new Error(`not found in the MCP registry: ${target}`);
-    const ids = npmIdentifiers(entry);
+    let ids = npmIdentifiers(entry);
+    if (ids.length === 0 && packageIdentifiers(entry, 'pypi').length) {
+      ids = packageIdentifiers(entry, 'pypi');
+      ecosystem = 'pypi';
+    }
     if (ids.length === 0) {
       return {
         target,
@@ -57,7 +67,7 @@ export async function scan(
           {
             check: 'no-package',
             severity: 'info',
-            message: 'registry entry ships no npm package (remote-only server); nothing to scan statically',
+            message: 'registry entry ships no npm or PyPI package; nothing to scan statically',
             evidence: [{ file: 'registry', line: 0, text: entry.server.name }],
           },
         ],
@@ -67,9 +77,9 @@ export async function scan(
     if (version === 'latest' && ids[0].version) npmVersion = ids[0].version;
   }
 
-  let pkg = await fetchNpmPackage(npmName, npmVersion);
+  let pkg = ecosystem === 'pypi' ? await fetchPypiPackage(npmName, npmVersion) : await fetchNpmPackage(npmName, npmVersion);
   let depInfo = null;
-  if (deps) {
+  if (deps && ecosystem === 'npm') {
     // Off by default: it costs downloads (measured in scripts/vendor-benchmark.js --deps).
     const expanded = await expandDependencies(pkg);
     pkg = mergeDependencies(pkg, expanded.deps);
@@ -79,7 +89,7 @@ export async function scan(
   // nothing to be judged against. The registry's own search cannot find it by package.
   let listing = entry ? { found: true, source: 'target', listings: [entry.server.name] } : null;
   if (!entry && lookup) {
-    const hit = await findListing(npmName);
+    const hit = await findListing(npmName, { ecosystem });
     entry = hit.entry;
     listing = { found: Boolean(hit.entry), source: hit.source, listings: hit.listings, indexBuiltAt: hit.indexBuiltAt };
   }
@@ -98,7 +108,7 @@ export async function scan(
 
   let vulns = null;
   if (osv) {
-    const coords = [{ name: pkg.name, version: pkg.version }, ...(pkg.dependencies ?? []).map((d) => ({ name: d.name, version: d.version }))];
+    const coords = [{ name: pkg.name, version: pkg.version, ecosystem }, ...(pkg.dependencies ?? []).map((d) => ({ name: d.name, version: d.version }))];
     const res = await checkKnownVulnerabilities(coords);
     findings.push(...res.findings);
     vulns = { checked: res.checked, error: res.error ?? null };

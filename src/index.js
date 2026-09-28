@@ -9,9 +9,8 @@ import { createTypeSafeJudge } from './judge.js';
 import { expandDependencies, mergeDependencies } from './deps.js';
 import { findListing } from './lookup.js';
 import { checkKnownVulnerabilities } from './osv.js';
-import { probeRemote, ProbeError } from './remote.js';
+import { inspectRemote } from './remote-scan.js';
 import { loadPins, savePins, diffPins, serverKey } from './pins.js';
-import { checkToolTexts } from './checks.js';
 
 /** Official server package names, used only for the typosquat check. */
 export const OFFICIAL_NAMES = [
@@ -144,51 +143,18 @@ export async function scan(
 }
 
 /**
- * Probe a hosted MCP server read-only, check what its tools say, and compare against
- * the pinned state. Pins are only written on a first probe, an unchanged probe, or an
- * explicit --update-pins — never when something changed.
+ * Probe a hosted MCP server read-only (inspectRemote, shared with the browser and the
+ * relay), then compare with the pinned state on disk. Pins are only written on a first
+ * probe, an unchanged probe, or an explicit --update-pins: never when something changed.
  */
 export async function scanRemote(url, { headers = {}, updatePins = false, pinsFile, fetchImpl } = {}) {
-  let probe;
-  try {
-    probe = await probeRemote(url, { headers, fetchImpl });
-  } catch (err) {
-    if (!(err instanceof ProbeError)) throw err;
-    if (err.kind === 'legacy-sse') {
-      return {
-        target: url,
-        remote: { probed: false, reason: err.kind, message: err.message, detail: err.detail },
-        findings: [
-          {
-            check: 'deprecated-transport',
-            severity: 'low',
-            message: 'uses the HTTP+SSE transport, deprecated since 2025-03-26 and eligible for removal; tools not listed',
-            evidence: [{ file: new URL(url).host, line: 0, text: 'GET opened an event stream with an endpoint event' }],
-          },
-        ],
-      };
-    }
-    const severity = err.kind === 'redirect' && err.detail?.crossOrigin ? 'medium' : 'info';
-    return {
-      target: url,
-      remote: { probed: false, reason: err.kind, message: err.message, detail: err.detail },
-      findings: [
-        {
-          check: 'remote-not-probed',
-          severity,
-          message: `${err.message} — tools not listed, so nothing was checked`,
-          evidence: [{ file: new URL(url).host, line: 0, text: err.kind }],
-        },
-      ],
-    };
-  }
+  const r = await inspectRemote(url, { headers, fetchImpl });
+  if (!r.remote.probed) return { target: url, remote: r.remote, findings: r.findings };
 
-  const where = new URL(url).host;
-  const findings = checkToolTexts(probe.tools.map((t) => ({ name: t.name, description: String(t.description ?? ''), file: where, line: 0 })));
-
+  const findings = [...r.findings];
   const pins = loadPins(pinsFile);
   const key = serverKey(url);
-  const d = diffPins(pins[key], probe.tools);
+  const d = await diffPins(pins[key], r.tools);
   findings.push(...d.findings);
   if (d.firstPin || !d.changed) {
     pins[key] = d.next;
@@ -203,29 +169,8 @@ export async function scanRemote(url, { headers = {}, updatePins = false, pinsFi
       evidence: [{ file: 'pins.json', line: 0, text: key }],
     });
   }
-  if (probe.truncated) {
-    findings.push({
-      check: 'tools-truncated',
-      severity: 'info',
-      message: 'tools/list kept paginating past the page limit; later tools were not seen',
-      evidence: [{ file: where, line: 0, text: `${probe.pages} pages` }],
-    });
-  }
   findings.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
-  return {
-    target: url,
-    remote: {
-      probed: true,
-      era: probe.era,
-      serverInfo: probe.serverInfo,
-      protocolVersion: probe.protocolVersion,
-      tools: probe.tools.length,
-      toolNames: probe.tools.map((t) => t.name),
-      firstPin: d.firstPin,
-      changed: d.changed,
-    },
-    findings,
-  };
+  return { target: url, remote: { ...r.remote, firstPin: d.firstPin, changed: d.changed }, findings };
 }
 
 export { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers };

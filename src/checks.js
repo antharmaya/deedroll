@@ -45,6 +45,8 @@ const AMBIENT = new Set([
   'TMPDIR', 'TEMP', 'TMP', 'SHELL', 'TERM', 'LANG', 'LC_ALL', 'TZ', 'CI', 'DEBUG', 'NO_COLOR',
   'FORCE_COLOR', 'HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'APPDATA', 'LOCALAPPDATA', 'XDG_CONFIG_HOME',
   'XDG_DATA_HOME', 'XDG_CACHE_HOME', 'PORT', 'HOSTNAME', 'OS', 'COMSPEC', 'SystemRoot',
+  // Python's own runtime variables (PYTHON* is skipped by prefix): set by the interpreter or the user's shell.
+  'VIRTUAL_ENV', 'CONDA_PREFIX',
 ]);
 
 const ENV_PATTERNS = [
@@ -109,7 +111,7 @@ export function checkUndeclaredSecrets(pkg, entry, declared) {
       let m;
       while ((m = re.exec(text)) !== null) {
         const name = m[1];
-        if (AMBIENT.has(name) || name.startsWith('npm_')) continue;
+        if (AMBIENT.has(name) || name.startsWith('npm_') || name.startsWith('PYTHON')) continue;
         if (!found.has(name)) found.set(name, []);
         const ev = found.get(name);
         if (ev.length < 3) ev.push({ file: path, line, text: trim(text) });
@@ -241,7 +243,10 @@ export function checkCapabilities(pkg) {
 export function checkProvenance(pkg) {
   const findings = [];
   const repo = pkg.manifest?.repository;
-  if (!repo) {
+  // A signed build attestation naming the source repository makes the code traceable even
+  // when the metadata links nowhere (mcp-server-sqlite: built from modelcontextprotocol/servers).
+  const attested = pkg.provenance?.current && pkg.provenance?.publisher?.repository;
+  if (!repo && !attested) {
     findings.push({
       check: 'provenance',
       severity: 'medium',
@@ -472,6 +477,31 @@ export function checkPublisherMismatch(pkg) {
   ];
 }
 
+/**
+ * Reference servers the MCP project moved to modelcontextprotocol/servers-archived (listed
+ * 2026-09-28): no longer maintained. npm marks its copies deprecated; PyPI does not yank
+ * the Python ones (mcp-server-sqlite, mcp-server-sentry), so they looked current. The NSA's
+ * MCP guidance (May 2026) opens its recommendations with "choose supported MCP projects".
+ */
+const ARCHIVED_REFERENCE = {
+  npm: new Set(['brave-search', 'everart', 'gdrive', 'github', 'gitlab', 'google-maps', 'postgres', 'puppeteer', 'redis', 'slack'].map((n) => `@modelcontextprotocol/server-${n}`)),
+  pypi: new Set(['mcp-server-sqlite', 'mcp-server-sentry']),
+};
+
+export function checkArchivedUpstream(pkg) {
+  const eco = pkg.ecosystem ?? 'npm';
+  const name = eco === 'pypi' ? String(pkg.name).toLowerCase().replace(/[-_.]+/g, '-') : pkg.name;
+  if (!ARCHIVED_REFERENCE[eco]?.has(name) || pkg.manifest?.deprecated) return [];
+  return [
+    {
+      check: 'archived-upstream',
+      severity: 'medium',
+      message: `${pkg.name} is a reference server the MCP project has archived: no longer maintained, and ${meta(pkg).registry} does not mark it`,
+      evidence: [{ file: 'modelcontextprotocol/servers-archived', line: 0, text: pkg.name }],
+    },
+  ];
+}
+
 export const SEVERITY_ORDER = { high: 0, medium: 1, low: 2, info: 3 };
 
 export function runAllChecks({ pkg, entry, declared, officialNames }) {
@@ -482,6 +512,7 @@ export function runAllChecks({ pkg, entry, declared, officialNames }) {
     ...checkProvenance(pkg),
     ...checkDeprecated(pkg),
     ...checkProvenanceDrop(pkg),
+    ...checkArchivedUpstream(pkg),
     ...checkPublisherMismatch(pkg),
     ...checkInstructionLikeText(pkg),
     ...checkTyposquat(pkg, officialNames),

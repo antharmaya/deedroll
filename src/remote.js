@@ -53,7 +53,13 @@ async function readCapped(res) {
     }
     chunks.push(value);
   }
-  return Buffer.concat(chunks.map((c) => Buffer.from(c))).toString('utf8');
+  const all = new Uint8Array(total);
+  let at = 0;
+  for (const c of chunks) {
+    all.set(c, at);
+    at += c.length;
+  }
+  return new TextDecoder('utf-8').decode(all);
 }
 
 /** A JSON-RPC reply may arrive as JSON or inside a server-sent-events stream. */
@@ -144,6 +150,7 @@ export async function probeRemote(url, { headers = {}, fetchImpl = globalThis.fe
       throw new ProbeError('auth', `requires authentication (HTTP ${res.status}${/bearer/i.test(www) ? ', bearer/OAuth' : ''})`, {
         status: res.status,
         resourceMetadata: meta,
+        bearer: /bearer/i.test(www),
       });
     }
     const text = res.status === 202 ? '' : await readCapped(res);
@@ -276,7 +283,7 @@ async function looksLikeLegacySse(url, fetchImpl, timeoutMs) {
  * Resolve ${VAR} header references from the environment for an opt-in authenticated
  * probe. Literal values never reach here (the config parser drops them).
  */
-export function resolveHeaderRefs(template, env = process.env) {
+export function resolveHeaderRefs(template, env = globalThis.process?.env ?? {}) {
   const out = {};
   const missing = [];
   for (const [k, v] of Object.entries(template ?? {})) {

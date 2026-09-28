@@ -118,6 +118,14 @@ Usual severity: **medium**
 
 **What to do.** Move to the version or replacement the notice names.
 
+### `archived-upstream`: Archived by the MCP project
+
+Usual severity: **medium**
+
+**Why it matters.** The MCP project moved this reference server to its archive: nobody fixes it any more, including for security. Its registry does not say so. The NSA MCP guidance opens with "choose supported MCP projects".
+
+**What to do.** Use a maintained alternative; the archive README lists where each server went.
+
 ## The registry listing
 
 ### `listing-status`: Deprecated or removed from the registry
@@ -143,6 +151,64 @@ Usual severity: **info**
 **Why it matters.** The listing ships no package this version of mcpscan reads.
 
 **What to do.** Probe its remote endpoint instead.
+
+## Hosted servers: sign-in
+
+### `unauthenticated`: Answers without sign-in
+
+Usual severity: **info**
+
+**Why it matters.** Anyone who has the URL can list the tools and usually call them. Right for a public documentation server; wrong for anything that touches private data (the NSA MCP guidance lists unauthenticated servers first among what to look for).
+
+**What to do.** If it reaches anything private, put it behind OAuth as the MCP authorization specification describes.
+
+### `custom-auth`: Uses its own sign-in
+
+Usual severity: **info**
+
+**Why it matters.** The server asks for its own key or token rather than MCP's OAuth flow, which the specification allows. It means a long-lived credential in a config file, usually with the full rights of the account that made it.
+
+**What to do.** Use a key scoped to what the server needs, and reference it from the environment rather than pasting it into a config.
+
+### `oauth-metadata-missing`: Sign-in cannot be discovered
+
+Usual severity: **medium**
+
+**Why it matters.** The MCP specification requires a server that needs sign-in to publish OAuth protected resource metadata (RFC 9728) naming its authorization server. Without it, standard clients cannot sign in, and users get pushed toward pasting long-lived tokens instead.
+
+**What to do.** Serve /.well-known/oauth-protected-resource with authorization_servers, and point to it from WWW-Authenticate.
+
+### `oauth-resource-mismatch`: Tokens bound to a different server
+
+Usual severity: **medium**
+
+**Why it matters.** The resource metadata names another resource than the server itself, so tokens are issued for a different audience; a token meant for one server may be accepted by another.
+
+**What to do.** Make the resource value the server's own canonical URI.
+
+### `oauth-issuer-mismatch`: Authorization server metadata does not match its issuer
+
+Usual severity: **medium**
+
+**Why it matters.** Clients must reject metadata whose issuer differs from where it was discovered: it is the signature of an authorization-server mix-up attack, and conforming clients will refuse to sign in.
+
+**What to do.** Serve metadata whose issuer is exactly the issuer URL.
+
+### `oauth-no-pkce`: Sign-in without PKCE
+
+Usual severity: **medium**
+
+**Why it matters.** PKCE stops an intercepted authorization code from being exchanged for a token. OAuth 2.1, which MCP authorization builds on, requires it, and the server does not advertise S256.
+
+**What to do.** Support PKCE S256 and list it in code_challenge_methods_supported.
+
+### `oauth-dcr-only`: Registration only through a deprecated mechanism
+
+Usual severity: **low**
+
+**Why it matters.** MCP 2026-07-28 deprecated Dynamic Client Registration in favour of Client ID Metadata Documents; clients following the current revision prefer CIMD.
+
+**What to do.** Support client_id_metadata_document_supported.
 
 ## Hosted servers (probe and pins)
 

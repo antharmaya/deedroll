@@ -9,8 +9,9 @@ import { RULES } from '../src/rules.js';
 
 const GROUPS = [
   ['Package code and metadata (npm, PyPI)', ['undeclared-env', 'dynamic-env', 'install-script', 'network-egress', 'capability', 'instruction-like-text', 'typosquat', 'known-vulnerability', 'vuln-lookup-failed']],
-  ['Where the code came from', ['provenance', 'provenance-dropped', 'publisher-mismatch', 'deprecated']],
+  ['Where the code came from', ['provenance', 'provenance-dropped', 'publisher-mismatch', 'deprecated', 'archived-upstream']],
   ['The registry listing', ['listing-status', 'multiple-listings', 'no-package']],
+  ['Hosted servers: sign-in', ['unauthenticated', 'custom-auth', 'oauth-metadata-missing', 'oauth-resource-mismatch', 'oauth-issuer-mismatch', 'oauth-no-pkce', 'oauth-dcr-only']],
   ['Hosted servers (probe and pins)', ['remote-not-probed', 'deprecated-transport', 'pinned', 'pins-updated', 'tool-description-changed', 'tool-schema-changed', 'tool-added', 'tool-removed', 'tools-truncated']],
   ['What your agents already trust (--installed)', ['plaintext-secret', 'credential-unresolved', 'unpinned-launch', 'not-scanned', 'scan-error']],
   ['Semantic judgment (optional)', ['undisclosed-capability', 'disclosure-unclear', 'disclosure-not-judged']],

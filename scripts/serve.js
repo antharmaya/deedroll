@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 /**
- * Serve the package root so web/ can import the real engine from ../src — the page runs
- * the same code as the CLI. Zero dependencies. Usage: node scripts/serve.js [port]
+ * Serve the package root so web/ can import the real engine from ../src: the page runs
+ * the same code as the CLI. Also serves the probe relay at POST /api/probe, for hosted
+ * servers that do not let web pages read their answers (src/relay-core.js).
+ * Zero dependencies. Usage: node scripts/serve.js [port]
  */
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { handleProbe, createLimiter } from '../src/relay-core.js';
+import { guardedFetch } from '../src/relay-node.js';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const PORT = Number(process.argv[2] ?? 4173);
@@ -20,8 +24,35 @@ const TYPES = {
   '.md': 'text/markdown; charset=utf-8',
 };
 
+const limiter = createLimiter();
+
+async function readBody(req, cap = 4096) {
+  let body = '';
+  for await (const chunk of req) {
+    body += chunk;
+    if (body.length > cap) throw new Error('too large');
+  }
+  return body;
+}
+
 createServer(async (req, res) => {
   const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  if (path === '/api/probe') {
+    if (req.method !== 'POST') {
+      res.writeHead(405, { allow: 'POST' });
+      return res.end();
+    }
+    let parsed;
+    try {
+      parsed = JSON.parse(await readBody(req));
+    } catch {
+      res.writeHead(400, { 'content-type': 'application/json' });
+      return res.end(JSON.stringify({ ok: false, error: 'Send JSON: {"url": "https://…"}' }));
+    }
+    const out = await handleProbe(parsed, { fetchImpl: guardedFetch, limiter, caller: req.socket.remoteAddress ?? 'anon' });
+    res.writeHead(out.status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+    return res.end(JSON.stringify(out.body));
+  }
   if (path === '/') {
     res.writeHead(302, { location: '/web/' });
     return res.end();

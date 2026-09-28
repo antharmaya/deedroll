@@ -1,4 +1,5 @@
-import { SEVERITY_ORDER } from './checks.js';
+import { RULES } from './rules.js';
+import { SEVERITY_ORDER, editDistance } from './checks.js';
 import { selectDependencies } from './deps.js';
 
 const COLORS = {
@@ -89,6 +90,8 @@ export function render(result) {
     .join(' · ');
   out.push('');
   out.push(`  ${summary}`);
+  const hint = explainHint(findings);
+  if (hint) out.push(hint);
   out.push('');
   return out.join('\n');
 }
@@ -168,11 +171,13 @@ export function renderInstalled(result, { all = false } = {}) {
 export function renderRemote(result) {
   const out = [''];
   const r = result.remote;
-  const host = new URL(result.target).host;
-  out.push(`  ${host}  (remote, read-only probe: initialize + tools/list, never tools/call)`);
+  const host = new URL(r.url ?? result.target).host;
+  if (result.entry) out.push(`  ${result.entry.server.name}  (registry listing, remote only)`);
+  out.push(`  ${host}  (remote, read-only probe: tools/list only, never tools/call)`);
   if (r.probed) {
     const who = r.serverInfo ? `${r.serverInfo.name ?? '?'}${r.serverInfo.version ? `@${r.serverInfo.version}` : ''}` : 'unnamed';
-    out.push(`  server ${who} · protocol ${r.protocolVersion} · ${r.tools} tool(s) · ${r.firstPin ? 'first probe: pinned' : r.changed ? 'CHANGED since pin' : 'unchanged since pin'}`);
+    const era = r.era === 'modern' ? `protocol ${r.protocolVersion} (current, stateless)` : `protocol ${r.protocolVersion ?? 'not stated'} (pre-2026-07-28)`;
+    out.push(`  server ${who} · ${era} · ${r.tools} tool(s) · ${r.firstPin ? 'first probe: pinned' : r.changed ? 'CHANGED since pin' : 'unchanged since pin'}`);
   } else {
     out.push(`  not probed: ${r.message}`);
   }
@@ -181,6 +186,34 @@ export function renderRemote(result) {
     out.push(`  ${paint(f.severity, f.severity.toUpperCase().padEnd(6))} ${f.check}  ${f.message}`);
     for (const e of f.evidence ?? []) out.push(`         ${e.file}  ${e.text}`);
   }
+  const hint = explainHint(result.findings);
+  if (hint) out.push('', hint);
   out.push('');
   return out.join('\n');
+}
+
+/** `mcpscan explain [check]`: the rules catalog, in the terminal. */
+export function explain(id) {
+  const ids = Object.keys(RULES);
+  if (!id) {
+    const w = Math.max(...ids.map((k) => k.length));
+    const lines = ids.map((k) => `  ${k.padEnd(w)}  ${RULES[k].level.padEnd(6)}  ${RULES[k].title}`);
+    return { found: true, text: ['', '  Every check mcpscan can report. `mcpscan explain <check>` for one in full.', '', ...lines, ''].join('\n') };
+  }
+  const r = RULES[id];
+  if (!r) {
+    const near = ids.filter((k) => k.includes(id) || editDistance(k, id) <= 3);
+    return { found: false, text: `\n  No check called "${id}".${near.length ? ` Did you mean: ${near.join(', ')}?` : ''} Run \`mcpscan explain\` for the list.\n` };
+  }
+  const wrap = (t) => t.replace(/(.{1,88})(\s+|$)/g, '    $1\n').trimEnd();
+  return {
+    found: true,
+    text: ['', `  ${id}: ${r.title}`, `  usual severity: ${r.level}`, '', '  Why it matters', wrap(r.why), '', '  What to do', wrap(r.fix), ''].join('\n'),
+  };
+}
+
+/** One line under every report that has findings, pointing at the in-tool docs. */
+export function explainHint(findings) {
+  const ids = [...new Set((findings ?? []).filter((f) => f.severity !== 'info').map((f) => f.check))];
+  return ids.length ? `  What these mean: ${ids.map((i) => `mcpscan explain ${i}`).slice(0, 3).join(' · ')}` : '';
 }

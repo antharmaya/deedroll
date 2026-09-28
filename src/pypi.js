@@ -1,14 +1,16 @@
 /**
- * PyPI source adapter (Node). Produces the same `pkg` shape the checks read for npm,
- * with `ecosystem: 'pypi'`, so every check that reads code runs unchanged; the few that
- * read package metadata branch on the ecosystem.
+ * PyPI source adapter. Produces the same `pkg` shape the checks read for npm, with
+ * `ecosystem: 'pypi'`, so every check that reads code runs unchanged; the few that read
+ * package metadata branch on the ecosystem.
+ *
+ * Web platform APIs only, so this one file serves the CLI (Node 22) and the browser page:
+ * every PyPI endpoint it uses sends CORS headers (checked 2026-09-28).
  *
  * What leaves the machine: the project name and version, sent to pypi.org and
  * files.pythonhosted.org. Nothing is installed: the archive is read in memory.
  */
-import { createHash } from 'node:crypto';
-import { readTarGz } from './tar.js';
 import { readZip, stripTopDirectory } from './zip.js';
+import { Bytes, readTar, gunzip, digest, hex, download } from './archive.js';
 import { pickPypiFile, pypiSourceUrl, repoSlug } from './model.js';
 
 const PYPI = 'https://pypi.org';
@@ -80,7 +82,8 @@ export async function provenanceHistoryPypi(project, releases, version, filename
   return { state: current ? 'present' : 'absent', current, earlierWithProvenance: earlier.length, lastWithProvenance: earlier.at(-1) ?? null };
 }
 
-export async function fetchPypiPackage(name, spec = 'latest', { fetchImpl = globalThis.fetch } = {}) {
+export async function fetchPypiPackage(name, spec = 'latest', { fetchImpl = globalThis.fetch, onProgress = () => {} } = {}) {
+  onProgress({ stage: 'metadata', name });
   const project = await getJson(`${PYPI}/pypi/${encodeURIComponent(name)}/json`, fetchImpl);
   if (!project) throw new PypiNotFound(`No public package called “${name}” on PyPI.`);
   const version = spec === 'latest' || !spec ? project.info.version : spec;
@@ -93,10 +96,9 @@ export async function fetchPypiPackage(name, spec = 'latest', { fetchImpl = glob
   if (!pick) throw new Error(`${name} ${version} has neither a wheel nor an sdist to read`);
   if (pick.file.size > MAX_ARCHIVE) return { ecosystem: 'pypi', name: info.name, version, skipped: 'too large', unpackedSize: pick.file.size };
 
-  const res = await fetchImpl(pick.file.url);
-  if (!res.ok) throw new Error(`download failed (HTTP ${res.status})`);
-  const archive = new Uint8Array(await res.arrayBuffer());
-  const sha256 = createHash('sha256').update(archive).digest('hex');
+  const archive = await download(pick.file.url, onProgress, fetchImpl);
+  const sha256 = hex(await digest('SHA-256', archive));
+  onProgress({ stage: 'unpack' });
   // METADATA and PKG-INFO embed the README: documentation, not code, so they are not read
   // (their links read as network egress otherwise; found on mcp-server-fetch).
   const keep = (p) => SCANNABLE.test(p) || /(^|\/)(setup\.py|pyproject\.toml)$/.test(p);
@@ -106,11 +108,11 @@ export async function fetchPypiPackage(name, spec = 'latest', { fetchImpl = glob
     raw = (await readZip(archive, { keep })).files;
     if (pick.kind === 'sdist') raw = stripTopDirectory(raw);
   } else if (/\.tar\.gz$/i.test(pick.file.filename)) {
-    raw = stripTopDirectory(readTarGz(Buffer.from(archive), { keep }));
+    raw = stripTopDirectory(readTar(await gunzip(archive), keep));
   } else {
     throw new Error(`cannot read ${pick.file.filename}`);
   }
-  const filesMap = new Map([...raw].map(([k, v]) => [k, Buffer.isBuffer(v) ? v : Buffer.from(v)]));
+  const filesMap = new Map([...raw].map(([k, v]) => [k, v instanceof Bytes ? v : new Bytes(v)]));
 
   // Presence and history come from the Simple API (PEP 691 JSON), which lists every file
   // with a provenance URL or null: one request, served from the index, reliable. The

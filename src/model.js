@@ -149,3 +149,25 @@ export function pypiSourceUrl(info) {
   const any = urls.find(([, v]) => repoSlug(v));
   return (named && repoSlug(named[1]) ? named[1] : any?.[1]) ?? (repoSlug(info?.home_page) ? info.home_page : null);
 }
+
+/**
+ * The registry's own verdict on a listing. `deleted` is what maintainers set for spam,
+ * malware or impersonation under the moderation policy; `deprecated` is the publisher
+ * withdrawing it. Read from the official `_meta`, which every entry fetch already has.
+ */
+export function listingStatus(entry) {
+  const official = entry?._meta?.['io.modelcontextprotocol.registry/official'];
+  const status = official?.status;
+  if (!status || status === 'active') return [];
+  return [
+    {
+      check: 'listing-status',
+      subject: status,
+      severity: status === 'deleted' ? 'high' : 'medium',
+      message: status === 'deleted'
+        ? `the MCP registry has removed this listing (status deleted${official.statusChangedAt ? ` on ${official.statusChangedAt.slice(0, 10)}` : ''}), which its moderation policy uses for spam, malware and impersonation`
+        : `the registry listing is marked ${status}${official.statusChangedAt ? ` since ${official.statusChangedAt.slice(0, 10)}` : ''}`,
+      evidence: [{ file: 'registry', line: 0, text: `${entry.server.name}: status ${status}` }],
+    },
+  ];
+}

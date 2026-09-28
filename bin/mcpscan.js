@@ -7,50 +7,66 @@ import { auditInstalled } from '../src/audit.js';
 import { readFileSync } from 'node:fs';
 import { buildDisclosureRequest } from '../src/disclosure.js';
 import { buildAgentRequest, createAgentJudge } from '../src/agent-judge.js';
-import { toJsonV1, installedToJsonV1, scanToSarif } from '../src/output.js';
+import { toJsonV1, installedToJsonV1, scanToSarif, toRegistryMeta } from '../src/output.js';
+import { explain } from '../src/report.js';
 
 const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 const print = (doc) => process.stdout.write(`${JSON.stringify(doc, null, 2)}\n`);
 
 const USAGE = `
-mcpscan — static trust scanner for MCP servers
+mcpscan: check an MCP server before you trust it. Reads packages and probes hosted servers;
+never installs, extracts to disk, or runs what it inspects.
 
-  mcpscan https://<host>/mcp     probe a hosted server read-only (initialize + tools/list only),
-                                 pin its tools, and report any change since the last probe
-  mcpscan --installed            audit every MCP server your agents already trust
-                                 (Claude Code, Codex, Claude Desktop, Cursor, Devin, Gemini CLI)
-  mcpscan --installed --remote   also probe the hosted ones (--auth-from-env sends \${VAR} headers)
-  mcpscan <url> --update-pins    accept the changes found and re-pin
-  mcpscan <url> --header 'Name: \${VAR}'   add a header; \${VAR} is read from the environment
-  mcpscan <registry-name>        scan a server listed in the official MCP registry
-  mcpscan npm:<package>          scan an npm package directly
-  mcpscan pypi:<package>         scan a PyPI package directly (the wheel pip would install)
-  mcpscan <target> --json        machine-readable output (schema mcpscan/v1)
-  mcpscan <target> --sarif       SARIF 2.1.0, for GitHub code scanning and security dashboards
-  mcpscan <target> --fail-on <high|medium|low|info|never>
-  mcpscan <target> --deps        also scan the vendor's own dependencies (thin wrappers keep
-                                 their tools there); one level, bounded, costs extra downloads
-  mcpscan <target> --no-osv      skip the known-vulnerability lookup (it sends package names and
-                                 versions to OSV.dev; nothing else ever leaves the machine)
-  mcpscan <target> --no-cache    do not read or write the local tarball cache
-  mcpscan <target> --semantic=agent   print a judgment request for the agent running you to answer
-                                      (no API key; see the mcpscan skill)
-  mcpscan --answers <file.json>       apply an agent's answers to that request and report
-  mcpscan <target> --semantic         judge via TypeSafe's API instead (needs TYPESAFE_API_KEY)
+WHAT TO SCAN
+  mcpscan <registry-name>          any official-registry listing, e.g. io.github.owner/server
+                                   (npm or PyPI package: read statically; hosted only: probed)
+  mcpscan npm:<package>            an npm package
+  mcpscan pypi:<package>           a PyPI package (the wheel pip would install)
+  mcpscan https://<host>/mcp       a hosted server: lists its tools read-only (never calls one),
+                                   pins them, and reports any change on later runs
+  mcpscan --installed              every server your agents already trust: Claude Code, Codex,
+                                   Claude Desktop, Cursor, Devin, Gemini CLI (--all for details)
 
-It never installs, extracts or executes what it inspects: the tarball is read in memory.
+OUTPUT
+  (default)                        readable report with file:line evidence
+  --json                           machine-readable, schema mcpscan/v1 (docs/schema-v1.md)
+  --sarif                          SARIF 2.1.0 for GitHub code scanning and security dashboards
+  --registry-meta                  a _meta block a registry or marketplace can attach to a listing
+  --fail-on <level>                exit 1 at or above high|medium|low|info, or never (default high)
 
-Examples
+OPTIONS
+  --version-of <v>                 scan a specific version instead of the latest
+  --deps                           also read the vendor's own dependencies (one level, bounded)
+  --no-osv                         skip the known-vulnerability lookup on OSV.dev
+  --no-cache                       do not read or write the local download cache
+  --remote                         with --installed, also probe the hosted servers
+  --auth-from-env                  send \${VAR} headers from your environment when probing
+  --header 'Name: \${VAR}'          add a header to a probe; the value is read from the environment
+  --update-pins                    accept a hosted server's changed tools and re-pin them
+  --semantic=agent / --answers f   let the agent running you judge tool descriptions (no API key)
+
+LEARN
+  mcpscan explain                  every check, one line each
+  mcpscan explain <check>          what a finding means, why it matters, what to do
+
+WHAT LEAVES YOUR MACHINE
+  Public package names and versions (npm or PyPI, the MCP registry, OSV.dev). A probe contacts
+  the server you name. No scan result, config, key or tool description is ever sent anywhere.
+
+EXAMPLES
   mcpscan npm:@modelcontextprotocol/server-filesystem
-  mcpscan io.github.owner/my-server --json
+  mcpscan pypi:mcp-server-fetch
+  mcpscan io.github.owner/my-server --sarif > mcpscan.sarif
+  mcpscan explain undeclared-env
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, sarif: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
+  const args = { target: null, json: false, sarif: false, registryMeta: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
     else if (a === '--sarif') args.sarif = true;
+    else if (a === '--registry-meta') args.registryMeta = true;
     else if (a === '--semantic') args.semantic = true;
     else if (a === '--semantic=agent') args.agentRequest = true;
     else if (a === '--answers') args.answers = argv[++i];
@@ -74,6 +90,12 @@ function parseArgs(argv) {
   return args;
 }
 
+if (process.argv[2] === 'explain') {
+  const { text, found } = explain(process.argv[3]);
+  process.stdout.write(`${text}\n`);
+  process.exit(found ? 0 : 2);
+}
+
 const args = parseArgs(process.argv.slice(2));
 
 if (args.target && /^https?:\/\//i.test(args.target)) {
@@ -82,6 +104,7 @@ if (args.target && /^https?:\/\//i.test(args.target)) {
     if (missing.length) process.stderr.write(`mcpscan: not set in this environment: ${missing.join(', ')}\n`);
     const result = await scanRemote(args.target, { headers, updatePins: args.updatePins });
     if (args.sarif) print(await scanToSarif([result], { version: VERSION }));
+    else if (args.registryMeta) print(await toRegistryMeta(result, { version: VERSION }));
     else if (args.json) print(await toJsonV1(result, { version: VERSION }));
     else process.stdout.write(`${renderRemote(result)}\n`);
     process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
@@ -151,9 +174,10 @@ if (args.help || !args.target) {
 try {
   const result = await scan(args.target, { version: args.version, semantic: args.semantic, deps: args.deps, osv: args.osv });
   if (args.sarif) print(await scanToSarif([result], { version: VERSION }));
+  else if (args.registryMeta) print(await toRegistryMeta(result, { version: VERSION }));
   else if (args.json) print(await toJsonV1(result, { version: VERSION }));
   else {
-    process.stdout.write(`${render(result)}\n`);
+    process.stdout.write(`${result.remote ? renderRemote(result) : render(result)}\n`);
   }
   process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
 } catch (err) {

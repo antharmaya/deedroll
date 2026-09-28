@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { RULES, SCHEMA, fingerprint } from '../src/rules.js';
 import { toSarif } from '../src/sarif.js';
-import { toJsonV1 } from '../src/output.js';
+import { toJsonV1, toRegistryMeta, META_KEY } from '../src/output.js';
+import { renderChecksDoc } from '../scripts/build-docs.js';
 
 const finding = (over = {}) => ({
   check: 'undeclared-env',
@@ -55,4 +56,19 @@ test('JSON v1 envelope: schema tag, ecosystem, and an id on every finding', asyn
   assert.equal(doc.schema, SCHEMA);
   assert.deepEqual(doc.package, { ecosystem: 'pypi', name: 'acme', version: '1.0', sha256: 'ab', file: 'acme-1.0-py3-none-any.whl' });
   assert.ok(doc.findings.every((f) => /^[0-9a-f]{16}$/.test(f.id)));
+});
+
+test('registry _meta block: namespaced key, counts, and no evidence text (it lives in a listing)', async () => {
+  const doc = await toRegistryMeta({ target: 'npm:acme', pkg: { name: 'acme', version: '1.0.0', sha256: 'ab' }, findings: [finding(), { check: 'capability', severity: 'info', message: 'uses process execution', evidence: [{ file: 'a.js', line: 3 }] }] }, { version: '9.9.9', scannedAt: '2026-09-28T00:00:00Z' });
+  assert.deepEqual(Object.keys(doc), [META_KEY]);
+  assert.match(META_KEY, /^[a-z]+(\.[a-z]+)+\/[a-z-]+$/, 'reverse-DNS key as the registry _meta rules require');
+  const m = doc[META_KEY];
+  assert.deepEqual(m.counts, { high: 1, medium: 0, low: 0, info: 1 });
+  assert.deepEqual(m.findings, [{ id: m.findings[0].id, check: 'undeclared-env', severity: 'high', subject: 'ACME_API_KEY', at: 'dist/index.js:12' }]);
+  assert.ok(!JSON.stringify(doc).includes('process.env'), 'no code text in the listing block');
+});
+
+test('docs/checks.md is generated from the catalog and up to date', () => {
+  const committed = readFileSync(new URL('../docs/checks.md', import.meta.url), 'utf8');
+  assert.equal(committed, renderChecksDoc(), 'stale: run node scripts/build-docs.js');
 });

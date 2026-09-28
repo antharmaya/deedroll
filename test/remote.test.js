@@ -5,31 +5,58 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { probeRemote, parseRpcBody, resolveHeaderRefs, ProbeError } from '../src/remote.js';
 import { diffPins, fingerprint, serverKey } from '../src/pins.js';
-import { scanRemote } from '../src/index.js';
+import { scanRemote, listingStatus } from '../src/index.js';
 import { parseCodexToml } from '../src/installed.js';
 
-// A fake Streamable HTTP server that records every JSON-RPC method it receives.
-function fakeServer({ tools = [], sse = false, pageSize = Infinity, status = 200, headers = {}, body = null } = {}) {
+// A fake MCP server that records every request it receives. `era` models the real kinds:
+//   legacy     2025-era SDK server: tools/list needs a session from initialize
+//   stateless  2025-era server run sessionless: answers a bare tools/list, no resultType
+//   modern     2026-07-28: stateless, needs _meta + headers, rejects initialize
+//   sse        the deprecated HTTP+SSE transport: POST is 405, GET opens an event stream
+function fakeServer({ tools = [], sse = false, pageSize = Infinity, status = 200, headers = {}, body = null, era = 'legacy', supported = ['2026-07-28'] } = {}) {
   const seen = [];
   const fetchImpl = async (url, init) => {
+    if (init.method === 'GET') {
+      seen.push({ method: 'GET' });
+      if (era !== 'sse') return new Response('', { status: 405 });
+      return new Response('event: endpoint\ndata: /messages?session=1\n\n', { status: 200, headers: { 'content-type': 'text/event-stream' } });
+    }
     const msg = JSON.parse(init.body);
-    seen.push({ method: msg.method, headers: { ...init.headers }, redirect: init.redirect });
+    seen.push({ method: msg.method, headers: { ...init.headers }, redirect: init.redirect, params: msg.params });
     const mk = (payload, extra = {}) => {
       const text = sse ? `event: message\ndata: ${JSON.stringify(payload)}\n\n` : JSON.stringify(payload);
       return new Response(text, {
-        status,
-        headers: { 'content-type': sse ? 'text/event-stream' : 'application/json', 'mcp-session-id': 'sess-1', ...headers, ...extra },
+        status: 200,
+        headers: { 'content-type': sse ? 'text/event-stream' : 'application/json', ...(era === 'legacy' ? { 'mcp-session-id': 'sess-1' } : {}), ...headers, ...extra },
       });
     };
+    const rpcError = (st, code, message, data) => new Response(JSON.stringify({ jsonrpc: '2.0', id: msg.id ?? null, error: { code, message, ...(data ? { data } : {}) } }), { status: st, headers: { 'content-type': 'application/json' } });
     if (body !== null) return new Response(body, { status, headers });
     if (status !== 200) return new Response('', { status, headers });
+    if (era === 'sse') return new Response('', { status: 405 });
+
+    const page = () => {
+      const start = Number(msg.params?.cursor ?? 0);
+      const next = start + pageSize < tools.length ? String(start + pageSize) : undefined;
+      return { tools: tools.slice(start, start + pageSize), ...(next ? { nextCursor: next } : {}) };
+    };
+
+    if (era === 'modern') {
+      if (msg.method === 'initialize') return rpcError(400, -32601, 'Method not found: this server speaks 2026-07-28');
+      const v = msg.params?._meta?.['io.modelcontextprotocol/protocolVersion'];
+      if (!v) return rpcError(400, -32602, 'missing _meta');
+      if (init.headers['mcp-protocol-version'] !== v || init.headers['mcp-method'] !== msg.method) return rpcError(400, -32020, 'Header mismatch');
+      if (!supported.includes(v)) return rpcError(400, -32022, 'Unsupported protocol version', { supported, requested: v });
+      if (msg.method === 'tools/list') return mk({ jsonrpc: '2.0', id: msg.id, result: { resultType: 'complete', ...page() } });
+      return rpcError(404, -32601, 'Method not found');
+    }
+
     if (msg.method === 'initialize') return mk({ jsonrpc: '2.0', id: msg.id, result: { protocolVersion: '2025-06-18', serverInfo: { name: 'fake', version: '1' } } });
     if (msg.method === 'notifications/initialized') return new Response(null, { status: 202 });
     if (msg.method === 'tools/list') {
-      const start = Number(msg.params?.cursor ?? 0);
-      const page = tools.slice(start, start + pageSize);
-      const next = start + pageSize < tools.length ? String(start + pageSize) : undefined;
-      return mk({ jsonrpc: '2.0', id: msg.id, result: { tools: page, ...(next ? { nextCursor: next } : {}) } });
+      // The TypeScript SDK's reply to a request without a session.
+      if (era === 'legacy' && init.headers['mcp-session-id'] !== 'sess-1') return rpcError(400, -32000, 'Bad Request: No valid session ID provided');
+      return mk({ jsonrpc: '2.0', id: msg.id, result: page() });
     }
     return mk({ jsonrpc: '2.0', id: msg.id, error: { code: -32601, message: 'no' } });
   };
@@ -41,18 +68,57 @@ const TOOLS = [
   { name: 'fetch', description: 'Fetch a page', inputSchema: { type: 'object' } },
 ];
 
-test('the probe only ever sends initialize, notifications/initialized and tools/list', async () => {
+test('legacy server: the probe falls back to initialize, and only ever sends discovery', async () => {
   const { fetchImpl, seen } = fakeServer({ tools: TOOLS });
   const r = await probeRemote('https://mcp.example.com/mcp', { fetchImpl });
+  assert.equal(r.era, 'legacy');
   assert.deepEqual(r.tools.map((t) => t.name), ['search', 'fetch']);
-  assert.deepEqual([...new Set(seen.map((s) => s.method))], ['initialize', 'notifications/initialized', 'tools/list']);
+  assert.deepEqual(seen.map((s) => s.method), ['tools/list', 'initialize', 'notifications/initialized', 'tools/list']);
   assert.ok(!seen.some((s) => s.method === 'tools/call'));
+});
+
+test('modern server (2026-07-28): stateless tools/list with _meta and mirrored headers, never initialize', async () => {
+  const { fetchImpl, seen } = fakeServer({ tools: TOOLS, era: 'modern' });
+  const r = await probeRemote('https://mcp.example.com/mcp', { fetchImpl });
+  assert.equal(r.era, 'modern');
+  assert.equal(r.protocolVersion, '2026-07-28');
+  assert.equal(r.tools.length, 2);
+  assert.deepEqual(seen.map((s) => s.method), ['tools/list']);
+  assert.equal(seen[0].headers['mcp-method'], 'tools/list');
+  assert.equal(seen[0].params._meta['io.modelcontextprotocol/protocolVersion'], '2026-07-28');
+  assert.deepEqual(seen[0].params._meta['io.modelcontextprotocol/clientCapabilities'], {});
+});
+
+test('modern server on another modern version: retried with the version it names, not downgraded to legacy', async () => {
+  const { fetchImpl, seen } = fakeServer({ tools: TOOLS, era: 'modern', supported: ['2027-01-15'] });
+  const r = await probeRemote('https://mcp.example.com/mcp', { fetchImpl });
+  assert.equal(r.protocolVersion, '2027-01-15');
+  assert.ok(!seen.some((s) => s.method === 'initialize'));
+});
+
+test('a modern error body is never mistaken for a legacy server', async () => {
+  const { fetchImpl, seen } = fakeServer({ tools: TOOLS, era: 'modern', supported: ['2025-11-25'] });
+  await assert.rejects(probeRemote('https://mcp.example.com/mcp', { fetchImpl }), (err) => err.kind === 'protocol' && /supports 2025-11-25/.test(err.message));
+  assert.ok(!seen.some((s) => s.method === 'initialize'), 'no fallback past a recognised modern error');
+});
+
+test('stateless 2025 server answers a bare tools/list: tools listed, era reported as legacy', async () => {
+  const { fetchImpl, seen } = fakeServer({ tools: TOOLS, era: 'stateless' });
+  const r = await probeRemote('https://mcp.example.com/mcp', { fetchImpl });
+  assert.equal(r.era, 'legacy');
+  assert.equal(r.tools.length, 2);
+  assert.deepEqual(seen.map((s) => s.method), ['tools/list']);
+});
+
+test('deprecated HTTP+SSE transport is detected and reported, not probed', async () => {
+  const { fetchImpl } = fakeServer({ tools: TOOLS, era: 'sse' });
+  await assert.rejects(probeRemote('https://mcp.example.com/sse', { fetchImpl }), (err) => err.kind === 'legacy-sse');
 });
 
 test('session id and negotiated protocol version are carried after initialize; redirects are never followed', async () => {
   const { fetchImpl, seen } = fakeServer({ tools: TOOLS });
   await probeRemote('https://mcp.example.com/mcp', { fetchImpl });
-  const list = seen.find((s) => s.method === 'tools/list');
+  const list = seen.findLast((s) => s.method === 'tools/list'); // the one after initialize
   assert.equal(list.headers['mcp-session-id'], 'sess-1');
   assert.equal(list.headers['mcp-protocol-version'], '2025-06-18');
   assert.ok(seen.every((s) => s.redirect === 'manual'));
@@ -172,4 +238,24 @@ test('the probe URL and header templates are usable but never serialised', () =>
   assert.deepEqual(s.headerRefs, { 'X-Goog-Api-Key': '${STITCH_MCP_HEADER}' });
   assert.ok(!JSON.stringify(s).includes('SECRETQUERY'));
   assert.ok(!existsSync('/nonexistent')); // keep the import used
+});
+
+test('a deprecated HTTP+SSE server becomes a low finding, not a silent "not probed"', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'mcpscan-pins-'));
+  try {
+    const r = await scanRemote('https://mcp.example.com/sse', { pinsFile: join(dir, 'p.json'), fetchImpl: fakeServer({ era: 'sse' }).fetchImpl });
+    assert.deepEqual(r.findings.map((f) => [f.check, f.severity]), [['deprecated-transport', 'low']]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('registry status: deleted is high, deprecated is medium, active says nothing', () => {
+  const entry = (status) => ({ server: { name: 'io.github.x/y' }, _meta: { 'io.modelcontextprotocol.registry/official': { status, statusChangedAt: '2026-08-01T00:00:00Z' } } });
+  assert.deepEqual(listingStatus(entry('active')), []);
+  assert.equal(listingStatus(entry('deprecated'))[0].severity, 'medium');
+  const [del] = listingStatus(entry('deleted'));
+  assert.equal(del.severity, 'high');
+  assert.match(del.message, /removed this listing .* on 2026-08-01/);
+  assert.deepEqual(listingStatus({ server: { name: 'x' } }), [], 'no _meta, no claim');
 });

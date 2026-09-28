@@ -21,7 +21,7 @@ npx @antharmaya/mcpscan io.github.owner/some-server --json
 npx @antharmaya/mcpscan --installed
 ```
 
-Reads the MCP configs of Claude Code, Codex, Claude Desktop, Cursor, Windsurf and Gemini CLI,
+Reads the MCP configs of Claude Code, Codex, Claude Desktop, Cursor, Devin (formerly Windsurf) and Gemini CLI,
 lists every server your agents trust, and statically scans each npm-launched one. **Nothing is
 launched.** On top of the package checks it reports two risks that need no package at all:
 

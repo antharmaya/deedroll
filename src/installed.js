@@ -136,7 +136,8 @@ export function resolveLaunch(raw) {
   if (cmd === 'uvx' || (cmd === 'uv' && args.includes('run'))) {
     const p = firstPositional(args, cmd === 'uv' ? args.indexOf('run') + 1 : 0);
     const name = p ? p.split(/[@=<>]/)[0] : null;
-    return { kind: 'pypi', name, pinned: Boolean(p && /==/.test(p)) };
+    const version = p && /==/.test(p) ? p.split('==')[1] : null;
+    return { kind: 'pypi', name, version, pinned: Boolean(version) };
   }
   if (cmd === 'docker' || cmd === 'podman') return { kind: 'container' };
   if (['node', 'python', 'python3', 'deno', 'bun', 'tsx', 'ts-node'].includes(cmd)) {
@@ -330,8 +331,7 @@ export function configFindings(server) {
 
   const reasons = {
     remote: `remote server at ${launch.host}: no package to scan statically`,
-    pypi: 'PyPI package: static scanning covers npm only today',
-    container: 'container image: static scanning covers npm only today',
+    container: 'container image: static scanning covers npm and PyPI only today',
     local: `local ${launch.runtime} script: local-path scanning not built yet`,
     binary: `runs the ${launch.command} binary: nothing to inspect statically`,
   };

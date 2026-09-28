@@ -33,6 +33,7 @@ test('npm exec --package, pnpm dlx and a full path to npx all resolve', () => {
 test('uvx, docker, remote, local scripts and binaries are classified, not guessed', () => {
   assert.equal(resolveLaunch({ command: 'uvx', args: ['mcp-server-fetch'] }).kind, 'pypi');
   assert.equal(resolveLaunch({ command: 'uvx', args: ['pkg==1.2.0'] }).pinned, true);
+  assert.equal(resolveLaunch({ command: 'uvx', args: ['pkg==1.2.0'] }).version, '1.2.0');
   assert.equal(resolveLaunch({ command: 'docker', args: ['run', '-i', 'img'] }).kind, 'container');
   assert.deepEqual(resolveLaunch({ type: 'http', url: 'https://mcp.example.com/sse?token=abc' }), {
     kind: 'remote',

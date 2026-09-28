@@ -42,6 +42,31 @@ none will be renamed, retyped or removed without a v2.
 `--installed --json` wraps the same finding shape per configured server:
 `{ "schema", "tool", "configs": [...], "servers": [{ "name", "agent", "file", "findings": [...] }] }`.
 
+## `--registry-meta`
+
+A compact block for a registry or marketplace to attach to a listing's `server.json` `_meta`, the
+mechanism the official registry's aggregator guide describes for "security scan results". Counts
+and pointers only, no code text, so it fits inside a listing; the v1 JSON is the full report.
+
+```json
+{
+  "com.antharmaya/mcpscan": {
+    "schema": "mcpscan/v1",
+    "tool": { "name": "mcpscan", "version": "0.1.0" },
+    "scannedAt": "2026-09-28T12:53:31.695Z",
+    "target": "npm:pretrip-mcp",
+    "package": { "ecosystem": "npm", "name": "pretrip-mcp", "version": "1.0.1", "sha256": "2b35…" },
+    "counts": { "high": 1, "medium": 1, "low": 1, "info": 1 },
+    "findings": [
+      { "id": "b43f3faf2df668f7", "check": "undeclared-env", "severity": "high", "subject": "PRETRIP_API_KEY", "at": "index.mjs:23" }
+    ]
+  }
+}
+```
+
+For hosted servers the block also carries `remote: { probed, era, protocolVersion, tools }`.
+`info` findings are counted but not listed.
+
 ## SARIF mapping
 
 | mcpscan | SARIF |

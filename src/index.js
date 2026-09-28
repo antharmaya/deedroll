@@ -1,6 +1,8 @@
 import { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers } from './sources.js';
 import { fetchPypiPackage } from './pypi.js';
-import { packageIdentifiers } from './model.js';
+import { packageIdentifiers, listingStatus } from './model.js';
+
+export { listingStatus } from './model.js';
 import { runAllChecks, SEVERITY_ORDER } from './checks.js';
 import { checkDisclosure } from './disclosure.js';
 import { createTypeSafeJudge } from './judge.js';
@@ -37,7 +39,7 @@ export const OFFICIAL_NAMES = [
  */
 export async function scan(
   target,
-  { version = 'latest', semantic = false, judge = null, deps = false, lookup = true, osv = true } = {}
+  { version = 'latest', semantic = false, judge = null, deps = false, lookup = true, osv = true, ...opts } = {}
 ) {
   let entry = null;
   let npmName = null;
@@ -58,6 +60,18 @@ export async function scan(
       ecosystem = 'pypi';
     }
     if (ids.length === 0) {
+      // Remote-only listing (57% of the registry, 2026-09-28): probe its endpoint instead.
+      const remote = (entry.server.remotes ?? []).find((r) => r.url && !/\{/.test(r.url));
+      if (remote) {
+        const r = await scanRemote(remote.url, { pinsFile: opts.pinsFile, fetchImpl: opts.fetchImpl });
+        const findings = [...listingStatus(entry), ...r.findings];
+        const templated = (entry.server.remotes ?? []).filter((x) => /\{/.test(x.url ?? '')).length;
+        if (templated) {
+          findings.push({ check: 'not-scanned', severity: 'info', message: `${templated} more endpoint(s) need values filled in (templated URL); not probed`, evidence: [{ file: 'registry', line: 0, text: entry.server.name }] });
+        }
+        findings.sort((x, y) => SEVERITY_ORDER[x.severity] - SEVERITY_ORDER[y.severity]);
+        return { ...r, target, entry, pkg: null, declared: declaredEnvVars(entry), remote: { ...r.remote, url: remote.url }, findings };
+      }
       return {
         target,
         entry,
@@ -95,7 +109,7 @@ export async function scan(
   }
 
   const declared = declaredEnvVars(entry);
-  const findings = runAllChecks({ pkg, entry, declared, officialNames: OFFICIAL_NAMES });
+  const findings = [...listingStatus(entry), ...runAllChecks({ pkg, entry, declared, officialNames: OFFICIAL_NAMES })];
 
   if (listing?.listings?.length > 1) {
     findings.push({
@@ -140,6 +154,20 @@ export async function scanRemote(url, { headers = {}, updatePins = false, pinsFi
     probe = await probeRemote(url, { headers, fetchImpl });
   } catch (err) {
     if (!(err instanceof ProbeError)) throw err;
+    if (err.kind === 'legacy-sse') {
+      return {
+        target: url,
+        remote: { probed: false, reason: err.kind, message: err.message, detail: err.detail },
+        findings: [
+          {
+            check: 'deprecated-transport',
+            severity: 'low',
+            message: 'uses the HTTP+SSE transport, deprecated since 2025-03-26 and eligible for removal; tools not listed',
+            evidence: [{ file: new URL(url).host, line: 0, text: 'GET opened an event stream with an endpoint event' }],
+          },
+        ],
+      };
+    }
     const severity = err.kind === 'redirect' && err.detail?.crossOrigin ? 'medium' : 'info';
     return {
       target: url,
@@ -188,6 +216,7 @@ export async function scanRemote(url, { headers = {}, updatePins = false, pinsFi
     target: url,
     remote: {
       probed: true,
+      era: probe.era,
       serverInfo: probe.serverInfo,
       protocolVersion: probe.protocolVersion,
       tools: probe.tools.length,

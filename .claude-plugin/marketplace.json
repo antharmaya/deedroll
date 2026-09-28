@@ -1,0 +1,12 @@
+{
+  "name": "antharmaya",
+  "description": "Antharmaya Labs tools for agents.",
+  "owner": { "name": "Antharmaya Labs" },
+  "plugins": [
+    {
+      "name": "mcpscan",
+      "description": "Pre-install trust scanner for MCP servers, with the host agent as the semantic judge",
+      "source": "./"
+    }
+  ]
+}

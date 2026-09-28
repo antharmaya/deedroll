@@ -6,6 +6,7 @@
  * author. Nothing untrusted is ever set as HTML: all of it goes through text nodes.
  */
 import { scanInBrowser } from '../src/browser.js';
+import { RULES } from '../src/rules.js';
 
 const $ = (s) => document.querySelector(s);
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -57,6 +58,7 @@ export function sentence(f) {
     case 'capability':
       return CAPS[m.replace(/^uses /, '')] ?? m;
     case 'install-script': {
+      if (/no wheel/.test(m)) return /setup\.py/.test(m) ? 'Publishes no wheel, so installing it runs its setup.py.' : 'Publishes no wheel, so installing it runs its build code.';
       const k = /runs a (\w+) script/.exec(m)?.[1] ?? 'lifecycle';
       const dep = /^dependency (\S+)/.exec(m)?.[1];
       return dep ? `Its dependency ${dep} runs a ${k} script when installed.` : `Runs a ${k} script when it is installed.`;
@@ -68,7 +70,12 @@ export function sentence(f) {
       if (/published (\d+)/.test(m)) return `Was published ${/published (\d+)/.exec(m)[1]} days ago.`;
       return m;
     case 'deprecated':
+      if (/yanked/.test(m)) return `PyPI marks this release yanked: “${m.replace(/^PyPI marks .*? yanked: /, '')}”`;
       return `npm marks this version deprecated: “${m.replace(/^npm marks \S+ deprecated: /, '')}”`;
+    case 'publisher-mismatch':
+      return `Built from ${/built from (\S+)/.exec(m)?.[1] ?? 'another repository'}, but links to ${/points at (\S+)/.exec(m)?.[1] ?? 'a different one'}.`;
+    case 'listing-status':
+      return f.subject === 'deleted' ? 'The MCP registry has removed this listing.' : `The registry listing is marked ${f.subject}.`;
     case 'provenance-dropped':
       return "Earlier versions were built by CI with provenance. This one wasn't.";
     case 'known-vulnerability': {
@@ -99,6 +106,8 @@ function ledgerKey(f) {
     case 'known-vulnerability': return 'does:vulns';
     case 'provenance': return /repository/.test(f.message) ? 'tells:source' : 'tells:package';
     case 'provenance-dropped': return 'tells:provenance';
+    case 'publisher-mismatch': return 'tells:provenance';
+    case 'listing-status': return 'tells:listing';
     case 'deprecated': return 'tells:status';
     case 'instruction-like-text': return 'tells:descriptions';
     case 'multiple-listings': return 'tells:listing';
@@ -126,7 +135,8 @@ function buildModel(r) {
     text: r.declared.length ? `Declares ${plural(r.declared.length, 'setting')}` : 'Declares no settings',
     detail: r.declared.length ? r.declared.slice(0, 4) : null,
   });
-  tells.push({ key: 'tells:provenance', sev: r.provenance ? 'ok' : 'info', text: r.provenance ? 'Built by CI, with npm provenance' : 'No provenance attestation' });
+  const reg = r.ecosystem === 'pypi' ? 'PyPI' : 'npm';
+  tells.push({ key: 'tells:provenance', sev: r.provenance ? 'ok' : 'info', text: r.provenance ? `Built by CI, with ${reg} provenance` : 'No provenance attestation' });
   for (const k of ['tells:source', 'tells:status', 'tells:descriptions', 'tells:package']) {
     if (byKey.has(k)) tells.push({ key: k, sev: worst(byKey.get(k)), text: sentence(byKey.get(k)[0]).replace(/\.$/, '') });
   }
@@ -316,6 +326,13 @@ function markRows(model, rows, shown) {
 
 /* ---------- findings list ---------- */
 
+/** Why it matters and what to do, from the same catalog the CLI's `explain` uses. */
+function explainBlock(check) {
+  const r = RULES[check];
+  if (!r) return null;
+  return el('div', { class: 'explain' }, el('p', {}, el('b', {}, 'Why it matters. '), r.why), el('p', {}, el('b', {}, 'What to do. '), r.fix));
+}
+
 function evidenceBlock(f) {
   return (f.evidence ?? []).filter((e) => e.text).slice(0, 3).map((e) => {
     const loc = e.line ? `${e.file}:${e.line}` : e.file;
@@ -362,7 +379,8 @@ function groupFindings(fs, allowGroups) {
       for (const f of members) {
         out.push(el('li', {}, el('details', {},
           el('summary', {}, glyph(f.severity), el('span', { class: 'what' }, sentence(f)), el('span', { class: 'where' }, where(f)), chev()),
-          ...evidenceBlock(f))));
+          ...evidenceBlock(f),
+          explainBlock(f.check))));
       }
       continue;
     }
@@ -373,7 +391,8 @@ function groupFindings(fs, allowGroups) {
     });
     out.push(el('li', {}, el('details', {},
       el('summary', {}, glyph(members[0].severity), el('span', { class: 'what' }, title), el('span', { class: 'where' }, ''), chev()),
-      el('ul', { class: 'members' }, ...lines))));
+      el('ul', { class: 'members' }, ...lines),
+      explainBlock(check))));
   }
   return out;
 }
@@ -423,6 +442,7 @@ function fromLive(r) {
     listing: r.listing.found ? r.entry.server.name : null,
     declared: [...r.declared.keys()],
     provenance: Boolean(r.pkg.provenance?.current),
+    ecosystem: r.pkg.ecosystem ?? 'npm',
     findings: r.findings,
   };
 }
@@ -453,7 +473,7 @@ async function show(data, { replay, my }) {
 }
 
 const STAGE_TEXT = {
-  metadata: (p) => `Fetching ${p.name} from npm…`,
+  metadata: (p) => `Fetching ${p.name} from ${p.registry ?? 'npm'}…`,
   download: (p) => (p.total ? `Downloading ${kb(p.bytes)} of ${kb(p.total)}…` : `Downloading ${kb(p.bytes)}…`),
   unpack: () => 'Unpacking in memory…',
   registry: () => 'Looking up its registry listing…',
@@ -491,7 +511,8 @@ async function scanLive(name) {
       status(STAGE_TEXT[p.stage]?.(p) ?? '');
       if (p.stage === 'registry') slow = setTimeout(() => !stale(my) && status('Waiting on the MCP registry, which is slow right now…'), 2500);
     };
-    const r = await scanInBrowser(name, { indexUrl: INDEX_URL, onProgress }).finally(() => clearTimeout(slow));
+    const registry = /^pypi:/.test(name) ? 'PyPI' : 'npm';
+    const r = await scanInBrowser(name, { indexUrl: INDEX_URL, onProgress: (p) => onProgress({ ...p, registry }) }).finally(() => clearTimeout(slow));
     if (stale(my)) return;
     await show(fromLive(r), { replay: false, my });
     history.replaceState(null, '', `?pkg=${encodeURIComponent(name)}`);
@@ -510,9 +531,21 @@ async function scanLive(name) {
   }
 }
 
+/**
+ * People paste what their config says: "npx -y pkg", "uvx pkg", "pip install pkg". Keep
+ * the package and its ecosystem; drop the launcher and any "@latest" or "==1.2" pin.
+ */
+export function normalizeTarget(raw) {
+  let v = raw.trim();
+  const py = /^(uvx|pipx\s+run|pip3?\s+install|uv\s+(?:tool\s+)?run)\s+/i;
+  if (py.test(v)) v = `pypi:${v.replace(py, '').replace(/^(--?\S+\s+(?:\S+\s+)?)*/, '')}`;
+  v = v.replace(/^npx\s+(-y\s+|--yes\s+)?/i, '').replace(/^npm:/i, '');
+  return v.replace(/@latest$/, '').split(/\s+/)[0].replace(/==.*$/, '');
+}
+
 $('#scan-form').addEventListener('submit', (e) => {
   e.preventDefault();
-  const name = $('#pkg').value.trim().replace(/^npm:/, '').replace(/^npx\s+(-y\s+)?/, '').replace(/@latest$/, '');
+  const name = normalizeTarget($('#pkg').value);
   if (!name) {
     const help = $('#pkg-help');
     help.classList.add('error');

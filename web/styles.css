@@ -464,3 +464,9 @@ footer.site-foot span:first-child { margin-right: auto; }
   .findings .members { margin-left: 0; }
   .findings .members li { grid-template-columns: 1fr; gap: 2px; }
 }
+
+/* why it matters / what to do, from the rules catalog */
+.findings .explain { margin: var(--s3) 0 var(--s2) 30px; padding-left: var(--s4); border-left: 2px solid var(--accent-soft); font-size: var(--t-sm); color: var(--text-muted); max-width: var(--measure); }
+.findings .explain p { margin: 0 0 var(--s2); }
+.findings .explain b { color: var(--text); font-weight: 600; }
+@media (max-width: 640px) { .findings .explain { margin-left: 0; } }

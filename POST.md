@@ -72,23 +72,26 @@ Both are good and both exist; use them. They answer a different question at a di
 [Snyk Agent Scan](https://github.com/snyk/agent-scan) (formerly Invariant's `mcp-scan`) starts your
 configured servers to read their tools, sends tool names and descriptions to Snyk for analysis, and
 needs a Snyk token. It is strongest at tool poisoning and prompt injection.
-[Cisco's mcp-scanner](https://github.com/cisco-ai-defense/mcp-scanner) connects to live servers or
-scans PyPI source in a Docker sandbox, with YARA rules and an LLM that checks descriptions against
-code.
+[Cisco's mcp-scanner](https://github.com/cisco-ai-defense/mcp-scanner) connects to live servers,
+reads configs, and reads npm and PyPI packages without executing them, with YARA rules, optional
+LLM and Cisco API analyzers (which need keys), and dataflow analysis that checks docstrings against
+code in ten languages.
 
 mcpscan is the check **before** you install: it never runs the server, needs no account, and no
 scan result, config, key or tool description ever leaves your machine — it only looks up public
-package names and versions (on npm, the MCP registry and, unless you pass `--no-osv`, OSV.dev). It
-reads npm packages (where most MCP servers ship) and runs in a browser. It is the
-only one of the three that compares a server's **registry metadata** against its code — which is
-where the number above comes from. It does not detect prompt injection; they do.
+package names and versions (on npm or PyPI, the MCP registry and, unless you pass `--no-osv`,
+OSV.dev). It reads npm and PyPI packages, probes hosted servers on both protocol generations, writes
+SARIF, and runs in a browser. Of the three it is the one that compares a server's **registry
+metadata** against its code, which is where the number above comes from. It flags descriptions
+that instruct the model by pattern; judging prompt injection with a model is where they are
+stronger.
 
 ## One thing the registry cannot tell you
 
 The official registry's search matches listing names only, so it cannot answer "which listing
 ships the npm package `pretrip-mcp`?" (the answer is `agency.kesey/pretrip`). mcpscan ships an
-index built by walking every current listing — 36,586 of them, pointing at 9,744 npm packages — and
-267 of those packages are claimed by more than one listing.
+index built by walking every current listing: 36,906 of them on 2026-09-28, pointing at 9,796 npm
+and 3,868 PyPI packages. (On 2026-09-27, 267 npm packages were claimed by more than one listing.)
 
 ## Reproducing this
 

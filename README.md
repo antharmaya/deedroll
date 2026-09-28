@@ -3,17 +3,24 @@
 Static trust scanner for MCP servers. It diffs **what a server's code actually does** against
 **what its registry entry declares**, and reports the difference with file-and-line evidence.
 
-It never installs, extracts or executes what it inspects. The npm tarball is parsed in memory, so
-install scripts never run and a malicious path never touches your filesystem.
+It reads npm packages and PyPI packages (the wheel pip would install), and probes hosted servers
+read-only. It never installs, extracts or executes what it inspects: archives are parsed in memory,
+so install scripts never run and a malicious path never touches your filesystem.
 
-**What leaves your machine:** public package names and versions, looked up on npm, the MCP registry
-and OSV.dev (`--no-osv` skips the last). No scan result, config, key or tool description is ever
+**What leaves your machine:** public package names and versions, looked up on npm or PyPI, the MCP
+registry and OSV.dev (`--no-osv` skips the last). No scan result, config, key or tool description is ever
 sent anywhere.
 
 ```
 npx @antharmaya/mcpscan npm:@modelcontextprotocol/server-filesystem
+npx @antharmaya/mcpscan pypi:mcp-server-fetch
 npx @antharmaya/mcpscan io.github.owner/some-server --json
+npx @antharmaya/mcpscan io.github.owner/some-server --sarif > mcpscan.sarif
 ```
+
+Registry names work for listings that ship an npm or a PyPI package. `--json` output follows the
+`mcpscan/v1` schema ([docs/schema-v1.md](docs/schema-v1.md)); `--sarif` writes SARIF 2.1.0 for GitHub
+code scanning and other security dashboards. Every finding carries a stable `id` for baselines.
 
 ## Audit what you already trust
 
@@ -55,10 +62,11 @@ asks for them — or doesn't ask, and reads one you already exported.
 | Check | Severity | What it means |
 |---|---|---|
 | `undeclared-env` | high / medium / low | The code reads an environment variable the registry entry never declares. High when the name looks like a credential. |
-| `install-script` | high / low | `preinstall`, `install` or `postinstall` runs on `npm install`. The classic supply-chain vector. |
+| `install-script` | high / medium | `preinstall`, `install` or `postinstall` runs on `npm install`; for PyPI, no wheel is published, so installing builds the sdist and runs its `setup.py` or build hooks. The classic supply-chain vector. |
+| `publisher-mismatch` | medium | The provenance attestation says the release was built from one repository; the project points people at another. |
 | `provenance` | high / medium / low | No repository field, tarball does not match npm's integrity hash, single version, published days ago. |
 | `typosquat` | high / medium | Name is an unscoped clone of, or within two characters of, an official package. |
-| `deprecated` | medium | npm itself marks this version deprecated — often with a pointer to where the vendor moved (for several, a hosted server). |
+| `deprecated` | medium | npm marks this version deprecated, or PyPI marks it yanked — often with a pointer to where the vendor moved (for several, a hosted server). |
 | `known-vulnerability` | high / medium / low | Published advisories for this exact version, from OSV.dev (includes GitHub's), with the fixed version. A failed lookup is reported as failed, never as clean. |
 | `provenance-dropped` | medium | Earlier versions were published with npm provenance (built by CI from a named repo) and this one was not — a known sign of a publish from a stolen token. Never having provenance is not flagged. |
 | `multiple-listings` | info | More than one registry listing points at this package. |

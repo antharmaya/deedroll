@@ -7,6 +7,10 @@ import { auditInstalled } from '../src/audit.js';
 import { readFileSync } from 'node:fs';
 import { buildDisclosureRequest } from '../src/disclosure.js';
 import { buildAgentRequest, createAgentJudge } from '../src/agent-judge.js';
+import { toJsonV1, installedToJsonV1, scanToSarif } from '../src/output.js';
+
+const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
+const print = (doc) => process.stdout.write(`${JSON.stringify(doc, null, 2)}\n`);
 
 const USAGE = `
 mcpscan — static trust scanner for MCP servers
@@ -20,7 +24,9 @@ mcpscan — static trust scanner for MCP servers
   mcpscan <url> --header 'Name: \${VAR}'   add a header; \${VAR} is read from the environment
   mcpscan <registry-name>        scan a server listed in the official MCP registry
   mcpscan npm:<package>          scan an npm package directly
-  mcpscan <target> --json        machine-readable output
+  mcpscan pypi:<package>         scan a PyPI package directly (the wheel pip would install)
+  mcpscan <target> --json        machine-readable output (schema mcpscan/v1)
+  mcpscan <target> --sarif       SARIF 2.1.0, for GitHub code scanning and security dashboards
   mcpscan <target> --fail-on <high|medium|low|info|never>
   mcpscan <target> --deps        also scan the vendor's own dependencies (thin wrappers keep
                                  their tools there); one level, bounded, costs extra downloads
@@ -40,10 +46,11 @@ Examples
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
+  const args = { target: null, json: false, sarif: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
+    else if (a === '--sarif') args.sarif = true;
     else if (a === '--semantic') args.semantic = true;
     else if (a === '--semantic=agent') args.agentRequest = true;
     else if (a === '--answers') args.answers = argv[++i];
@@ -74,7 +81,8 @@ if (args.target && /^https?:\/\//i.test(args.target)) {
     const { headers, missing } = resolveHeaderRefs(args.headers);
     if (missing.length) process.stderr.write(`mcpscan: not set in this environment: ${missing.join(', ')}\n`);
     const result = await scanRemote(args.target, { headers, updatePins: args.updatePins });
-    if (args.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (args.sarif) print(await scanToSarif([result], { version: VERSION }));
+    else if (args.json) print(await toJsonV1(result, { version: VERSION }));
     else process.stdout.write(`${renderRemote(result)}\n`);
     process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
   } catch (err) {
@@ -111,7 +119,8 @@ if (args.answers) {
       judge,
       osv: args.osv,
     });
-    if (args.json) process.stdout.write(`${JSON.stringify({ target: result.target, disclosure: result.disclosure, findings: result.findings }, null, 2)}\n`);
+    if (args.sarif) print(await scanToSarif([result], { version: VERSION }));
+    else if (args.json) print(await toJsonV1(result, { version: VERSION }));
     else process.stdout.write(`${render(result)}\n`);
     process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
   } catch (err) {
@@ -123,7 +132,8 @@ if (args.answers) {
 if (args.installed && !args.help) {
   try {
     const result = await auditInstalled({ semantic: args.semantic, deps: args.deps, osv: args.osv, remote: args.remote, authFromEnv: args.authFromEnv, updatePins: args.updatePins });
-    if (args.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (args.sarif) print(await scanToSarif(result.servers.map((s) => ({ target: `${s.agent}:${s.name}`, pkg: null, findings: s.findings })), { version: VERSION }));
+    else if (args.json) print(await installedToJsonV1(result, { version: VERSION }));
     else process.stdout.write(`${renderInstalled(result, { all: args.all })}\n`);
     const all = result.servers.flatMap((s) => s.findings);
     process.exit(args.failOn === 'never' ? 0 : exitCode(all, { failOn: args.failOn }));
@@ -140,22 +150,9 @@ if (args.help || !args.target) {
 
 try {
   const result = await scan(args.target, { version: args.version, semantic: args.semantic, deps: args.deps, osv: args.osv });
-  if (args.json) {
-    process.stdout.write(
-      `${JSON.stringify(
-        {
-          target: result.target,
-          package: result.pkg ? { name: result.pkg.name, version: result.pkg.version, sha256: result.pkg.sha256 } : null,
-          inRegistry: Boolean(result.entry),
-          declaredEnv: [...(result.declared?.keys() ?? [])],
-          findings: result.findings,
-          ...(result.disclosure ? { disclosure: result.disclosure } : {}),
-        },
-        null,
-        2
-      )}\n`
-    );
-  } else {
+  if (args.sarif) print(await scanToSarif([result], { version: VERSION }));
+  else if (args.json) print(await toJsonV1(result, { version: VERSION }));
+  else {
     process.stdout.write(`${render(result)}\n`);
   }
   process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));

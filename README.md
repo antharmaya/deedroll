@@ -5,7 +5,8 @@ compares it with what the server tells you, then reports every difference with t
 that proves it.
 
 It never installs, extracts to disk, or runs what it inspects. Packages are read in memory, so
-install scripts never run. Hosted servers are asked for their tool list and nothing else.
+install scripts never run. Hosted servers are asked for their tool list, and how their sign-in
+works, and nothing else: no tool is ever called.
 
 **What leaves your machine:** public package names and versions (sent to npm or PyPI, the MCP
 registry and OSV.dev); a probe contacts the server you name. No scan result, config, key or tool
@@ -19,7 +20,13 @@ description is ever sent anywhere. No account, no API key.
 node scripts/serve.js            # then open http://localhost:4173/web/
 ```
 
-Type a package, click an example, or paste what your config says (`npx -y …`, `uvx …`).
+Type a server URL, a package or a registry name, click an example, or paste what your config
+says (`npx -y …`, `uvx …`).
+
+Most hosted servers don't let web pages read their answers (25 of 44 sampled, 2026-09-28). For
+those, the page offers mcpscan's relay: the same read-only probe, run from the server behind the
+page. It asks first, sees only the URL, and stores nothing. `scripts/serve.js` includes the relay
+for local use.
 
 **On the command line** (Node 22+):
 
@@ -41,11 +48,12 @@ From a clone, `node bin/mcpscan.js` works the same way. (Not yet published to np
 | A registry name, `io.github.owner/server` | Looks the listing up in the official MCP registry. If it ships an npm or PyPI package, reads it; if it is hosted only, probes it. Also reports when the registry has deprecated or removed the listing. |
 | `npm:<package>` | Downloads the tarball, verifies npm's hash, reads it in memory. |
 | `pypi:<package>` | Reads the wheel `pip install` would pick (pure-Python first), or the sdist when there is no wheel, and verifies PyPI's hash. |
-| `https://<host>/mcp` | Lists the server's tools read-only, never calls one. Speaks the current protocol (2026-07-28, stateless) and older ones. Pins the tools and reports changes on later runs. |
+| `https://<host>/mcp` | Lists the server's tools read-only, never calls one. Speaks the current protocol (2026-07-28, stateless) and older ones. Pins the tools and reports changes on later runs. If it requires sign-in, checks how that sign-in is built, from public metadata only. |
 | `--installed` | Reads the MCP configs of Claude Code, Codex, Claude Desktop, Cursor, Devin and Gemini CLI, scans each npm and PyPI server, and with `--remote` probes hosted ones. Nothing is launched. |
 
-Not yet: Docker images, `.mcpb` bundles, NuGet and Cargo packages, servers that need OAuth sign-in,
-and tool lists over the deprecated HTTP+SSE transport (detected and reported, not listed). Each is
+Not yet: Docker images, `.mcpb` bundles, NuGet and Cargo packages; the tool lists of servers that
+require sign-in (their sign-in is checked, their tools are not listed, since mcpscan uses no
+account); and tool lists over the deprecated HTTP+SSE transport (detected and reported). Each is
 reported as "not scanned" with the reason, never as clean.
 
 ## Reading a result
@@ -85,6 +93,7 @@ The exit code is 1 when anything at or above `--fail-on` (default `high`) is fou
 |---|---|
 | `--json` | Scripts and pipelines. Schema `mcpscan/v1` ([docs/schema-v1.md](docs/schema-v1.md)): stable check ids, and a stable `id` per finding for baselines and suppressions. |
 | `--sarif` | GitHub code scanning, Azure DevOps and security dashboards. SARIF 2.1.0, validated against the official schema. |
+| `--egress` | Egress proxies. The hosts the server's code names, as a starting allowlist (static, so a starting point). |
 | `--registry-meta` | Registries and marketplaces. A `_meta` block under `com.antharmaya/mcpscan` that a subregistry can attach to a listing: the mechanism the official registry documents for "security scan results". |
 
 GitHub code scanning, for example:
@@ -110,7 +119,10 @@ Grouped here; every check, with why and what to do, is in [docs/checks.md](docs/
 - **Known vulnerabilities**, from OSV.dev (includes GitHub's advisories). A failed lookup is
   reported as failed, never as clean.
 - **Hosted servers.** A tool description that changed since the last probe is **high**, with the
-  old and new text: a hosted server can rewrite what its tools tell the model at any time.
+  old and new text: a hosted server can rewrite what its tools tell the model at any time. For
+  servers that require sign-in: whether they publish how to sign in (as the spec requires),
+  PKCE, issuer and token-audience checks, and registration only through deprecated mechanisms.
+- **Upstream status.** Reference servers the MCP project has archived, which PyPI does not mark.
 - **Your own configs.** Plaintext secrets, and launches that always pull the newest version.
 
 ## How it compares
@@ -159,6 +171,22 @@ mcpscan --installed --remote --auth-from-env       # every hosted server your ag
   redirect would carry the request, and any credential, somewhere else).
 - **Credentials are opt-in:** `--auth-from-env` resolves `${VAR}` header references and sends them
   only to that server.
+
+## The registry history
+
+A hosted server can change what its tools say after you approved them, and the official
+registry keeps no guarantees about its own data. So mcpscan keeps a record: once a day, every
+listing's declarations (packages, settings, endpoints, status), a diff against the day before,
+and the tool lists of a rotating slice of hosted servers. Each day's entry is hash-chained to the
+one before, so the history cannot be quietly rewritten.
+
+```
+node scripts/snapshot.js              # take today's snapshot (a daily systemd timer runs this)
+node scripts/snapshot.js --status     # the last runs, and a warning if the record went stale
+node scripts/snapshot.js --verify     # re-hash every file and check every link in the chain
+```
+
+Stored under `archive/` (not in git), about 1 MB a day. Where it will be published is not decided.
 
 ## Audit what you already trust
 
@@ -231,6 +259,7 @@ scanned, none errored. A benchmark of the scanner, not a published statistic.
 | [docs/checks.md](docs/checks.md) | Every check: why it matters, what to do (generated from `src/rules.js`) |
 | [docs/schema-v1.md](docs/schema-v1.md) | The `--json`, `--sarif` and `--registry-meta` output contract |
 | [docs/architecture.md](docs/architecture.md) | How it is built: the seams, the one-way doors, the failure modes |
+| [docs/nsa-coverage.md](docs/nsa-coverage.md) | What mcpscan covers of the NSA's MCP security guidance (May 2026), and what it does not |
 | [web/DESIGN.md](web/DESIGN.md) | The web page's design system |
 | `mcpscan --help`, `mcpscan explain` | The same, in the terminal |
 
@@ -244,6 +273,7 @@ node scripts/build-index.js           # rebuild the registry index (~10 minutes)
 node scripts/build-docs.js            # regenerate docs/checks.md after editing src/rules.js
 node scripts/build-web-data.js        # regenerate the page's demo scan and registry figures
 node scripts/registry-sweep.js 60     # the npm measurement; pypi-benchmark.js for PyPI
+node scripts/snapshot.js --status     # the registry history
 ```
 
 Zero dependencies, on purpose: a security tool's dependencies are its attack surface. MIT.

@@ -96,10 +96,35 @@ async function download(url, onProgress, fetchImpl) {
   return out;
 }
 
+/**
+ * npm answers a missing *scoped* package with a 404 that has no CORS header, so in a tab
+ * it surfaces as a bare network error, indistinguishable from being offline. Unscoped
+ * 404s do carry the header, so a request for a name nobody publishes tells the two apart:
+ * if npm answers that, the network is fine and the scoped package isn't public.
+ */
+const PROBE = `${NPM}/mcpscan-reachability-probe-0`;
+async function fetchPackument(name, fetchImpl) {
+  const url = `${NPM}/${encodeURIComponent(name).replace('%40', '@')}`;
+  try {
+    return await fetchImpl(url);
+  } catch (err) {
+    if (!name.startsWith('@')) throw err;
+    let reachable = false;
+    try {
+      await fetchImpl(PROBE);
+      reachable = true;
+    } catch {
+      /* genuinely offline: report the original error */
+    }
+    if (!reachable) throw err;
+    return { status: 404, ok: false };
+  }
+}
+
 export async function fetchPackageInBrowser(name, spec = 'latest', { onProgress = () => {}, fetchImpl = globalThis.fetch } = {}) {
   onProgress({ stage: 'metadata', name });
-  const res = await fetchImpl(`${NPM}/${encodeURIComponent(name).replace('%40', '@')}`);
-  if (res.status === 404) throw Object.assign(new Error(`No package called “${name}” on npm.`), { code: 'not-found' });
+  const res = await fetchPackument(name, fetchImpl);
+  if (res.status === 404) throw Object.assign(new Error(`No public package called “${name}” on npm.`), { code: 'not-found' });
   if (!res.ok) throw new Error(`npm answered HTTP ${res.status}`);
   const packument = await res.json();
   const { version, approximate } = resolveVersion(packument, spec);

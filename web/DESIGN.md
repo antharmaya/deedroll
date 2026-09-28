@@ -107,6 +107,11 @@ Breakpoints: **980 px** the hero stacks (copy over stage); **640 px** the stage 
 | Input | classified as it is read: `https://…` is a hosted server, `owner.tld/name` a registry listing, anything else a package; pasted launch commands (`npx -y`, `uvx`, `pip install`) are reduced to the package |
 | Relay consent | when a hosted server blocks browsers, a panel under the input says why, what the relay sees (the URL) and keeps (nothing), with "Probe through the relay", an "Always" choice, and the CLI command as the alternative. The Scan button stays usable while it asks. |
 | Hosted server stage | rows are the server's tools (tagged read-only or destructive when the server says so), or for a sign-in server the sign-in checks, one per row; the second ledger is titled "What we found", since there is no code |
+| Check this computer | tries 18 common MCP ports on 127.0.0.1 from the page; a readable server is shown high, with its tools listed as proof ("this page just did it"); a port that answers opaquely is "listening, and it keeps websites out"; nothing readable explains that the browser may have blocked local access. The page's own port is skipped. |
+| Servers your agents trust | a file chooser and drop zone; files are parsed in the page (secret values dropped inside the parser, never in the DOM or any request); each server shows its config findings and a "Scan it" button, except hosted ones whose URL carries a credential, which point to the command line |
+| Downloads | JSON, SARIF, egress allowlist and registry block for the last live scan; hidden during the demo replay |
+| Every check | a disclosure listing every check by group, with why and what to do, from the same catalog as `mcpscan explain` |
+| Registry history | days recorded, the latest day's counts and diff, and "Verify it in your browser" (re-hashes every chain link and the latest file) |
 | Browser pins | tools are remembered per server in this browser; a later change is reported with an explicit "Accept these tools as the new baseline" button, never accepted silently |
 
 Races: a generation counter guards every async flow, including the last step of the animation,

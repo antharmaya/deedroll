@@ -22,8 +22,9 @@
   <header class="site">
     <a class="mark" href="./" aria-label="mcpscan home" translate="no"><b>mcp<i>scan</i></b><span>by Antharmaya Labs</span></a>
     <nav aria-label="Sections">
-      <a href="#how">How it works</a>
+      <a href="#setup">Your setup</a>
       <a href="#registry">The registry</a>
+      <a href="#how">How it works</a>
       <a href="#cli">Command line</a>
     </nav>
     <button class="theme" type="button" aria-label="Switch between light and dark"><svg class="sun" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></svg><svg class="moon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></svg></button>
@@ -83,7 +84,47 @@
         <p id="results-sub"></p>
         <div class="verdict" id="verdict"></div>
       </div>
+      <div class="exports" id="exports" role="group" aria-label="Download this report">
+        <span>Download</span>
+        <button class="chip" type="button" data-export="json">JSON report</button>
+        <button class="chip" type="button" data-export="sarif">SARIF</button>
+        <button class="chip" type="button" data-export="egress">Egress allowlist</button>
+        <button class="chip" type="button" data-export="meta">Registry block</button>
+      </div>
       <ol class="findings" id="findings"></ol>
+    </section>
+
+    <section class="setup" id="setup" aria-labelledby="setup-h">
+      <h2 id="setup-h">Check your own setup</h2>
+      <div class="setup-grid">
+        <div class="setup-part" aria-labelledby="local-h">
+          <h3 id="local-h">MCP servers on this computer</h3>
+          <p>Tries the ports MCP servers usually use on this computer and answers the question that matters from a web page: can a website reach them? Your browser may ask whether this page can access devices on your local network.</p>
+          <button class="btn" type="button" id="local-go">Check this computer</button>
+          <p class="setup-status" id="local-status" aria-live="polite"></p>
+          <ol class="setup-results" id="local-results"></ol>
+          <p class="setup-note">The command line checks every listening port, and your network: <code translate="no">npx @antharmaya/mcpscan --local</code></p>
+        </div>
+        <div class="setup-part" aria-labelledby="config-h">
+          <h3 id="config-h">Servers your agents trust</h3>
+          <p>Choose your agents' MCP config files. They are read in this page and never uploaded, and secret values are dropped the moment they are read.</p>
+          <label class="dropzone" id="config-drop" for="config-files">
+            <input type="file" id="config-files" multiple accept=".json,.toml">
+            <span>Choose or drop config files</span>
+          </label>
+          <details class="config-where"><summary>Where they are</summary>
+            <ul>
+              <li>Claude Desktop: <code translate="no">~/Library/Application Support/Claude/claude_desktop_config.json</code> (macOS), <code translate="no">%APPDATA%\Claude\claude_desktop_config.json</code> (Windows), <code translate="no">~/.config/Claude/claude_desktop_config.json</code> (Linux)</li>
+              <li>Claude Code: <code translate="no">~/.claude.json</code> and a project's <code translate="no">.mcp.json</code></li>
+              <li>Cursor: <code translate="no">~/.cursor/mcp.json</code>. Codex: <code translate="no">~/.codex/config.toml</code></li>
+              <li>Devin: <code translate="no">~/.codeium/windsurf/mcp_config.json</code>. Gemini CLI: <code translate="no">~/.gemini/settings.json</code></li>
+            </ul>
+            <p>Files starting with a dot are hidden in most file pickers: press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>.</kbd> on macOS or <kbd>Ctrl</kbd>+<kbd>H</kbd> on Linux to show them.</p>
+          </details>
+          <p class="setup-status" id="config-status" aria-live="polite"></p>
+          <ol class="setup-results" id="config-results"></ol>
+        </div>
+      </div>
     </section>
   </main>
 </div>
@@ -105,6 +146,12 @@
 </section>
 
 <div class="wrap">
+  <section class="history" id="history" aria-labelledby="history-h">
+    <h2 id="history-h">The registry, day by day</h2>
+    <p class="history-lede">Every day, mcpscan records what each listing in the official MCP registry declares, and what a slice of hosted servers' tools say. Each day is chained to the one before by its hash, so the record cannot be quietly rewritten, and you can check that yourself.</p>
+    <div class="history-body" id="history-body"><p class="setup-status">Loading the record…</p></div>
+  </section>
+
   <section class="steps" id="how" aria-labelledby="how-h">
     <h2 id="how-h">How a scan works</h2>
     <div>
@@ -113,6 +160,7 @@
         <li><h3>Read it without running it</h3><p>Packages are unpacked in memory: install scripts never run and nothing touches your disk. Hosted servers get discovery requests only, never a tool call.</p></li>
         <li><h3>Compare the label with the code</h3><p>What its registry listing declares, against what the code reads, runs and contacts. Every finding points at a file and a line.</p></li>
       </ol>
+      <details class="catalog" id="catalog"><summary>Every check mcpscan makes</summary><div id="catalog-body"></div></details>
       <p class="promise"><b>What leaves your browser:</b> package names and versions (to npm or PyPI, the MCP registry and OSV.dev), and for a hosted server, the discovery requests to that server. If you choose the relay, the URL goes to mcpscan's relay, which keeps nothing. Tools you scan are remembered in this browser only, so a later change stands out.</p>
     </div>
   </section>

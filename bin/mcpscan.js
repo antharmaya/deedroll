@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { scan } from '../src/index.js';
-import { render, renderInstalled, exitCode } from '../src/report.js';
+import { render, renderInstalled, renderRemote, exitCode } from '../src/report.js';
+import { scanRemote } from '../src/index.js';
+import { resolveHeaderRefs } from '../src/remote.js';
 import { auditInstalled } from '../src/audit.js';
 import { readFileSync } from 'node:fs';
 import { buildDisclosureRequest } from '../src/disclosure.js';
@@ -9,8 +11,13 @@ import { buildAgentRequest, createAgentJudge } from '../src/agent-judge.js';
 const USAGE = `
 mcpscan — static trust scanner for MCP servers
 
+  mcpscan https://<host>/mcp     probe a hosted server read-only (initialize + tools/list only),
+                                 pin its tools, and report any change since the last probe
   mcpscan --installed            audit every MCP server your agents already trust
                                  (Claude Code, Codex, Claude Desktop, Cursor, Windsurf, Gemini CLI)
+  mcpscan --installed --remote   also probe the hosted ones (--auth-from-env sends \${VAR} headers)
+  mcpscan <url> --update-pins    accept the changes found and re-pin
+  mcpscan <url> --header 'Name: \${VAR}'   add a header; \${VAR} is read from the environment
   mcpscan <registry-name>        scan a server listed in the official MCP registry
   mcpscan npm:<package>          scan an npm package directly
   mcpscan <target> --json        machine-readable output
@@ -33,13 +40,20 @@ Examples
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null };
+  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null, remote: false, authFromEnv: false, updatePins: false, headers: {} };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
     else if (a === '--semantic') args.semantic = true;
     else if (a === '--semantic=agent') args.agentRequest = true;
     else if (a === '--answers') args.answers = argv[++i];
+    else if (a === '--remote') args.remote = true;
+    else if (a === '--auth-from-env') args.authFromEnv = true;
+    else if (a === '--update-pins') args.updatePins = true;
+    else if (a === '--header') {
+      const [k, ...v] = String(argv[++i] ?? '').split(':');
+      if (k && v.length) args.headers[k.trim()] = v.join(':').trim();
+    }
     else if (a === '--installed') args.installed = true;
     else if (a === '--all') args.all = true;
     else if (a === '--deps') args.deps = true;
@@ -54,6 +68,20 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2));
+
+if (args.target && /^https?:\/\//i.test(args.target)) {
+  try {
+    const { headers, missing } = resolveHeaderRefs(args.headers);
+    if (missing.length) process.stderr.write(`mcpscan: not set in this environment: ${missing.join(', ')}\n`);
+    const result = await scanRemote(args.target, { headers, updatePins: args.updatePins });
+    if (args.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    else process.stdout.write(`${renderRemote(result)}\n`);
+    process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
+  } catch (err) {
+    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.exit(2);
+  }
+}
 
 if (args.agentRequest && args.target) {
   // Step 1: the agent protocol. Machine-readable only: this output is for an agent.
@@ -94,7 +122,7 @@ if (args.answers) {
 
 if (args.installed && !args.help) {
   try {
-    const result = await auditInstalled({ semantic: args.semantic, deps: args.deps, osv: args.osv });
+    const result = await auditInstalled({ semantic: args.semantic, deps: args.deps, osv: args.osv, remote: args.remote, authFromEnv: args.authFromEnv, updatePins: args.updatePins });
     if (args.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     else process.stdout.write(`${renderInstalled(result, { all: args.all })}\n`);
     const all = result.servers.flatMap((s) => s.findings);
@@ -107,7 +135,7 @@ if (args.installed && !args.help) {
 
 if (args.help || !args.target) {
   process.stdout.write(USAGE);
-  process.exit(args.target ? 0 : 2);
+  process.exit(args.help ? 0 : 2); // --help is a request, not a usage error
 }
 
 try {

@@ -3,7 +3,8 @@
  * risks, and statically scan every npm-launched server. Nothing is launched.
  */
 import { discoverInstalled, configFindings } from './installed.js';
-import { scan } from './index.js';
+import { scan, scanRemote } from './index.js';
+import { resolveHeaderRefs } from './remote.js';
 import { SEVERITY_ORDER } from './checks.js';
 
 /** Run async jobs with at most `limit` in flight. */
@@ -20,7 +21,7 @@ async function pool(items, limit, fn) {
   return results;
 }
 
-export async function auditInstalled({ home, cwd, concurrency = 4, semantic = false, judge = null, deps = false, osv = true } = {}) {
+export async function auditInstalled({ home, cwd, concurrency = 4, semantic = false, judge = null, deps = false, osv = true, remote = false, authFromEnv = false, updatePins = false } = {}) {
   const { configs, servers } = discoverInstalled({ home, cwd });
 
   // The same package often sits in several agents' configs: scan each name@version once.
@@ -52,6 +53,26 @@ export async function auditInstalled({ home, cwd, concurrency = 4, semantic = fa
     }
   });
 
+  // Remote servers: a read-only probe per distinct URL, only when asked (--remote).
+  const probes = new Map();
+  if (remote) {
+    const urls = [...new Set(servers.filter((s) => s.launch.kind === 'remote' && s.probeUrl).map((s) => s.probeUrl))];
+    await pool(urls, concurrency, async (url) => {
+      const owner = servers.find((s) => s.probeUrl === url);
+      const { headers, missing } = authFromEnv ? resolveHeaderRefs(owner.headerRefs) : { headers: {}, missing: [] };
+      const r = await scanRemote(url, { headers, updatePins });
+      if (missing.length) {
+        r.findings.push({
+          check: 'credential-unresolved',
+          severity: 'info',
+          message: `header references ${missing.join(', ')}, which is not set in this environment`,
+          evidence: [{ file: new URL(url).host, line: 0, text: missing.join(', ') }],
+        });
+      }
+      probes.set(url, r);
+    });
+  }
+
   const results = servers.map((s) => {
     const own = configFindings(s);
     let pkg = null;
@@ -61,9 +82,13 @@ export async function auditInstalled({ home, cwd, concurrency = 4, semantic = fa
       pkg = hit?.pkg ?? null;
       pkgFindings = hit?.findings ?? [];
     }
-    const findings = [...own, ...pkgFindings].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
-    return { ...s, pkg, findings };
+    const probe = s.probeUrl ? probes.get(s.probeUrl) : null;
+    const remoteFindings = probe?.findings ?? [];
+    const findings = [...own, ...pkgFindings, ...remoteFindings]
+      .filter((f) => !(probe && f.check === 'not-scanned'))
+      .sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+    return { ...s, pkg, remote: probe?.remote ?? null, findings };
   });
 
-  return { configs, servers: results, packagesScanned: scanned.size };
+  return { configs, servers: results, packagesScanned: scanned.size, remoteProbed: probes.size };
 }

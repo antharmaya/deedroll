@@ -331,8 +331,13 @@ const INJECTION_PATTERNS = [
 const HIDDEN_TAG = /<\s*\/?\s*(important|system|secret|hidden)\s*>/i;
 
 export function checkInstructionLikeText(pkg) {
+  return checkToolTexts(extractTools(pkg.files).tools);
+}
+
+/** The same check over any tool list: a package's extracted tools or a remote server's served ones. */
+export function checkToolTexts(tools) {
   const out = [];
-  for (const t of extractTools(pkg.files).tools) {
+  for (const t of tools) {
     for (const p of INJECTION_PATTERNS) {
       const m = p.re.exec(t.description);
       if (!m) continue;

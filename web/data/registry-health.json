@@ -1,0 +1,391 @@
+{
+  "sampledAt": "2026-09-26T13:02:42.915Z",
+  "seed": 20260926,
+  "population": 469,
+  "sampled": 60,
+  "scanned": 57,
+  "flagged": 13,
+  "publishersFlagged": 10,
+  "interval": [
+    14,
+    35
+  ],
+  "rows": [
+    {
+      "name": "ai.windsock/windsock",
+      "publisher": "ai.windsock",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.blackduck/mcp-server",
+      "publisher": "com.blackduck",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.agentutility/mcp-rollforge",
+      "publisher": "ai.agentutility",
+      "flagged": true,
+      "secrets": [
+        "X402_PRIVATE_KEY"
+      ]
+    },
+    {
+      "name": "ai.verlon/mcp",
+      "publisher": "ai.verlon",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.meetlark/mcp-server",
+      "publisher": "ai.meetlark",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "co.trawlia/trawlia-mcp",
+      "publisher": "co.trawlia",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.execbro/execbro",
+      "publisher": "com.execbro",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "cn.3ceng/kuailian",
+      "publisher": "cn.3ceng",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.docfork/docfork-mcp",
+      "publisher": "com.docfork",
+      "flagged": true,
+      "secrets": [
+        "DOCFORK_API_KEY",
+        "CLIENT_IP_ENCRYPTION_KEY"
+      ]
+    },
+    {
+      "name": "app.trustrails/server",
+      "publisher": "app.trustrails",
+      "flagged": true,
+      "secrets": [
+        "TRUSTRAILS_API_KEY"
+      ]
+    },
+    {
+      "name": "ai.dimensions/analytics-mcp",
+      "publisher": "ai.dimensions",
+      "flagged": true,
+      "secrets": [
+        "${envPrefix}_API_KEY",
+        "${envPrefix}_TOKEN_CACHE_DURATION",
+        "DSL_SERVICE_PASSWORD",
+        "DIMENSIONS_TOKEN_CACHE_DURATION",
+        "CUSTOM_API_KEY",
+        "DIMENSIONS_DSL_API_KEY",
+        "DIMENSIONS_UNKNOWN_API_KEY"
+      ]
+    },
+    {
+      "name": "ai.agentutility/mcp-prooflayer",
+      "publisher": "ai.agentutility",
+      "flagged": true,
+      "secrets": [
+        "X402_PRIVATE_KEY"
+      ]
+    },
+    {
+      "name": "com.coildesk/coildesk-hvac-tools",
+      "publisher": "com.coildesk",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.clize/inbox",
+      "publisher": "ai.clize",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.elopstudio.aiwave/ai-wave",
+      "publisher": "com.elopstudio.aiwave",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.unpaper/cli",
+      "publisher": "ai.unpaper",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "co.lovie/company-formation",
+      "publisher": "co.lovie",
+      "flagged": true,
+      "secrets": [
+        "LOVIE_API_KEY"
+      ]
+    },
+    {
+      "name": "com.attrove/mcp",
+      "publisher": "com.attrove",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.inite/inite-visibility",
+      "publisher": "ai.inite",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "br.com.mupag/mcp-server",
+      "publisher": "br.com.mupag",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.easyonward/mcp-server",
+      "publisher": "com.easyonward",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.ravenmcp/raven-mcp",
+      "publisher": "ai.ravenmcp",
+      "flagged": true,
+      "secrets": [
+        "RAVEN_GRAB_NOTIFY_WEBHOOK"
+      ]
+    },
+    {
+      "name": "ai.agentutility/mcp-edge-market",
+      "publisher": "ai.agentutility",
+      "flagged": true,
+      "secrets": [
+        "X402_PRIVATE_KEY"
+      ]
+    },
+    {
+      "name": "ai.adtest/adtest-mcp",
+      "publisher": "ai.adtest",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.gency/gency-mcp",
+      "publisher": "ai.gency",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "coffee.402/mcp",
+      "publisher": "coffee.402",
+      "flagged": true,
+      "secrets": [
+        "PAYER_PRIVATE_KEY"
+      ]
+    },
+    {
+      "name": "ai.llmintel/model-lifecycle",
+      "publisher": "ai.llmintel",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "cheap.doc/mcp",
+      "publisher": "cheap.doc",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "app.lasers.guildcontrol/discord",
+      "publisher": "app.lasers.guildcontrol",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.damagerestorehq/claims-index",
+      "publisher": "com.damagerestorehq",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.eonik/mcp",
+      "publisher": "ai.eonik",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.vidofy/mcp",
+      "publisher": "ai.vidofy",
+      "flagged": true,
+      "secrets": [
+        "REDIS_PASSWORD"
+      ]
+    },
+    {
+      "name": "ai.tradesearcher/mcp-server",
+      "publisher": "ai.tradesearcher",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.datasparc/dbhawk",
+      "publisher": "com.datasparc",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.proofslip/mcp-server",
+      "publisher": "ai.proofslip",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.agentutility/mcp-compose",
+      "publisher": "ai.agentutility",
+      "flagged": true,
+      "secrets": [
+        "X402_PRIVATE_KEY"
+      ]
+    },
+    {
+      "name": "ca.honkio/mcp",
+      "publisher": "ca.honkio",
+      "flagged": true,
+      "secrets": [
+        "MCP_AUTH_FAILURES_PER_MINUTE",
+        "MCP_SERVICE_KEY"
+      ]
+    },
+    {
+      "name": "app.percher/percher",
+      "publisher": "app.percher",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "co.yungle/yungle",
+      "publisher": "co.yungle",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "app.devglow/todoglow",
+      "publisher": "app.devglow",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.foura/mcp",
+      "publisher": "ai.foura",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.arcnautical/mcp",
+      "publisher": "com.arcnautical",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.clize/domains",
+      "publisher": "ai.clize",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.contadeo/mcp",
+      "publisher": "com.contadeo",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "app.cleanor/cleanor",
+      "publisher": "app.cleanor",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.bolthub/registry",
+      "publisher": "ai.bolthub",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.shippp/mcp",
+      "publisher": "ai.shippp",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "app.uploadcheck/uploadcheck",
+      "publisher": "app.uploadcheck",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.blockventurechaincapital/bvcc-agent-wallet",
+      "publisher": "com.blockventurechaincapital",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.casemargin/casemargin-mcp-server",
+      "publisher": "com.casemargin",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.diemdesk/mcp",
+      "publisher": "com.diemdesk",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "ai.elfa/mcp",
+      "publisher": "ai.elfa",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "build.uplink/uplink",
+      "publisher": "build.uplink",
+      "flagged": true,
+      "secrets": [
+        "UPLINK_API_KEY"
+      ]
+    },
+    {
+      "name": "com.dribba/dribba",
+      "publisher": "com.dribba",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.fidensa/mcp-server",
+      "publisher": "com.fidensa",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.carbikly/carbikly-tools",
+      "publisher": "com.carbikly",
+      "flagged": false,
+      "secrets": []
+    },
+    {
+      "name": "com.dethboy/vedetta",
+      "publisher": "com.dethboy",
+      "flagged": false,
+      "secrets": []
+    }
+  ]
+}

@@ -1,0 +1,371 @@
+{
+  "scannedAt": "2026-09-28T06:41:51.839Z",
+  "package": {
+    "name": "@upstash/context7-mcp",
+    "version": "4.1.1",
+    "sha256": "cbd5f81ca37b42ad5491099017b00d12107eb075bb3111c7a216b632fac97c4a",
+    "tarballBytes": 47679,
+    "provenance": false
+  },
+  "files": [
+    {
+      "path": "dist/lib/api.js",
+      "lines": 164
+    },
+    {
+      "path": "dist/lib/auth/auth-prompt.js",
+      "lines": 96
+    },
+    {
+      "path": "dist/lib/constants.js",
+      "lines": 26
+    },
+    {
+      "path": "dist/lib/encryption.js",
+      "lines": 77
+    },
+    {
+      "path": "dist/index.js",
+      "lines": 567
+    },
+    {
+      "path": "dist/lib/jwt.js",
+      "lines": 92
+    },
+    {
+      "path": "dist/lib/mcp-body-error-handler.js",
+      "lines": 24
+    },
+    {
+      "path": "dist/lib/mcp-operation-scope.js",
+      "lines": 16
+    },
+    {
+      "path": "dist/lib/mcp-subscription-telemetry.js",
+      "lines": 467
+    },
+    {
+      "path": "dist/lib/mcp-telemetry.js",
+      "lines": 628
+    },
+    {
+      "path": "dist/lib/process-shutdown.js",
+      "lines": 64
+    },
+    {
+      "path": "dist/lib/subscriptions.js",
+      "lines": 13
+    },
+    {
+      "path": "dist/lib/telemetry-config.js",
+      "lines": 15
+    },
+    {
+      "path": "dist/lib/telemetry-contracts.js",
+      "lines": 2
+    },
+    {
+      "path": "dist/lib/telemetry-provider.js",
+      "lines": 73
+    },
+    {
+      "path": "dist/lib/telemetry-runtime.js",
+      "lines": 68
+    },
+    {
+      "path": "dist/lib/telemetry.js",
+      "lines": 190
+    },
+    {
+      "path": "dist/lib/tool-names.js",
+      "lines": 4
+    },
+    {
+      "path": "dist/lib/types.js",
+      "lines": 2
+    },
+    {
+      "path": "dist/lib/utils.js",
+      "lines": 96
+    },
+    {
+      "path": "dist/lib/vercelMarketplaceJwt.js",
+      "lines": 55
+    },
+    {
+      "path": "package.json",
+      "lines": 76
+    }
+  ],
+  "listing": "io.github.upstash/context7",
+  "declared": [
+    "CONTEXT7_API_KEY"
+  ],
+  "findings": [
+    {
+      "check": "undeclared-env",
+      "subject": "OPENAI_APPS_CHALLENGE_TOKEN",
+      "severity": "high",
+      "message": "reads OPENAI_APPS_CHALLENGE_TOKEN (looks like a credential) but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 25,
+          "text": "export const OPENAI_APPS_CHALLENGE_TOKEN = process.env.OPENAI_APPS_CHALLENGE_TOKEN;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "MCP_CLIENT_IP_ASSERTION_KEY",
+      "severity": "high",
+      "message": "reads MCP_CLIENT_IP_ASSERTION_KEY (looks like a credential) but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/encryption.js",
+          "line": 12,
+          "text": "const key = process.env.MCP_CLIENT_IP_ASSERTION_KEY;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "https_proxy",
+      "severity": "low",
+      "message": "reads https_proxy but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/api.js",
+          "line": 46,
+          "text": "process.env.https_proxy ??"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "http_proxy",
+      "severity": "low",
+      "message": "reads http_proxy but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/api.js",
+          "line": 48,
+          "text": "process.env.http_proxy ??"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "NODE_EXTRA_CA_CERTS",
+      "severity": "low",
+      "message": "reads NODE_EXTRA_CA_CERTS but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/api.js",
+          "line": 50,
+          "text": "const CUSTOM_CA_CERTS = process.env.NODE_EXTRA_CA_CERTS;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "CONTEXT7_API_URL",
+      "severity": "low",
+      "message": "reads CONTEXT7_API_URL but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 10,
+          "text": "export const CONTEXT7_API_BASE_URL = process.env.CONTEXT7_API_URL || `${CONTEXT7_BASE_URL}/api`;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "RESOURCE_URL",
+      "severity": "low",
+      "message": "reads RESOURCE_URL but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 11,
+          "text": "export const RESOURCE_URL = process.env.RESOURCE_URL || MCP_RESOURCE_URL;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "OAUTH_AUTH_SERVER_URL",
+      "severity": "low",
+      "message": "reads OAUTH_AUTH_SERVER_URL but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 16,
+          "text": "export const OAUTH_AUTH_SERVER_URL = (process.env.OAUTH_AUTH_SERVER_URL || DEFAULT_OAUTH_AUTH_SERVER_URL).replace(/\\/+$/, \"\");"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "OAUTH_JWKS_URL",
+      "severity": "low",
+      "message": "reads OAUTH_JWKS_URL but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 17,
+          "text": "export const OAUTH_JWKS_URL = process.env.OAUTH_JWKS_URL || `${OAUTH_AUTH_SERVER_URL}/.well-known/jwks.json`;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "EMA_ISSUER",
+      "severity": "low",
+      "message": "reads EMA_ISSUER but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 23,
+          "text": "export const EMA_ISSUER = process.env.EMA_ISSUER || process.env.AUTH_SERVER_URL || CONTEXT7_BASE_URL;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "AUTH_SERVER_URL",
+      "severity": "low",
+      "message": "reads AUTH_SERVER_URL but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 23,
+          "text": "export const EMA_ISSUER = process.env.EMA_ISSUER || process.env.AUTH_SERVER_URL || CONTEXT7_BASE_URL;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "EMA_JWKS_URL",
+      "severity": "low",
+      "message": "reads EMA_JWKS_URL but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 24,
+          "text": "export const EMA_JWKS_URL = process.env.EMA_JWKS_URL || `${CONTEXT7_API_BASE_URL}/oauth/ema-jwks`;"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "MCP_MAX_SUBSCRIPTIONS",
+      "severity": "low",
+      "message": "reads MCP_MAX_SUBSCRIPTIONS but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/subscriptions.js",
+          "line": 4,
+          "text": "export function getMaxSubscriptions(value = process.env.MCP_MAX_SUBSCRIPTIONS) {"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "VERCEL_MARKETPLACE_OIDC_ISSUER",
+      "severity": "low",
+      "message": "reads VERCEL_MARKETPLACE_OIDC_ISSUER but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/vercelMarketplaceJwt.js",
+          "line": 21,
+          "text": "const issuer = process.env.VERCEL_MARKETPLACE_OIDC_ISSUER ?? \"\";"
+        }
+      ]
+    },
+    {
+      "check": "undeclared-env",
+      "subject": "VERCEL_MARKETPLACE_OIDC_AUDIENCE",
+      "severity": "low",
+      "message": "reads VERCEL_MARKETPLACE_OIDC_AUDIENCE but the registry entry does not declare it",
+      "evidence": [
+        {
+          "file": "dist/lib/vercelMarketplaceJwt.js",
+          "line": 22,
+          "text": "const audience = process.env.VERCEL_MARKETPLACE_OIDC_AUDIENCE ?? \"\";"
+        }
+      ]
+    },
+    {
+      "check": "provenance",
+      "severity": "low",
+      "message": "published 13 day(s) ago",
+      "evidence": [
+        {
+          "file": "npm",
+          "line": 0,
+          "text": "2026-09-14T14:52:39.435Z"
+        }
+      ]
+    },
+    {
+      "check": "network-egress",
+      "severity": "info",
+      "message": "contacts context7.com",
+      "evidence": [
+        {
+          "file": "dist/lib/api.js",
+          "line": 34,
+          "text": "? \"Rate limited or quota exceeded. Upgrade your plan at https://context7.com/plans for higher limits.\""
+        },
+        {
+          "file": "dist/lib/api.js",
+          "line": 35,
+          "text": ": \"Rate limited or quota exceeded. Create a free API key at https://context7.com/dashboard for higher limits.\";"
+        }
+      ]
+    },
+    {
+      "check": "network-egress",
+      "severity": "info",
+      "message": "contacts clerk.context7.com",
+      "evidence": [
+        {
+          "file": "dist/lib/constants.js",
+          "line": 9,
+          "text": "const DEFAULT_OAUTH_AUTH_SERVER_URL = \"https://clerk.context7.com\";"
+        }
+      ]
+    },
+    {
+      "check": "network-egress",
+      "severity": "info",
+      "message": "contacts login.microsoftonline.com",
+      "evidence": [
+        {
+          "file": "dist/lib/jwt.js",
+          "line": 11,
+          "text": "jwks = jose.createRemoteJWKSet(new URL(`https://login.microsoftonline.com/${tenantId}/discovery/v2.0/keys`));"
+        },
+        {
+          "file": "dist/lib/jwt.js",
+          "line": 58,
+          "text": "issuer: `https://login.microsoftonline.com/${config.tenantId}/v2.0`,"
+        }
+      ]
+    },
+    {
+      "check": "network-egress",
+      "severity": "info",
+      "message": "contacts integrations.vercel.com",
+      "evidence": [
+        {
+          "file": "dist/lib/vercelMarketplaceJwt.js",
+          "line": 2,
+          "text": "const VERCEL_INTEGRATIONS_ORIGIN = \"https://integrations.vercel.com\";"
+        }
+      ]
+    }
+  ]
+}

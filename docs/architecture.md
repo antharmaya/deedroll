@@ -14,10 +14,12 @@ For anyone changing the code, or deciding what to build next. It covers three th
   │ remote   remote.js (probe)    │   │ osv.js     advisories     │   │ registry _meta block │
   │          auth.js (sign-in)    │   │ rules.js   the catalog    │   │ web/app.js  the page │
   │          remote-scan.js       │   │ pins-core  tool memory    │   │ --egress allowlist   │
-  │ configs  installed.js         │   │                           │   │                      │
+  │ configs  installed-core.js    │   │                           │   │                      │
+  │ local    local-core.js        │   │                           │   │                      │
   └───────────────────────────────┘   └───────────────────────────┘   └──────────────────────┘
         archive.js, zip.js, tar.js: reading archives in memory, never to disk
-        relay-core.js + relay-node.js: the probe relay (scripts/serve.js hosts it)
+        relay-core.js + relay-node.js: the probe relay (scripts/serve.js hosts it locally)
+        deploy/worker.js: the page, the relay and the history on Cloudflare Workers + R2
         scripts/snapshot.js: the daily, hash-chained registry history
 ```
 
@@ -34,6 +36,13 @@ cannot disagree.
 hosted server without an account. The CLI adds pins on disk; the browser adds pins in the
 visitor's own storage; the relay runs it for servers that block browsers. Only the fetch and
 where pins live differ.
+
+**Node-only edges, shared middles.** Each feature splits the same way: a platform-neutral core
+the page can import, and a thin Node layer for what only a machine can do. `installed-core.js`
+parses agent configs (the page parses files the visitor chooses; `installed.js` finds them on
+disk). `local-core.js` decides what a local server exposes (the page tries common ports on
+this computer; `local.js` reads every listening port from the operating system and can sweep a
+private subnet).
 
 **Two platforms, one engine.** `pypi.js`, `archive.js`, `zip.js`, `model.js`, `checks.js`,
 `rules.js` and `osv.js` use only web platform APIs (fetch, DecompressionStream, crypto.subtle), so
@@ -65,6 +74,8 @@ two-way door and should change when data says so.
 | Two protocol generations | 2026-07-28 removed `initialize` | Dual-era probe: current request first, fall back only on a non-modern error body. |
 | False positives in the credential rule | Names like KEYCLOAK_REALM, MAX_TOKENS | The word must end a name segment; every tightening is re-checked against the published measurement. |
 | **The relay as an SSRF door** | Anyone can ask it to fetch a URL; a hostile server's own OAuth metadata can name internal addresses | https only; no credentials or caller headers; discovery requests only; every connection resolved once, every address vetted, and the connection pinned to the vetted address (defeats DNS rebinding); IP literals vetted separately, because Node skips a custom lookup for them. Two holes were found in testing and closed with tests: `[::ffff:127.0.0.1]` rewritten by the URL parser to a form a textual check missed, and IP-literal hosts bypassing the pinned lookup. |
+| The relay on Workers | No DNS pinning on Cloudflare Workers | Private IP literals and local names refused; hostnames resolved through Cloudflare DNS-over-HTTPS first and refused on any private answer (verified live: `localtest.me` → 127.0.0.1 refused); redirects never followed; Cloudflare's rate-limit binding, 20 probes a minute per visitor. Workers cannot reach a private network without an explicit binding, which this Worker does not have. |
+| Injected script in the page | Package content is hostile input | Untrusted text only ever goes through DOM text nodes, and a Content-Security-Policy allows only the page's own scripts (the one inline script pinned by hash), so injected script could not run anyway. |
 | A browser blocked by CORS reads nothing | Most hosted servers and many sign-in metadata endpoints | "Could not read from here" is reported as unknown, never as missing; the page offers the relay instead of guessing. |
 | The history dies quietly | A daily timer on one machine | `snapshot.js --status` warns when the last entry is over 48 hours old; `--verify` re-hashes every file and checks the chain. |
 | A test suite that passes but proves nothing | Any guard | New guards are mutation-checked: remove the guard, and its test must fail. |

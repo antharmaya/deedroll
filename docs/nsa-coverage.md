@@ -29,12 +29,11 @@ mcpscan does; "no" means mcpscan does not do it, not that it cannot matter.
 | Filter and monitor output pipelines | **No** | Runtime. |
 | Instrument for logging and detection | **Feeds it** | `--json` (schema v1) and `--sarif` go straight into security tooling. |
 | **Track and patch vulnerabilities**; "maintain a clear inventory of all deployed MCP agents and tools, along with versioning" | **Yes** | `--installed` is the inventory, across six agents, with versions and findings; OSV lookups on each. |
-| **Scan for open or vulnerable MCP servers**: unauthenticated servers, outdated versions; "periodic scans and differential reports" | **Partly** | `unauthenticated` for any URL you give it; the daily snapshot and its diff are the periodic differential report for the public registry. It does not sweep your own network for servers yet. |
+| **Scan for open or vulnerable MCP servers**: unauthenticated servers, outdated versions; "periodic scans and differential reports" | **Yes** | `mcpscan --local` finds every MCP server listening on this machine (with its owning process) or, with `--subnet`, on a private network you own, and reports network exposure, missing sign-in and missing Origin validation. The web page checks this computer from a website's point of view. The daily registry snapshot and its diff are the periodic differential report for the public registry. |
 
 ## What this suggests building next
 
-1. **Local network discovery** (`mcpscan --local`): find MCP servers listening on this machine or
-   subnet, and check each for sign-in, `Origin` validation (the spec requires it against DNS
-   rebinding) and binding to `0.0.0.0`. The NSA lists this as baseline hygiene.
+1. ~~Local network discovery~~: built 2026-09-28 (`mcpscan --local`, and "Check this computer" in
+   the page).
 2. **Tool-name collisions** across the servers an agent has configured (`--installed`), the
    "naming collisions" class it describes.

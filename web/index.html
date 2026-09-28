@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mcpscan: check an MCP server before you install it</title>
+<meta name="description" content="Scan an MCP server's package in your browser. See what it reads, runs and contacts beside what it tells you. Nothing is installed or run.">
+<meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1714" media="(prefers-color-scheme: dark)">
+<link rel="preload" href="fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/hanken-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f4fb0'/%3E%3Crect x='11' y='11' width='10' height='10' rx='1.5' transform='rotate(45 16 16)' fill='%23f7f5f0'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<script>
+  // No flash of the wrong theme: stored choice, else the system setting.
+  try { const t = localStorage.getItem('mcpscan-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.dataset.theme = 'dark'; } catch {}
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to the scanner</a>
+<div class="wrap">
+  <header class="site">
+    <a class="mark" href="./" aria-label="mcpscan home" translate="no"><b>mcp<i>scan</i></b><span>by Antharmaya Labs</span></a>
+    <nav aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#registry">The registry</a>
+      <a href="#cli">Command line</a>
+    </nav>
+    <button class="theme" type="button" aria-label="Switch between light and dark"><svg class="sun" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></svg><svg class="moon" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></svg></button>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="title">
+      <div class="hero-copy">
+        <h1 id="title"><span class="line"><span>Read the label,</span></span><span class="line"><span>then read the code.</span></span></h1>
+        <p class="lede">Scan an MCP server's package in your browser. See what it reads, runs and contacts beside what it tells you.</p>
+        <form class="scan-form" id="scan-form" novalidate>
+          <label for="pkg">npm package</label>
+          <div class="field">
+            <input id="pkg" name="pkg" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@scope/server-name" aria-describedby="pkg-help">
+            <button class="btn" type="submit" id="scan-btn">Scan package</button>
+          </div>
+          <p class="help" id="pkg-help" aria-live="polite">Nothing is installed or run. Only public package names and versions leave your browser.</p>
+          <div class="examples" translate="no"><span translate="yes">Try</span>
+            <button class="chip" type="button" data-pkg="pretrip-mcp">pretrip-mcp</button>
+            <button class="chip" type="button" data-pkg="@heroku/mcp-server">@heroku/mcp-server</button>
+            <button class="chip" type="button" data-pkg="@modelcontextprotocol/server-filesystem">server-filesystem</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="stage" id="stage" role="region" aria-label="Scan">
+        <div class="stage-head">
+          <span class="pkg" id="stage-pkg" translate="no">&nbsp;</span>
+          <span class="status" id="stage-status" aria-live="polite"></span>
+          <button class="skip" id="skip" type="button" hidden>Skip</button>
+        </div>
+        <div class="stage-body">
+          <ol class="manifest" id="manifest" aria-label="Files in the package" translate="no"></ol>
+          <div class="ledgers">
+            <section class="ledger" aria-labelledby="tells-h"><h2 id="tells-h">What it tells you <small id="tells-n"></small></h2><ul id="tells"></ul></section>
+            <section class="ledger" aria-labelledby="does-h"><h2 id="does-h">What the code does <small id="does-n"></small></h2><ul id="does"></ul></section>
+          </div>
+        </div>
+        <div class="scanbar" id="scanbar" aria-hidden="true"></div>
+        <div class="drops" id="drops" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section class="results" id="results" aria-labelledby="results-h" hidden>
+      <div class="results-head">
+        <h2 id="results-h">What to look at</h2>
+        <p id="results-sub"></p>
+        <div class="verdict" id="verdict"></div>
+      </div>
+      <ol class="findings" id="findings"></ol>
+    </section>
+  </main>
+</div>
+
+<section class="band" id="registry" aria-labelledby="registry-h">
+  <div class="wrap band-grid">
+    <div>
+      <div class="figure" id="figure">13<small> of 57</small></div>
+      <h2 id="registry-h">MCP servers read a credential their registry listing never mentions.</h2>
+      <p id="band-method">A random sample of npm-published servers in the official MCP registry.</p>
+      <p><a href="https://github.com/varbees/mcpscan#a-first-measurement" class="on-band">How this was measured</a></p>
+    </div>
+    <div>
+      <div class="dots" id="dots" role="list" aria-label="Each dot is one sampled server"></div>
+      <div class="legend"><span><i class="on"></i>Reads an undeclared credential</span><span><i></i>Declares what it reads</span></div>
+      <p class="dot-note" id="dot-note" aria-live="polite">Point at a dot to see the server.</p>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="steps" id="how" aria-labelledby="how-h">
+    <h2 id="how-h">How a scan works</h2>
+    <div>
+      <ol>
+        <li><h3>Download the package</h3><p>Straight from npm, then checked against npm's own hash of it.</p></li>
+        <li><h3>Read it without running it</h3><p>The package is unpacked in memory. Its install scripts never run and nothing touches your disk.</p></li>
+        <li><h3>Compare the label with the code</h3><p>What its registry listing declares, against what the code reads, runs and contacts. Every finding points at a file and a line.</p></li>
+      </ol>
+      <p class="promise"><b>What leaves your browser:</b> the package name and version, sent to npm, the MCP registry and OSV.dev. No scan result is ever sent anywhere.</p>
+    </div>
+  </section>
+
+  <section class="cli" id="cli" aria-labelledby="cli-h">
+    <div>
+      <h2 id="cli-h">Check what your agents already trust</h2>
+      <p>The command line reads the MCP configs of Claude Code, Codex, Cursor, Devin and Gemini CLI, and never launches a server.</p>
+    </div>
+    <div class="term" role="group" aria-label="Commands" translate="no">
+      <div><code>npx @antharmaya/mcpscan --installed</code><span>every configured server</span></div>
+      <div><code>npx @antharmaya/mcpscan https://host/mcp</code><span>a hosted server, pinned</span></div>
+      <div><code>npx @antharmaya/mcpscan npm:&lt;package&gt;</code><span>before you install</span></div>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span>mcpscan is made by Antharmaya Labs. MIT licensed.</span>
+    <span>Type: Bricolage Grotesque, Hanken Grotesk, JetBrains Mono. Icons: Phosphor.</span>
+  </footer>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

@@ -10,6 +10,7 @@ import { RULES } from '../src/rules.js';
 import { inspectRemote } from '../src/remote-scan.js';
 import { fingerprintTools, diffFingerprints, serverKey } from '../src/pins-core.js';
 import { listingStatus } from '../src/model.js';
+import { init as initSetup, setCurrent } from './setup.js';
 
 const $ = (s) => document.querySelector(s);
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -28,6 +29,7 @@ function el(tag, attrs = {}, ...children) {
   for (const [k, v] of Object.entries(attrs)) {
     if (v == null || v === false) continue;
     if (k === 'class') n.className = v;
+    else if (k === 'style') n.style.cssText = v; // CSSOM, which a strict CSP allows; a style attribute it would block
     else if (k === 'dataset') Object.assign(n.dataset, v);
     else n.setAttribute(k, v === true ? '' : v);
   }
@@ -571,6 +573,7 @@ async function scanTarget(q) {
 
 function begin(label, btn) {
   finishAll();
+  setCurrent(null);
   const help = $('#pkg-help');
   help.classList.remove('error');
   help.textContent = HELP_TEXT;
@@ -706,6 +709,7 @@ async function scanRemoteUrl(url, { entry, my }) {
     }
   }
   findings.sort((a, b) => RANK[a.severity] - RANK[b.severity]);
+  setCurrent({ target: url, pkg: null, entry, remote: r.remote, findings });
   await show(buildRemoteModel(url, r, { entry, via, findings, pinAction }), { replay: false, my });
 }
 
@@ -808,6 +812,7 @@ async function scanLive(name, { keepUrl } = {}) {
   help.classList.remove('error');
   help.textContent = HELP_TEXT;
   $('#relay-ask').hidden = true;
+  setCurrent(null);
   btn.disabled = true;
   btn.textContent = 'Scanning…';
   $('#stage-pkg').textContent = name;
@@ -829,6 +834,7 @@ async function scanLive(name, { keepUrl } = {}) {
     };
     const registry = /^pypi:/.test(name) ? 'PyPI' : 'npm';
     const r = await scanInBrowser(name, { indexUrl: INDEX_URL, onProgress: (p) => onProgress({ ...p, registry }) }).finally(() => clearTimeout(slow));
+    if (!stale(my)) setCurrent(r);
     if (stale(my)) return;
     await show(fromLive(r), { replay: false, my });
     history.replaceState(null, '', `?q=${encodeURIComponent(keepUrl ?? name)}`);
@@ -960,5 +966,6 @@ async function intro() {
   await show(fromDemo(demo), { replay: true, my });
 }
 
+initSetup({ el, glyph, sentence, plural, scanTarget, RANK });
 band();
 intro();

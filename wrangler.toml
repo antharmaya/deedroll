@@ -1,4 +1,11 @@
 # mcpscan on Cloudflare Workers. Build the assets first: node scripts/build-site.js
+#
+# Temporary home: mcpscan.harshavar968.workers.dev, until GitHub and npm access are back.
+# The move to an Antharmaya subdomain is this block, uncommented (the zone must be on this
+# Cloudflare account), then `npx wrangler deploy`:
+#
+# routes = [{ pattern = "mcpscan.antharmaya.com", custom_domain = true }]
+# workers_dev = false   # only once the custom domain answers
 name = "mcpscan"
 main = "deploy/worker.js"
 compatibility_date = "2026-09-28"

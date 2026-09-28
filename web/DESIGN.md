@@ -103,7 +103,11 @@ Breakpoints: **980 px** the hero stacks (copy over stage); **640 px** the stage 
 | Skip | visible only while an animation plays; finishes every running animation instantly |
 | Finding rows | `<details>` collapsed · open (evidence with file:line in mono) |
 | Theme | light / dark, stored in `localStorage` (`mcpscan-theme`), wrapped in try/catch; no-flash script in `<head>` |
-| URL | `?pkg=` deep-links a scan |
+| URL | `?q=` deep-links any scan (a package, a server URL or a registry name); `?pkg=` still works |
+| Input | classified as it is read: `https://…` is a hosted server, `owner.tld/name` a registry listing, anything else a package; pasted launch commands (`npx -y`, `uvx`, `pip install`) are reduced to the package |
+| Relay consent | when a hosted server blocks browsers, a panel under the input says why, what the relay sees (the URL) and keeps (nothing), with "Probe through the relay", an "Always" choice, and the CLI command as the alternative. The Scan button stays usable while it asks. |
+| Hosted server stage | rows are the server's tools (tagged read-only or destructive when the server says so), or for a sign-in server the sign-in checks, one per row; the second ledger is titled "What we found", since there is no code |
+| Browser pins | tools are remembered per server in this browser; a later change is reported with an explicit "Accept these tools as the new baseline" button, never accepted silently |
 
 Races: a generation counter guards every async flow, including the last step of the animation,
 so a live scan started during the intro demo cancels the demo instead of animating on top of it

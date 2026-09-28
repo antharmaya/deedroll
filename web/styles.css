@@ -470,3 +470,13 @@ footer.site-foot span:first-child { margin-right: auto; }
 .findings .explain p { margin: 0 0 var(--s2); }
 .findings .explain b { color: var(--text); font-weight: 600; }
 @media (max-width: 640px) { .findings .explain { margin-left: 0; } }
+
+/* relay consent: a question about the input, so it sits under the input */
+.relay-ask { margin-top: var(--s4); padding: var(--s4) var(--s5); border: 1px solid var(--rule); border-radius: var(--r-panel); background: var(--paper-raised); max-width: 34rem; }
+.relay-ask p { margin: 0 0 var(--s3); font-size: var(--t-sm); }
+.relay-ask #relay-why { font-weight: 600; color: var(--text); }
+.relay-ask .relay-what, .relay-ask .relay-alt { color: var(--text-muted); }
+.relay-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3) var(--s4); margin-bottom: var(--s3); }
+.relay-always { font-size: var(--t-xs); color: var(--text-muted); display: inline-flex; gap: var(--s2); align-items: center; cursor: pointer; }
+.relay-ask .relay-alt { margin: 0; font-size: var(--t-xs); }
+.findings .chip.accept { font-family: var(--font-body); }

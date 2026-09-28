@@ -7,10 +7,16 @@
  */
 import { scanInBrowser } from '../src/browser.js';
 import { RULES } from '../src/rules.js';
+import { inspectRemote } from '../src/remote-scan.js';
+import { fingerprintTools, diffFingerprints, serverKey } from '../src/pins-core.js';
+import { listingStatus } from '../src/model.js';
 
 const $ = (s) => document.querySelector(s);
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const INDEX_URL = new URL('../src/data/registry-index.json', import.meta.url).href;
+// The relay runs the same read-only probe server-side, for servers that block browsers.
+const RELAY_URL = new URL('../api/probe', import.meta.url).href;
+const REGISTRY = 'https://registry.modelcontextprotocol.io';
 const EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const EASE_INOUT = 'cubic-bezier(0.65, 0, 0.35, 1)';
 const EASE_BACK = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
@@ -87,6 +93,34 @@ export function sentence(f) {
       const q = /: "(.*)"$/.exec(m)?.[1];
       return q ? `A tool description tries to instruct the AI: “${q}”` : m;
     }
+    case 'unauthenticated':
+      return 'Answers without sign-in: anyone with the URL can list its tools, and usually call them.';
+    case 'custom-auth':
+      return 'Uses its own sign-in (a key or token set up by hand) rather than the MCP OAuth flow.';
+    case 'oauth-no-pkce':
+      return "Its sign-in doesn't advertise PKCE, which OAuth 2.1 requires.";
+    case 'oauth-dcr-only':
+      return 'Apps can only register through Dynamic Client Registration, which MCP has deprecated.';
+    case 'oauth-issuer-mismatch':
+      return "Its sign-in server's metadata names a different issuer; standard clients must refuse it.";
+    case 'oauth-resource-mismatch':
+      return 'Its sign-in issues tokens for a different server than this one.';
+    case 'oauth-metadata-missing':
+      return "Requires sign-in but doesn't publish how to sign in, so standard clients can't.";
+    case 'deprecated-transport':
+      return 'Uses the deprecated HTTP+SSE transport, so its tools could not be listed.';
+    case 'remote-not-probed':
+      return /authentication/.test(m) ? 'Requires sign-in, so its tools were not listed. mcpscan uses no account.' : `Could not be probed: ${m.replace(/:.*$/, '')}.`;
+    case 'pinned':
+      return 'First scan from this browser: its tools are now remembered, and any change will show next time.';
+    case 'tool-description-changed':
+      return `Tool “${f.subject}” says something different from when you last scanned it.`;
+    case 'tool-added':
+      return `Tool “${f.subject}” appeared since you last scanned it.`;
+    case 'tool-removed':
+      return `Tool “${f.subject}” is gone since you last scanned it.`;
+    case 'tool-schema-changed':
+      return `Tool “${f.subject}” takes different inputs since you last scanned it.`;
     case 'multiple-listings':
       return `${m.match(/^(\d+)/)?.[1] ?? 'Several'} registry listings point at this package.`;
     default:
@@ -398,9 +432,9 @@ function groupFindings(fs, allowGroups) {
 }
 
 function renderFindings(model, { replay }) {
-  const sub = replay
+  const sub = model.subtitle ?? (replay
     ? `Replay of a real scan of ${model.name} ${model.version}, ${fmtDate(model.scannedAt)}. Scan your own above.`
-    : `${model.name} ${model.version}, scanned in your browser just now.`;
+    : `${model.name} ${model.version}, scanned in your browser just now.`);
   $('#results-sub').textContent = sub;
 
   const counts = { high: 0, medium: 0, low: 0, info: 0 };
@@ -415,8 +449,9 @@ function renderFindings(model, { replay }) {
   const list = $('#findings');
   list.replaceChildren();
   if (!model.findings.length) {
-    list.append(el('li', { class: 'group' }, 'Nothing found. That covers what static analysis can see: the listing, the code, known advisories.'));
+    list.append(el('li', { class: 'group' }, model.emptyText ?? 'Nothing found. That covers what static analysis can see: the listing, the code, known advisories.'));
   }
+  if (model.pinAction) list.append(model.pinAction);
   for (const [title, fs] of groups) {
     if (!fs.length) continue;
     list.append(el('li', { class: 'group' }, `${title} (${fs.length})`));
@@ -461,14 +496,18 @@ const stale = (my) => my !== generation;
 
 async function show(data, { replay, my }) {
   if (stale(my)) return;
-  const model = buildModel(data);
-  $('#stage-pkg').textContent = `${model.name} ${model.version}`;
+  const model = data.prebuilt ? data : buildModel(data);
+  $('#stage-pkg').textContent = model.label ?? `${model.name} ${model.version}`;
+  // A hosted server has no code to read: the second ledger is what the scan found.
+  const [tellsTitle, doesTitle] = model.ledgerTitles ?? ['What it tells you', 'What the code does'];
+  $('#tells-h').firstChild.textContent = `${tellsTitle} `;
+  $('#does-h').firstChild.textContent = `${doesTitle} `;
   status(replay ? `Replay of a real scan, ${fmtDate(model.scannedAt)}` : 'Reading the results…');
   skipBtn.hidden = REDUCE;
   await play(model, my);
   if (stale(my)) return;
   skipBtn.hidden = true;
-  status(replay ? `Replay of a real scan, ${fmtDate(model.scannedAt)}` : `${plural(model.files.length, 'file')} read, nothing run`);
+  status(replay ? `Replay of a real scan, ${fmtDate(model.scannedAt)}` : model.doneText ?? `${plural(model.files.length, 'file')} read, nothing run`);
   renderFindings(model, { replay });
 }
 
@@ -483,7 +522,283 @@ const STAGE_TEXT = {
 };
 
 let busy = false;
-async function scanLive(name) {
+
+/** What was typed: a hosted URL, a registry listing name, or a package. */
+export function classify(q) {
+  if (/^https?:\/\//i.test(q)) return 'url';
+  if (!q.startsWith('@') && !/^(npm|pypi):/i.test(q) && /^[a-z0-9-]+(\.[a-z0-9-]+)+\/[^\s/]+$/i.test(q)) return 'registry';
+  return 'package';
+}
+
+const HELP_TEXT = 'Nothing is installed or run, and no tool is ever called.';
+
+/** One entry point for every kind of input. */
+async function scanTarget(q) {
+  const kind = classify(q);
+  if (kind === 'package') return scanLive(q);
+  if (busy) return;
+  busy = true;
+  const my = ++generation;
+  const btn = $('#scan-btn');
+  begin(q, btn);
+  try {
+    let entry = null;
+    let url = q;
+    if (kind === 'registry') {
+      status('Looking up the listing in the MCP registry…');
+      const res = await fetch(`${REGISTRY}/v0.1/servers/${encodeURIComponent(q)}/versions/latest`);
+      if (res.status === 404) throw Object.assign(new Error(`No listing called “${q}” in the MCP registry.`), { code: 'not-found' });
+      if (!res.ok) throw new Error(`the MCP registry answered HTTP ${res.status}`);
+      entry = await res.json();
+      if (stale(my)) return;
+      const pkg = (entry.server.packages ?? []).find((p) => ['npm', 'pypi'].includes((p.registryType ?? '').toLowerCase()));
+      if (pkg) {
+        busy = false;
+        const target = pkg.registryType.toLowerCase() === 'pypi' ? `pypi:${pkg.identifier}` : pkg.identifier;
+        return scanLive(target, { keepUrl: q });
+      }
+      url = (entry.server.remotes ?? []).find((r) => r.url && !/\{/.test(r.url))?.url;
+      if (!url) throw Object.assign(new Error(`“${q}” ships nothing mcpscan can scan yet (no npm or PyPI package, no fixed URL).`), { code: 'not-found' });
+    }
+    await scanRemoteUrl(url, { entry, my });
+    if (!stale(my)) history.replaceState(null, '', `?q=${encodeURIComponent(q)}`);
+  } catch (err) {
+    if (!stale(my)) fail(err);
+  } finally {
+    end(btn);
+  }
+}
+
+function begin(label, btn) {
+  finishAll();
+  const help = $('#pkg-help');
+  help.classList.remove('error');
+  help.textContent = HELP_TEXT;
+  $('#relay-ask').hidden = true;
+  btn.disabled = true;
+  btn.textContent = 'Scanning…';
+  $('#stage-pkg').textContent = label;
+  $('#tells').replaceChildren();
+  $('#does').replaceChildren();
+  $('#tells-n').textContent = '';
+  $('#does-n').textContent = '';
+  skipBtn.hidden = true;
+  skeleton();
+}
+
+function fail(err) {
+  const help = $('#pkg-help');
+  help.classList.add('error');
+  help.textContent = err.code === 'not-found'
+    ? `${err.message} Check the spelling, or copy it from the server's install command.`
+    : `The scan stopped: ${err.message}. Check your connection and try again.`;
+  status('Stopped');
+  $('#pkg').focus();
+  manifest.replaceChildren();
+}
+
+function end(btn) {
+  busy = false;
+  btn.disabled = false;
+  btn.textContent = 'Scan';
+}
+
+/* ---------- hosted servers ---------- */
+
+// Pins live in this visitor's browser only: a per-viewer memory of what each server said.
+const PINS_KEY = 'mcpscan-pins';
+function loadBrowserPins() {
+  try { return JSON.parse(localStorage.getItem(PINS_KEY) ?? '{}'); } catch { return {}; }
+}
+function saveBrowserPins(p) {
+  try { localStorage.setItem(PINS_KEY, JSON.stringify(p)); } catch { /* private mode: nothing is remembered */ }
+}
+const relayAlways = () => { try { return localStorage.getItem('mcpscan-relay') === 'always'; } catch { return false; } };
+
+/** Ask before a URL goes to the relay; resolves true when the visitor agrees, false if they move on. */
+function askRelay(my, reason) {
+  const box = $('#relay-ask');
+  $('#relay-why').textContent = reason;
+  box.hidden = false;
+  $('#relay-go').focus();
+  return new Promise((resolve) => {
+    const go = $('#relay-go');
+    let watch;
+    const done = (v) => {
+      clearInterval(watch);
+      box.hidden = true;
+      go.removeEventListener('click', onGo);
+      resolve(v);
+    };
+    const onGo = () => {
+      try { if ($('#relay-always').checked) localStorage.setItem('mcpscan-relay', 'always'); } catch { /* no storage */ }
+      done(true);
+    };
+    go.addEventListener('click', onGo);
+    watch = setInterval(() => stale(my) && done(false), 300);
+  });
+}
+
+async function viaRelay(url) {
+  let res;
+  try {
+    res = await fetch(RELAY_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url }) });
+  } catch {
+    throw new Error('the relay is not reachable from here');
+  }
+  const body = await res.json().catch(() => ({ ok: false, error: `the relay answered HTTP ${res.status}` }));
+  if (!body.ok) throw new Error(body.error);
+  return body;
+}
+
+async function scanRemoteUrl(url, { entry, my }) {
+  const host = new URL(url).host;
+  status(`Asking ${host} for its tools, from your browser…`);
+  let r = await inspectRemote(url, { fetchImpl: (u, i) => fetch(u, i), timeoutMs: 12000 });
+  let via = 'browser';
+  if (stale(my)) return;
+  // A browser cannot tell "blocked by CORS" from "down": both are a bare network error.
+  const blocked = !r.remote.probed && r.remote.reason === 'transport' && /fetch|network|load failed/i.test(r.remote.message);
+  const authUnread = r.remote.reason === 'auth' && r.remote.auth?.unreadable;
+  if (blocked || authUnread) {
+    const why = blocked
+      ? `${host} doesn't let web pages read its answers, or isn't answering. Most hosted servers block pages: 25 of 44 we sampled.`
+      : `${host} requires sign-in, and its sign-in details can't be read from a web page.`;
+    status(blocked ? 'Blocked for browsers' : 'Sign-in details blocked for browsers');
+    manifest.replaceChildren();
+    const btn = $('#scan-btn');
+    let ok = relayAlways();
+    if (!ok) {
+      // A pending question must not lock the page: free the button while asking, so the
+      // visitor can scan something else instead; that new scan cancels this one.
+      end(btn);
+      ok = await askRelay(my, why);
+      if (!ok || stale(my)) return;
+      busy = true;
+      btn.disabled = true;
+      btn.textContent = 'Scanning…';
+    }
+    status(`Probing ${host} through the relay…`);
+    r = await viaRelay(url);
+    via = 'relay';
+    if (stale(my)) return;
+  }
+
+  const findings = [...listingStatus(entry), ...r.findings];
+  let pinAction = null;
+  if (r.remote.probed) {
+    const pins = loadBrowserPins();
+    const key = serverKey(url);
+    const d = diffFingerprints(pins[key], await fingerprintTools(r.tools), { store: 'this browser' });
+    findings.push(...d.findings);
+    if (d.firstPin || !d.changed) {
+      pins[key] = d.next;
+      saveBrowserPins(pins);
+    } else {
+      // Never accepted silently: a change stays reported until the visitor accepts it.
+      pinAction = el('li', { class: 'group' }, el('button', { type: 'button', class: 'chip accept' }, 'Accept these tools as the new baseline'));
+      pinAction.querySelector('button').addEventListener('click', (e) => {
+        const p = loadBrowserPins();
+        p[key] = { ...d.next, pinnedAt: new Date().toISOString() };
+        saveBrowserPins(p);
+        e.target.replaceWith('Accepted. The next scan compares against the tools as they are now.');
+      });
+    }
+  }
+  findings.sort((a, b) => RANK[a.severity] - RANK[b.severity]);
+  await show(buildRemoteModel(url, r, { entry, via, findings, pinAction }), { replay: false, my });
+}
+
+/**
+ * The same stage, read for a hosted server: rows are its tools, or, when it requires
+ * sign-in, the sign-in checks; the ledgers are what it claims and what was found.
+ */
+function buildRemoteModel(url, r, { entry, via, findings, pinAction }) {
+  const host = new URL(url).host;
+  const rem = r.remote;
+  const tells = [];
+  const does = [];
+  const hits = [];
+  let files;
+  if (entry) tells.push({ key: 'tells:listing', sev: 'ok', text: `Listed as ${entry.server.name}`, detail: 'Official MCP registry' });
+
+  if (rem.probed) {
+    const a = rem.annotations;
+    const tag = (t) => (t.annotations?.readOnlyHint ? 'read-only' : t.annotations?.destructiveHint ? 'destructive' : '');
+    files = r.tools.map((t) => ({ path: t.name, lines: tag(t) }));
+    const idx = new Map(r.tools.map((t, i) => [t.name, i]));
+    for (const f of findings) {
+      const tool = String(f.subject ?? '').split(':')[0];
+      const key = f.check.startsWith('tool-') || f.check === 'pinned' ? 'does:changes' : `does:${f.check}`;
+      hits.push({ f, row: idx.has(tool) ? idx.get(tool) : -1, key });
+    }
+    const who = rem.serverInfo?.name ? `${rem.serverInfo.name}${rem.serverInfo.version ? ` ${rem.serverInfo.version}` : ''}` : host;
+    tells.push({ key: 'tells:server', sev: 'ok', text: `Calls itself ${who}` });
+    tells.push({ key: 'tells:era', sev: rem.era === 'modern' ? 'ok' : 'info', text: rem.era === 'modern' ? `Speaks MCP ${rem.protocolVersion}, the current revision` : `Speaks an older MCP revision${rem.protocolVersion ? ` (${rem.protocolVersion})` : ''}` });
+    tells.push({ key: 'tells:tools', sev: 'ok', text: `Offers ${plural(rem.tools, 'tool')}`, detail: a.destructive ? a.destructiveNames : null });
+    if (rem.tools) {
+      tells.push({
+        key: 'tells:annotations',
+        sev: a.unannotated === rem.tools ? 'info' : 'ok',
+        text: a.unannotated === rem.tools ? 'Says nothing about which tools change things' : `Marks ${a.readOnly} read-only and ${a.destructive} destructive`,
+      });
+    }
+  } else {
+    const au = rem.auth;
+    const yes = (v) => (v ? 'yes' : 'no');
+    files = [{ path: 'tools/list', lines: rem.reason === 'auth' ? `HTTP ${rem.detail?.status ?? 401}` : rem.reason }];
+    if (au && !au.custom) {
+      files.push({ path: 'sign-in metadata', lines: au.resourceMetadataUrl ? 'published' : au.unreadable ? 'unreadable' : 'missing' });
+      if (au.authorizationServers?.length) files.push({ path: `sign-in server ${new URL(au.authorizationServers[0]).host}`, lines: au.server ? 'found' : 'no metadata' });
+      if (au.server) {
+        files.push({ path: 'PKCE (S256)', lines: yes(au.server.pkceS256) });
+        files.push({ path: 'Client ID metadata documents', lines: yes(au.server.clientIdMetadataDocuments) });
+        files.push({ path: 'Issuer identification', lines: yes(au.server.issParameter) });
+        files.push({ path: 'Dynamic client registration', lines: yes(au.server.dynamicRegistration) });
+      }
+    }
+    const rowFor = { 'oauth-metadata-missing': 1, 'oauth-resource-mismatch': 1, 'oauth-issuer-mismatch': 2, 'oauth-no-pkce': 3, 'oauth-dcr-only': 6, 'custom-auth': 0, 'deprecated-transport': 0, 'remote-not-probed': 0 };
+    for (const f of findings) hits.push({ f, row: rowFor[f.check] ?? -1, key: `does:${f.check}` });
+    const signIn = au?.custom ? 'Asks for its own key or token' : au?.server ? `Signs people in through ${new URL(au.authorizationServers[0]).host}` : 'Requires sign-in';
+    tells.push({ key: 'tells:auth', sev: 'info', text: rem.reason === 'auth' ? signIn : sentence({ check: 'remote-not-probed', message: rem.message }).replace(/\.$/, '') });
+  }
+
+  const shown = new Set();
+  for (const h of hits) {
+    if (shown.has(h.key)) continue;
+    if (h.f.severity === 'info' && !['pinned', 'unauthenticated', 'custom-auth'].includes(h.f.check)) continue;
+    shown.add(h.key);
+    does.push({ key: h.key, sev: h.f.severity, text: sentence(h.f).replace(/\.$/, '') });
+  }
+  if (!does.length) {
+    const none = rem.probed
+      ? 'Nothing in its tool descriptions tries to instruct the AI'
+      : rem.auth?.server ? 'Its sign-in is built to the current MCP specification' : 'Nothing could be checked without its tools';
+    does.push({ key: 'does:none', sev: 'ok', text: none });
+  }
+
+  const done = rem.probed ? `${plural(rem.tools, 'tool')} listed, none called` : 'Sign-in checked, no account used';
+  const where = via === 'relay' ? 'through the relay' : 'from your browser';
+  return {
+    prebuilt: true,
+    name: host,
+    version: '',
+    label: via === 'relay' ? `${host}, via relay` : host,
+    scannedAt: new Date().toISOString(),
+    files,
+    tells,
+    does,
+    hits,
+    findings,
+    pinAction,
+    doneText: `${done}, ${where}`,
+    subtitle: `${url}, probed ${where} just now.`,
+    emptyText: 'Nothing found in what the server says about itself.',
+    ledgerTitles: ['What it tells you', 'What we found'],
+  };
+}
+
+async function scanLive(name, { keepUrl } = {}) {
   if (busy) return;
   busy = true;
   const my = ++generation;
@@ -491,7 +806,8 @@ async function scanLive(name) {
   const btn = $('#scan-btn');
   const help = $('#pkg-help');
   help.classList.remove('error');
-  help.textContent = 'Nothing is installed or run. Only public package names and versions leave your browser.';
+  help.textContent = HELP_TEXT;
+  $('#relay-ask').hidden = true;
   btn.disabled = true;
   btn.textContent = 'Scanning…';
   $('#stage-pkg').textContent = name;
@@ -515,7 +831,7 @@ async function scanLive(name) {
     const r = await scanInBrowser(name, { indexUrl: INDEX_URL, onProgress: (p) => onProgress({ ...p, registry }) }).finally(() => clearTimeout(slow));
     if (stale(my)) return;
     await show(fromLive(r), { replay: false, my });
-    history.replaceState(null, '', `?pkg=${encodeURIComponent(name)}`);
+    history.replaceState(null, '', `?q=${encodeURIComponent(keepUrl ?? name)}`);
   } catch (err) {
     help.classList.add('error');
     help.textContent = err.code === 'not-found'
@@ -527,7 +843,7 @@ async function scanLive(name) {
   } finally {
     busy = false;
     btn.disabled = false;
-    btn.textContent = 'Scan package';
+    btn.textContent = 'Scan';
   }
 }
 
@@ -537,6 +853,7 @@ async function scanLive(name) {
  */
 export function normalizeTarget(raw) {
   let v = raw.trim();
+  if (/^https?:\/\//i.test(v)) return v.split(/\s+/)[0];
   const py = /^(uvx|pipx\s+run|pip3?\s+install|uv\s+(?:tool\s+)?run)\s+/i;
   if (py.test(v)) v = `pypi:${v.replace(py, '').replace(/^(--?\S+\s+(?:\S+\s+)?)*/, '')}`;
   v = v.replace(/^npx\s+(-y\s+|--yes\s+)?/i, '').replace(/^npm:/i, '');
@@ -549,15 +866,15 @@ $('#scan-form').addEventListener('submit', (e) => {
   if (!name) {
     const help = $('#pkg-help');
     help.classList.add('error');
-    help.textContent = 'Enter an npm package name, like @modelcontextprotocol/server-filesystem.';
+    help.textContent = 'Enter a server URL, a package or a registry name, like pypi:mcp-server-fetch.';
     $('#pkg').focus();
     return;
   }
-  scanLive(name);
+  scanTarget(name);
 });
-document.querySelectorAll('.chip').forEach((c) => c.addEventListener('click', () => {
+document.querySelectorAll('.examples .chip').forEach((c) => c.addEventListener('click', () => {
   $('#pkg').value = c.dataset.pkg;
-  scanLive(c.dataset.pkg);
+  scanTarget(c.dataset.pkg);
 }));
 
 /* ---------- theme ---------- */
@@ -630,10 +947,11 @@ async function intro() {
     [$('.lede'), $('.scan-form')].forEach((n, i) => n.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 560, delay: 320 + i * 110, easing: EASE_OUT, fill: 'both' }));
     stage.animate([{ opacity: 0, transform: 'translateY(14px) scale(0.99)' }, { opacity: 1, transform: 'none' }], { duration: 720, delay: 360, easing: EASE_OUT, fill: 'both' });
   }
-  const pkg = new URLSearchParams(location.search).get('pkg');
-  if (pkg) {
-    $('#pkg').value = pkg;
-    return scanLive(pkg);
+  const params = new URLSearchParams(location.search);
+  const q = params.get('q') ?? params.get('pkg');
+  if (q) {
+    $('#pkg').value = q;
+    return scanTarget(normalizeTarget(q));
   }
   const my = generation;
   const demo = await (await fetch('data/demo.json')).json();

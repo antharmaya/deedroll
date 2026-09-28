@@ -12,19 +12,23 @@ const BATCH = 'https://api.osv.dev/v1/querybatch';
 const VULN = 'https://api.osv.dev/v1/vulns/';
 const MAX_DETAILS = 12;
 
+/** mcpscan ecosystem id -> OSV's ecosystem name. */
+const OSV_ECOSYSTEM = { npm: 'npm', pypi: 'PyPI' };
+const sameName = (a, b) => String(a).toLowerCase().replace(/[-_.]+/g, '-') === String(b).toLowerCase().replace(/[-_.]+/g, '-');
+
 const SEVERITY = { CRITICAL: 'high', HIGH: 'high', MODERATE: 'medium', MEDIUM: 'medium', LOW: 'low' };
 
 /** Earliest version that fixes this advisory for this package, if OSV says. */
 function fixedIn(vuln, name) {
   for (const a of vuln.affected ?? []) {
-    if (a.package?.name !== name) continue;
+    if (!sameName(a.package?.name, name)) continue;
     for (const r of a.ranges ?? []) for (const e of r.events ?? []) if (e.fixed) return e.fixed;
   }
   return null;
 }
 
 /**
- * @param {Array<{name, version}>} packages
+ * @param {Array<{name, version, ecosystem?}>} packages  ecosystem defaults to npm
  * @returns {Promise<{findings: object[], checked: number, error?: string}>}
  */
 export async function checkKnownVulnerabilities(packages, { fetchImpl = globalThis.fetch } = {}) {
@@ -34,7 +38,7 @@ export async function checkKnownVulnerabilities(packages, { fetchImpl = globalTh
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        queries: packages.map((p) => ({ package: { name: p.name, ecosystem: 'npm' }, version: p.version })),
+        queries: packages.map((p) => ({ package: { name: p.name, ecosystem: OSV_ECOSYSTEM[p.ecosystem ?? 'npm'] }, version: p.version })),
       }),
     });
     if (!res.ok) throw new Error(`OSV ${res.status}`);

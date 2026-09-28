@@ -12,11 +12,13 @@
  * Usage: node scripts/build-index.js [maxPages]
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
+import { normalizePypiName } from '../src/model.js';
 
 const MAX_PAGES = Number(process.argv[2] ?? 1000);
 const REGISTRY = 'https://registry.modelcontextprotocol.io/v0/servers';
 
 const index = {}; // npm identifier -> [registry names]
+const pypi = {}; // PEP 503-normalised PyPI name -> [registry names]
 let cursor = null;
 let pages = 0;
 let listings = 0;
@@ -35,8 +37,12 @@ while (pages < MAX_PAGES) {
   for (const s of body.servers ?? []) {
     listings++;
     for (const p of s.server?.packages ?? []) {
-      if ((p.registryType ?? '').toLowerCase() !== 'npm' || !p.identifier) continue;
-      (index[p.identifier] ??= []).includes(s.server.name) || index[p.identifier].push(s.server.name);
+      const type = (p.registryType ?? '').toLowerCase();
+      if (!p.identifier) continue;
+      const map = type === 'npm' ? index : type === 'pypi' ? pypi : null;
+      if (!map) continue;
+      const key = type === 'pypi' ? normalizePypiName(p.identifier) : p.identifier;
+      (map[key] ??= []).includes(s.server.name) || map[key].push(s.server.name);
     }
   }
   pages++;
@@ -49,6 +55,6 @@ process.stderr.write('\n');
 mkdirSync(new URL('../src/data/', import.meta.url), { recursive: true });
 writeFileSync(
   new URL('../src/data/registry-index.json', import.meta.url),
-  `${JSON.stringify({ builtAt: new Date().toISOString(), complete: !cursor, listings, index }, null, 0)}\n`
+  `${JSON.stringify({ builtAt: new Date().toISOString(), complete: !cursor, listings, index, pypi }, null, 0)}\n`
 );
-console.log(`listings ${listings} · npm packages ${Object.keys(index).length} · ${cursor ? 'INCOMPLETE (page cap)' : 'complete'}`);
+console.log(`listings ${listings} · npm packages ${Object.keys(index).length} · pypi packages ${Object.keys(pypi).length} · ${cursor ? 'INCOMPLETE (page cap)' : 'complete'}`);

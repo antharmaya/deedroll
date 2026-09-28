@@ -8,7 +8,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { fetchRegistryEntry } from './sources.js';
-import { searchTerms, shipsPackage } from './model.js';
+import { searchTerms, shipsPackage, normalizePypiName } from './model.js';
 
 export { searchTerms } from './model.js';
 
@@ -29,28 +29,30 @@ export function loadIndex() {
 /**
  * @returns {Promise<{entry: object|null, source: 'index'|'search'|'index-miss'|null, listings: string[], indexBuiltAt: string|null}>}
  */
-export async function findListing(npmName, { index = loadIndex(), fetchImpl = globalThis.fetch, fetchEntry = fetchRegistryEntry } = {}) {
+export async function findListing(npmName, { ecosystem = 'npm', index = loadIndex(), fetchImpl = globalThis.fetch, fetchEntry = fetchRegistryEntry } = {}) {
   const indexBuiltAt = index?.builtAt ?? null;
-  const fromIndex = index?.index?.[npmName] ?? [];
+  // PyPI names are indexed PEP 503-normalised; an index built before PyPI was covered has no map.
+  const map = ecosystem === 'pypi' ? index?.pypi : index?.index;
+  const fromIndex = map?.[ecosystem === 'pypi' ? normalizePypiName(npmName) : npmName] ?? [];
   for (const name of fromIndex) {
     const entry = await fetchEntry(name);
-    if (entry && shipsPackage(entry.server, npmName)) return { entry, source: 'index', listings: fromIndex, indexBuiltAt };
+    if (entry && shipsPackage(entry.server, npmName, ecosystem)) return { entry, source: 'index', listings: fromIndex, indexBuiltAt };
   }
 
   // A complete, recent index is trusted on a miss: live name search costs 3-14 s per
   // term and rarely finds what a full walk of the registry did not. The price: a
   // listing created after builtAt is unseen until the index is rebuilt.
   const ageDays = indexBuiltAt ? (Date.now() - Date.parse(indexBuiltAt)) / 86400000 : Infinity;
-  if (index?.complete && ageDays <= FRESH_DAYS) {
+  if (index?.complete && ageDays <= FRESH_DAYS && map) {
     return { entry: null, source: 'index-miss', listings: [], indexBuiltAt };
   }
 
-  for (const term of searchTerms(npmName)) {
+  for (const term of ecosystem === 'pypi' ? [npmName] : searchTerms(npmName)) {
     const url = `${REGISTRY}?search=${encodeURIComponent(term)}&version=latest&limit=100`;
     const res = await fetchImpl(url);
     if (!res.ok) continue;
     const body = await res.json();
-    const hits = (body.servers ?? []).filter((s) => shipsPackage(s.server, npmName));
+    const hits = (body.servers ?? []).filter((s) => shipsPackage(s.server, npmName, ecosystem));
     if (hits.length) {
       return { entry: hits[0], source: 'search', listings: hits.map((h) => h.server.name), indexBuiltAt };
     }

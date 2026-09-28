@@ -71,9 +71,17 @@ const BENIGN_HOSTS = new Set([
   'raw.githubusercontent.com', 'json-schema.org', 'schema.org', 'www.w3.org', 'opensource.org',
   'spdx.org', 'localhost', 'example.com', 'www.example.com', 'modelcontextprotocol.io',
   'static.modelcontextprotocol.io', 'registry.modelcontextprotocol.io',
+  'pypi.org', 'files.pythonhosted.org', 'python.org', 'www.python.org', 'docs.python.org',
 ]);
 
 const OFFICIAL_PREFIX = '@modelcontextprotocol/';
+
+/** Where package metadata lives, per ecosystem: evidence should name the real source. */
+const META = {
+  npm: { file: 'package.json', registry: 'npm' },
+  pypi: { file: 'PyPI metadata', registry: 'PyPI' },
+};
+const meta = (pkg) => META[pkg.ecosystem ?? 'npm'] ?? META.npm;
 
 function* eachLine(files) {
   for (const [path, buf] of files) {
@@ -140,6 +148,7 @@ export function checkUndeclaredSecrets(pkg, entry, declared) {
 
 /** CHECK 2 — lifecycle scripts, the classic supply-chain vector. */
 export function checkInstallScripts(pkg) {
+  if (pkg.ecosystem === 'pypi') return checkPythonBuild(pkg);
   const scripts = pkg.manifest?.scripts ?? {};
   // Only these run when a package is installed as a dependency or via npx. `prepare`
   // does not ("does not run when installing specific packages like npm install
@@ -236,15 +245,17 @@ export function checkProvenance(pkg) {
     findings.push({
       check: 'provenance',
       severity: 'medium',
-      message: 'no repository field: the published code cannot be traced to source',
-      evidence: [{ file: 'package.json', line: 0, text: 'repository: absent' }],
+      message: pkg.ecosystem === 'pypi'
+        ? 'no source repository in its project URLs: the published code cannot be traced to source'
+        : 'no repository field: the published code cannot be traced to source',
+      evidence: [{ file: meta(pkg).file, line: 0, text: 'repository: absent' }],
     });
   }
   if (pkg.integrityOk === false) {
     findings.push({
       check: 'provenance',
       severity: 'high',
-      message: 'tarball does not match the integrity hash npm published for it',
+      message: `download does not match the integrity hash ${meta(pkg).registry} published for it`,
       evidence: [{ file: 'dist.integrity', line: 0, text: 'mismatch' }],
     });
   }
@@ -253,7 +264,7 @@ export function checkProvenance(pkg) {
       check: 'provenance',
       severity: 'low',
       message: 'only one version ever published',
-      evidence: [{ file: 'npm', line: 0, text: `versions: ${pkg.versionCount}` }],
+      evidence: [{ file: meta(pkg).registry, line: 0, text: `versions: ${pkg.versionCount}` }],
     });
   }
   if (pkg.publishedAt) {
@@ -263,7 +274,7 @@ export function checkProvenance(pkg) {
         check: 'provenance',
         severity: 'low',
         message: `published ${days} day(s) ago`,
-        evidence: [{ file: 'npm', line: 0, text: pkg.publishedAt }],
+        evidence: [{ file: meta(pkg).registry, line: 0, text: pkg.publishedAt }],
       });
     }
   }
@@ -282,8 +293,10 @@ export function checkDeprecated(pkg) {
     {
       check: 'deprecated',
       severity: 'medium',
-      message: `npm marks ${pkg.name}@${pkg.version} deprecated: ${String(note).slice(0, 140)}`,
-      evidence: [{ file: 'npm', line: 0, text: `deprecated: ${String(note).slice(0, 100)}` }],
+      message: pkg.ecosystem === 'pypi'
+        ? `PyPI marks ${pkg.name} ${pkg.version} yanked: ${String(note).slice(0, 140)}`
+        : `npm marks ${pkg.name}@${pkg.version} deprecated: ${String(note).slice(0, 140)}`,
+      evidence: [{ file: meta(pkg).registry, line: 0, text: `${pkg.ecosystem === 'pypi' ? 'yanked' : 'deprecated'}: ${String(note).slice(0, 100)}` }],
     },
   ];
 }
@@ -295,13 +308,14 @@ export function checkDeprecated(pkg) {
  */
 export function checkProvenanceDrop(pkg) {
   const p = pkg.provenance;
-  if (!p || p.current || p.earlierWithProvenance === 0) return [];
+  // "unknown" (the registry did not answer) must never read as "absent".
+  if (!p || p.current || p.state === 'unknown' || p.earlierWithProvenance === 0) return [];
   return [
     {
       check: 'provenance-dropped',
       severity: 'medium',
       message: `${pkg.name}@${pkg.version} has no provenance attestation, but ${p.earlierWithProvenance} earlier version(s) did (last: ${p.lastWithProvenance}) — published outside the usual CI pipeline?`,
-      evidence: [{ file: 'npm', line: 0, text: `dist.attestations: absent (present on ${p.lastWithProvenance})` }],
+      evidence: [{ file: meta(pkg).registry, line: 0, text: `attestations: absent (present on ${p.lastWithProvenance})` }],
     },
   ];
 }
@@ -389,6 +403,7 @@ export function editDistance(a, b) {
  * The unscoped-vs-scoped case is the one that has actually bitten this project twice.
  */
 export function checkTyposquat(pkg, officialNames = []) {
+  if ((pkg.ecosystem ?? 'npm') !== 'npm') return []; // the official list is npm names
   const name = pkg.name;
   if (name.startsWith(OFFICIAL_PREFIX)) return [];
   const bare = name.replace(/^@[^/]+\//, '');
@@ -416,6 +431,47 @@ export function checkTyposquat(pkg, officialNames = []) {
   return findings;
 }
 
+/**
+ * CHECK 2 (PyPI) — code that runs at install. A wheel installs by copying files; with no
+ * wheel published, pip builds the sdist, and the build runs the package's own code
+ * (setup.py, or the build backend's hooks) on the installing machine: the Python
+ * equivalent of an npm install script.
+ */
+export function checkPythonBuild(pkg) {
+  if (!pkg.artifact?.buildsFromSource) return [];
+  const setup = pkg.files.get('setup.py');
+  return [
+    {
+      check: 'install-script',
+      severity: setup ? 'high' : 'medium',
+      message: setup
+        ? 'publishes no wheel, so installing it runs its setup.py'
+        : 'publishes no wheel, so installing it builds from source and runs its build hooks',
+      evidence: [{ file: setup ? 'setup.py' : pkg.artifact.filename, line: 0, text: setup ? trim(setup.toString('utf8').split('\n').find((l) => /setup\(/.test(l)) ?? 'setup.py') : 'sdist only' }],
+    },
+  ];
+}
+
+/**
+ * CHECK 8b — built from somewhere else. The provenance attestation names the repository
+ * the release was actually built from; the project names the repository it points
+ * people at. When both exist and differ, the code you install did not come from the
+ * code you would read.
+ */
+export function checkPublisherMismatch(pkg) {
+  const built = pkg.provenance?.publisher?.repository?.toLowerCase();
+  const claimed = pkg.provenance?.sourceSlug;
+  if (!built || !claimed || built === claimed) return [];
+  return [
+    {
+      check: 'publisher-mismatch',
+      severity: 'medium',
+      message: `built from ${built} (per its provenance attestation) but its project points at ${claimed}`,
+      evidence: [{ file: meta(pkg).registry, line: 0, text: `attestation repository: ${built}; project URL: ${claimed}` }],
+    },
+  ];
+}
+
 export const SEVERITY_ORDER = { high: 0, medium: 1, low: 2, info: 3 };
 
 export function runAllChecks({ pkg, entry, declared, officialNames }) {
@@ -426,6 +482,7 @@ export function runAllChecks({ pkg, entry, declared, officialNames }) {
     ...checkProvenance(pkg),
     ...checkDeprecated(pkg),
     ...checkProvenanceDrop(pkg),
+    ...checkPublisherMismatch(pkg),
     ...checkInstructionLikeText(pkg),
     ...checkTyposquat(pkg, officialNames),
     ...checkNetworkEgress(pkg, entry),

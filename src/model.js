@@ -100,6 +100,52 @@ export function searchTerms(npmName) {
   return [...new Set([core, scope].filter((t) => t && t.length >= 3))].slice(0, 2);
 }
 
-export const shipsPackage = (server, npmName) =>
-  (server?.packages ?? []).some((p) => (p.registryType ?? '').toLowerCase() === 'npm' && p.identifier === npmName);
+/** PEP 503: PyPI names compare case-insensitively with runs of -_. folded to one dash. */
+export const normalizePypiName = (name) => String(name).toLowerCase().replace(/[-_.]+/g, '-');
 
+export const shipsPackage = (server, name, ecosystem = 'npm') =>
+  (server?.packages ?? []).some((p) => {
+    const type = (p.registryType ?? '').toLowerCase();
+    if (type !== ecosystem || !p.identifier) return false;
+    return ecosystem === 'pypi' ? normalizePypiName(p.identifier) === normalizePypiName(name) : p.identifier === name;
+  });
+
+/** Packages of one ecosystem named by the registry entry. */
+export function packageIdentifiers(entry, ecosystem) {
+  return (entry?.server?.packages ?? [])
+    .filter((p) => (p.registryType ?? '').toLowerCase() === ecosystem && p.identifier)
+    .map((p) => ({ identifier: p.identifier, version: p.version, fileSha256: p.fileSha256 }));
+}
+
+
+/* ---------- PyPI ---------- */
+
+/**
+ * Which file of a release to read. A wheel is what `pip install` and `uvx` pick when one
+ * fits, and installing a wheel runs no code; a pure-Python wheel (`none-any`) fits every
+ * machine, so it is the most honest stand-in for "what you get". With no wheel at all,
+ * pip builds the sdist, and building runs the package's own setup code on your machine.
+ */
+export function pickPypiFile(files) {
+  const usable = files ?? [];
+  const wheels = usable.filter((f) => f.packagetype === 'bdist_wheel');
+  const pure = wheels.find((f) => /-none-any\.whl$/.test(f.filename));
+  if (pure) return { file: pure, kind: 'wheel', buildsFromSource: false };
+  if (wheels.length) return { file: wheels[0], kind: 'wheel', buildsFromSource: false };
+  const sdist = usable.find((f) => f.packagetype === 'sdist');
+  return sdist ? { file: sdist, kind: 'sdist', buildsFromSource: true } : null;
+}
+
+/** "owner/repo" from a GitHub or GitLab URL, lowercased; null otherwise. */
+export function repoSlug(url) {
+  const m = /^(?:git\+)?(?:https?|git|ssh):\/\/(?:[^@/]+@)?(github\.com|gitlab\.com)[/:]([^/\s]+)\/([^/\s#?]+)/i.exec(String(url ?? '').trim());
+  return m ? `${m[2]}/${m[3].replace(/\.git$/, '')}`.toLowerCase() : null;
+}
+
+/** The source repository a PyPI project points at, from its project URLs. */
+export function pypiSourceUrl(info) {
+  const urls = Object.entries(info?.project_urls ?? {});
+  const named = urls.find(([k]) => /^(source|source code|repository|code|github|homepage|home)$/i.test(k.trim()));
+  const any = urls.find(([, v]) => repoSlug(v));
+  return (named && repoSlug(named[1]) ? named[1] : any?.[1]) ?? (repoSlug(info?.home_page) ? info.home_page : null);
+}

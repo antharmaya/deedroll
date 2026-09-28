@@ -63,6 +63,7 @@ asks for them — or doesn't ask, and reads one you already exported.
 | `provenance-dropped` | medium | Earlier versions were published with npm provenance (built by CI from a named repo) and this one was not — a known sign of a publish from a stolen token. Never having provenance is not flagged. |
 | `multiple-listings` | info | More than one registry listing points at this package. |
 | `instruction-like-text` | high / medium | A tool description that tries to instruct the model: ignore its instructions, hide something from the user, or read/send a credential store. The tool-poisoning shape. |
+| `tool-description-changed` | high | A hosted server's tool description differs from the pinned one (`tool-schema-changed`, `tool-added`, `tool-removed` for the rest). |
 | `network-egress` | info | Every external host reachable from the source, minus hosts the entry declares. |
 | `capability` | info | Process execution, dynamic evaluation, filesystem writes, raw sockets. |
 
@@ -100,6 +101,36 @@ Measured on 27 vendor servers (`node scripts/vendor-benchmark.js --deps`):
   appeared across five vendors and essentially none were real: SDK documentation examples, an
   example `roll_dice`, Liquid template filters, another agent's internal tools, and a different MCP
   server shipped in the same package.
+
+## Hosted (remote) servers: probe, pin, and catch the rug pull
+
+```
+mcpscan https://learn.microsoft.com/api/mcp          # probe, check descriptions, pin every tool
+mcpscan https://learn.microsoft.com/api/mcp          # later: reports anything that changed
+mcpscan <url> --update-pins                          # accept the changes and re-pin
+mcpscan --installed --remote --auth-from-env         # every hosted server your agents trust
+```
+
+Big vendors are moving to hosted servers — Neon and Sanity deprecated their npm packages in favour
+of them — and a hosted server can rewrite a tool's description at any time: what your agent reads
+is no longer what you approved. mcpscan pins a fingerprint of every tool's description and input
+schema, and on the next probe reports a changed description as **high**, with the approved and the
+current text side by side.
+
+- **Read-only by construction:** only `initialize` and `tools/list` are sent, never `tools/call`.
+  Nothing runs locally; the server does see the connection.
+- **Never auto-accepted:** a changed server is reported on every probe until `--update-pins`. If the
+  new state quietly became the baseline, the alert would fire once and then vanish.
+- **Hostile-server limits:** a 15 s timeout, a 5 MB response cap, and redirects are not followed —
+  a redirect would carry the request (and any credential) somewhere else.
+- **Credentials are opt-in:** `--auth-from-env` resolves `${VAR}` header references from your
+  environment and sends them only to that server. Literal values are never read.
+- Servers that need OAuth are reported as not probed, never as clean. The legacy SSE transport is
+  not probed.
+
+Verified live on 2026-09-28: Microsoft Learn (3 tools), DeepWiki (3), OpenAI's docs server (5) and
+Context7 (2) probed and pinned; an altered pin against the real Microsoft Learn server produced a
+high `tool-description-changed` with the old and new text.
 
 ## Use it from Claude Code or Codex — the agent is the judge
 
@@ -216,7 +247,7 @@ why the sampling is random and why publisher counts are reported next to server 
 ## Development
 
 ```
-npm test          # 93 tests, no network
+npm test          # 111 tests, no network
 node bin/mcpscan.js npm:<package>
 node scripts/build-index.js          # rebuild the registry index
 node scripts/collect-population.js   # cache the npm-backed population

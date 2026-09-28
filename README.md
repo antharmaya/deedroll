@@ -14,11 +14,8 @@ description is ever sent anywhere. No account, no API key.
 
 ## Try it in a minute
 
-**In a browser** (the same engine, running in the page):
-
-```
-node scripts/serve.js            # then open http://localhost:4173/web/
-```
+**In a browser:** https://mcpscan.harshavar968.workers.dev (the same engine, running in the page).
+To run it locally instead: `node scripts/serve.js`, then open http://localhost:4173/web/.
 
 Type a server URL, a package or a registry name, click an example, or paste what your config
 says (`npx -y …`, `uvx …`).
@@ -27,6 +24,20 @@ Most hosted servers don't let web pages read their answers (25 of 44 sampled, 20
 those, the page offers mcpscan's relay: the same read-only probe, run from the server behind the
 page. It asks first, sees only the URL, and stores nothing. `scripts/serve.js` includes the relay
 for local use.
+
+The page does everything the command line does:
+
+| In the page | Command line |
+|---|---|
+| Scan a package, a server URL or a registry name | `mcpscan <target>` |
+| **Check this computer**: which MCP servers on common ports a website could reach | `mcpscan --local` (every port, and `--subnet`) |
+| **Servers your agents trust**: choose your config files; read in the page, never uploaded | `mcpscan --installed` |
+| Download the report as JSON, SARIF, an egress allowlist or a registry block | `--json`, `--sarif`, `--egress`, `--registry-meta` |
+| Why each finding matters, and every check | `mcpscan explain` |
+| The registry history, and **verifying it** in your browser | `snapshot.js --status`, `--verify` |
+
+Not in the page: `--deps` and the agent-judge protocol (`--semantic=agent`), which need a
+command line.
 
 **On the command line** (Node 22+):
 
@@ -50,6 +61,7 @@ From a clone, `node bin/mcpscan.js` works the same way. (Not yet published to np
 | `pypi:<package>` | Reads the wheel `pip install` would pick (pure-Python first), or the sdist when there is no wheel, and verifies PyPI's hash. |
 | `https://<host>/mcp` | Lists the server's tools read-only, never calls one. Speaks the current protocol (2026-07-28, stateless) and older ones. Pins the tools and reports changes on later runs. If it requires sign-in, checks how that sign-in is built, from public metadata only. |
 | `--installed` | Reads the MCP configs of Claude Code, Codex, Claude Desktop, Cursor, Devin and Gemini CLI, scans each npm and PyPI server, and with `--remote` probes hosted ones. Nothing is launched. |
+| `--local` | Finds MCP servers listening on this machine (every listening port, with the owning process) or, with `--subnet 192.168.1.0/24`, on a private network you own. Checks each for network exposure, sign-in, and whether it rejects requests from other websites, as the specification requires. |
 
 Not yet: Docker images, `.mcpb` bundles, NuGet and Cargo packages; the tool lists of servers that
 require sign-in (their sign-in is checked, their tools are not listed, since mcpscan uses no
@@ -186,7 +198,8 @@ node scripts/snapshot.js --status     # the last runs, and a warning if the reco
 node scripts/snapshot.js --verify     # re-hash every file and check every link in the chain
 ```
 
-Stored under `archive/` (not in git). Measured on the first run: about 4 MB a day (3.4 MB of listings, 0.6 MB of tool lists), roughly 1.5 GB a year before deduplication. At 500 endpoints a day, every hosted endpoint comes round about every 46 days. Where it will be published is not decided.
+Published at https://mcpscan.harshavar968.workers.dev/history/chain.jsonl (Cloudflare R2), and
+verifiable from the web page. The local copy is under `archive/` (not in git). Measured on the first run: about 4 MB a day (3.4 MB of listings, 0.6 MB of tool lists), roughly 1.5 GB a year before deduplication. At 500 endpoints a day, every hosted endpoint comes round about every 46 days.
 
 ## Audit what you already trust
 
@@ -262,6 +275,18 @@ scanned, none errored. A benchmark of the scanner, not a published statistic.
 | [docs/nsa-coverage.md](docs/nsa-coverage.md) | What mcpscan covers of the NSA's MCP security guidance (May 2026), and what it does not |
 | [web/DESIGN.md](web/DESIGN.md) | The web page's design system |
 | `mcpscan --help`, `mcpscan explain` | The same, in the terminal |
+
+## Deploying
+
+The page, the relay and the history are one Cloudflare Worker (`wrangler.toml`, `deploy/worker.js`):
+
+```
+node scripts/build-site.js      # site/: the page and engine, with a Content-Security-Policy
+npx wrangler deploy             # static assets, /api/probe (rate-limited), /history/* from R2
+```
+
+The daily snapshot uploads to the R2 bucket when `MCPSCAN_R2_BUCKET` is set (the systemd unit
+sets it); `node scripts/snapshot.js --upload mcpscan-history` retries anything not yet uploaded.
 
 ## Development
 

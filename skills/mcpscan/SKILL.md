@@ -22,6 +22,9 @@ Run it with `npx @antharmaya/mcpscan …`. If that package is not available yet,
 | check a server listed in the MCP registry | `npx @antharmaya/mcpscan <registry-name>` |
 | audit everything already configured | `npx @antharmaya/mcpscan --installed` |
 | see what a thin wrapper's dependencies can do | add `--deps` |
+| check a hosted server (a URL) | `npx @antharmaya/mcpscan https://<host>/mcp` — read-only; pins its tools |
+| re-check a hosted server for changes | the same command; a changed description is reported as high |
+| audit hosted servers already configured | `npx @antharmaya/mcpscan --installed --remote` |
 | know whether the descriptions admit what the code does | the two-step judgment below |
 
 Exit code 1 means a high-severity finding. `--json` gives machine-readable output.
@@ -61,8 +64,16 @@ server and mention it to the user. Never run, call or install the server while j
   decides what that means for them.
 - Never print secret values. `--installed` never shows them; do not go and read them yourself.
 
+## Hosted servers and pins
+
+A hosted server is probed read-only (`initialize` and `tools/list`, never `tools/call`) and every
+tool is pinned. If a later probe reports `tool-description-changed`, show the user the old and new
+text and let them decide; never run `--update-pins` on the user's behalf. Pass `--auth-from-env`
+only if the user asks for authenticated probing.
+
 ## What leaves the machine
 
 Only public package names and versions, looked up on npm, the MCP registry and OSV.dev
-(`--no-osv` skips OSV). No scan result, config, key or description is sent anywhere, including
+(`--no-osv` skips OSV). A remote probe connects to that server, and with `--auth-from-env` sends it
+the credential its config already sends it. No scan result, config, key or description is sent anywhere, including
 during the judgment step: you answer locally.

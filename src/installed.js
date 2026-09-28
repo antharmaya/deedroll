@@ -13,6 +13,16 @@ import { join, basename } from 'node:path';
 import { isCredentialName } from './checks.js';
 const ENV_REFERENCE = /^\$\{?[A-Za-z_][A-Za-z0-9_]*\}?$/;
 
+/**
+ * A value that pulls its secret from somewhere else is not a plaintext secret. The forms
+ * agents actually document: ${VAR} and ${VAR:-default} (Claude Code), ${env:VAR} and
+ * ${file:path} (Windsurf), and references inside a larger string ("Bearer ${TOKEN}",
+ * Claude Code's own example). Found live: a migrated Windsurf key read via ${file:...}
+ * was still being reported as plaintext.
+ */
+const CONTAINS_REFERENCE = /\$\{(?:env:|file:)?[^}\s]+\}/;
+const isReference = (s) => ENV_REFERENCE.test(s) || CONTAINS_REFERENCE.test(s);
+
 /** Where each agent keeps its MCP config. JSON ones share the `mcpServers` shape. */
 function configLocations(home, cwd) {
   return [
@@ -32,7 +42,7 @@ function redact(map) {
   const out = {};
   for (const [k, v] of Object.entries(map ?? {})) {
     const s = typeof v === 'string' ? v.trim() : '';
-    out[k] = { literal: s.length > 0 && !ENV_REFERENCE.test(s) };
+    out[k] = { literal: s.length > 0 && !isReference(s) };
   }
   return out;
 }
@@ -42,7 +52,7 @@ function summariseArgs(args = []) {
   const secretFlags = [];
   for (const a of args) {
     const m = /^--?([A-Za-z0-9_-]+)=(.+)$/.exec(String(a));
-    if (m && isCredentialName(m[1]) && !ENV_REFERENCE.test(m[2])) secretFlags.push(m[1]);
+    if (m && isCredentialName(m[1]) && !isReference(m[2])) secretFlags.push(m[1]);
   }
   return { count: args.length, secretFlags };
 }

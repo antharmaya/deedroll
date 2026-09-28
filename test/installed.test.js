@@ -156,3 +156,19 @@ test('an unreadable config is reported, not fatal', () => {
     rmSync(home, { recursive: true, force: true });
   }
 });
+
+test('every documented reference form is a reference, not a plaintext secret', () => {
+  const toml = [
+    '[mcp_servers.a]', 'command = "npx"', 'args = ["a-mcp@1.0.0"]',
+    '[mcp_servers.a.env]',
+    'A_API_KEY = "${A_API_KEY}"',
+    'B_API_KEY = "${B_API_KEY:-}"',
+    'C_API_KEY = "${env:C_API_KEY}"',
+    'D_API_KEY = "${file:~/.config/mcp-secrets/d}"',
+    'E_API_KEY = "Bearer ${E_TOKEN}"',
+    'F_API_KEY = "sk-live-actually-plaintext"',
+  ].join('\n');
+  const [server] = parseCodexToml(toml);
+  const plaintext = configFindings(server).filter((f) => f.check === 'plaintext-secret').map((f) => f.subject);
+  assert.deepEqual(plaintext, ['F_API_KEY']);
+});

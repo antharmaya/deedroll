@@ -228,7 +228,8 @@ async function take() {
   mkdirSync(join(ARCHIVE, 'tools'), { recursive: true });
   const target = join(ARCHIVE, 'registry', `${today}.jsonl.gz`);
   if (existsSync(target)) {
-    log(`snapshot for ${today} already exists; nothing to do`);
+    log(`snapshot for ${today} already exists`);
+    if (process.env.MCPSCAN_R2_BUCKET) upload(process.env.MCPSCAN_R2_BUCKET); // retry anything still pending
     return;
   }
   const t0 = Date.now();

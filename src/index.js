@@ -5,6 +5,9 @@ import { createTypeSafeJudge } from './judge.js';
 import { expandDependencies, mergeDependencies } from './deps.js';
 import { findListing } from './lookup.js';
 import { checkKnownVulnerabilities } from './osv.js';
+import { probeRemote, ProbeError } from './remote.js';
+import { loadPins, savePins, diffPins, serverKey } from './pins.js';
+import { checkToolTexts } from './checks.js';
 
 /** Official server package names, used only for the typosquat check. */
 export const OFFICIAL_NAMES = [
@@ -116,6 +119,76 @@ export async function scan(
   return { target, entry, pkg, declared, findings: merged, disclosure: result.disclosure, deps: depInfo, listing, vulns };
 }
 
+/**
+ * Probe a hosted MCP server read-only, check what its tools say, and compare against
+ * the pinned state. Pins are only written on a first probe, an unchanged probe, or an
+ * explicit --update-pins — never when something changed.
+ */
+export async function scanRemote(url, { headers = {}, updatePins = false, pinsFile, fetchImpl } = {}) {
+  let probe;
+  try {
+    probe = await probeRemote(url, { headers, fetchImpl });
+  } catch (err) {
+    if (!(err instanceof ProbeError)) throw err;
+    const severity = err.kind === 'redirect' && err.detail?.crossOrigin ? 'medium' : 'info';
+    return {
+      target: url,
+      remote: { probed: false, reason: err.kind, message: err.message, detail: err.detail },
+      findings: [
+        {
+          check: 'remote-not-probed',
+          severity,
+          message: `${err.message} — tools not listed, so nothing was checked`,
+          evidence: [{ file: new URL(url).host, line: 0, text: err.kind }],
+        },
+      ],
+    };
+  }
+
+  const where = new URL(url).host;
+  const findings = checkToolTexts(probe.tools.map((t) => ({ name: t.name, description: String(t.description ?? ''), file: where, line: 0 })));
+
+  const pins = loadPins(pinsFile);
+  const key = serverKey(url);
+  const d = diffPins(pins[key], probe.tools);
+  findings.push(...d.findings);
+  if (d.firstPin || !d.changed) {
+    pins[key] = d.next;
+    savePins(pins, pinsFile);
+  } else if (updatePins) {
+    pins[key] = { ...d.next, pinnedAt: new Date().toISOString() };
+    savePins(pins, pinsFile);
+    findings.push({
+      check: 'pins-updated',
+      severity: 'info',
+      message: `accepted ${d.findings.length} change(s) and re-pinned (--update-pins)`,
+      evidence: [{ file: 'pins.json', line: 0, text: key }],
+    });
+  }
+  if (probe.truncated) {
+    findings.push({
+      check: 'tools-truncated',
+      severity: 'info',
+      message: 'tools/list kept paginating past the page limit; later tools were not seen',
+      evidence: [{ file: where, line: 0, text: `${probe.pages} pages` }],
+    });
+  }
+  findings.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+  return {
+    target: url,
+    remote: {
+      probed: true,
+      serverInfo: probe.serverInfo,
+      protocolVersion: probe.protocolVersion,
+      tools: probe.tools.length,
+      toolNames: probe.tools.map((t) => t.name),
+      firstPin: d.firstPin,
+      changed: d.changed,
+    },
+    findings,
+  };
+}
+
 export { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers };
 export { checkDisclosure, buildDisclosureRequest, applyJudgments, DEFAULT_THRESHOLDS } from './disclosure.js';
 export { buildAgentRequest, createAgentJudge, requestId, AGENT_RULES } from './agent-judge.js';
@@ -125,4 +198,6 @@ export { selectDependencies, vendorToken } from './deps.js';
 export { resolveVersion, provenanceHistory } from './sources.js';
 export { findListing, searchTerms } from './lookup.js';
 export { checkKnownVulnerabilities } from './osv.js';
+export { probeRemote, resolveHeaderRefs, ProbeError, parseRpcBody } from './remote.js';
+export { diffPins, fingerprint, serverKey, loadPins, savePins, pinsPath } from './pins.js';
 export * from './checks.js';

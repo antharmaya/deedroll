@@ -125,7 +125,7 @@ export function renderInstalled(result, { all = false } = {}) {
   const { configs, servers, packagesScanned } = result;
   const out = [''];
   out.push(
-    `  mcpscan --installed · ${configs.length} config file(s) · ${servers.length} server(s) · ${packagesScanned} npm package(s) scanned · nothing launched`
+    `  mcpscan --installed · ${configs.length} config file(s) · ${servers.length} server(s) · ${packagesScanned} npm package(s) scanned${result.remoteProbed ? ` · ${result.remoteProbed} remote probed (read-only)` : ''} · nothing launched`
   );
   for (const c of configs) {
     out.push(`    ${c.agent.padEnd(15)} ${tilde(c.file)}${c.error ? `  (unreadable: ${c.error})` : `  ${c.servers} server(s)`}`);
@@ -134,7 +134,8 @@ export function renderInstalled(result, { all = false } = {}) {
   out.push(`  ${'AGENT'.padEnd(15)} ${'SERVER'.padEnd(24)} ${'LAUNCH'.padEnd(52)} FINDINGS`);
   for (const s of servers) {
     const name = s.scope?.startsWith('project:') ? `${s.name} (project)` : s.name;
-    out.push(`  ${s.agent.padEnd(15)} ${clip(name, 24).padEnd(24)} ${clip(launchLabel(s.launch), 52).padEnd(52)} ${countLine(s.findings)}`);
+    const probed = s.remote ? (s.remote.probed ? ` · ${s.remote.tools} tools` : ` · ${s.remote.reason}`) : '';
+    out.push(`  ${s.agent.padEnd(15)} ${clip(name, 24).padEnd(24)} ${clip(launchLabel(s.launch) + probed, 52).padEnd(52)} ${countLine(s.findings)}`);
   }
 
   const shown = all ? ['high', 'medium', 'low', 'info'] : ['high', 'medium', 'low'];
@@ -154,6 +155,27 @@ export function renderInstalled(result, { all = false } = {}) {
   const notScanned = servers.filter((s) => s.findings.some((f) => f.check === 'not-scanned')).length;
   out.push('');
   out.push(`  ${countLine(everything)} across ${servers.length} server(s) · ${notScanned} not statically scannable${all ? '' : ' · --all shows info'}`);
+  out.push('');
+  return out.join('\n');
+}
+
+/** A remote target: what was probed, what it serves, what changed since the pin. */
+export function renderRemote(result) {
+  const out = [''];
+  const r = result.remote;
+  const host = new URL(result.target).host;
+  out.push(`  ${host}  (remote, read-only probe: initialize + tools/list, never tools/call)`);
+  if (r.probed) {
+    const who = r.serverInfo ? `${r.serverInfo.name ?? '?'}${r.serverInfo.version ? `@${r.serverInfo.version}` : ''}` : 'unnamed';
+    out.push(`  server ${who} · protocol ${r.protocolVersion} · ${r.tools} tool(s) · ${r.firstPin ? 'first probe: pinned' : r.changed ? 'CHANGED since pin' : 'unchanged since pin'}`);
+  } else {
+    out.push(`  not probed: ${r.message}`);
+  }
+  out.push('');
+  for (const f of result.findings) {
+    out.push(`  ${paint(f.severity, f.severity.toUpperCase().padEnd(6))} ${f.check}  ${f.message}`);
+    for (const e of f.evidence ?? []) out.push(`         ${e.file}  ${e.text}`);
+  }
   out.push('');
   return out.join('\n');
 }

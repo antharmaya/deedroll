@@ -58,7 +58,7 @@ function summariseArgs(args = []) {
 }
 
 function normaliseServer(name, raw, origin) {
-  return {
+  const server = {
     name,
     agent: origin.agent,
     file: origin.file,
@@ -72,6 +72,16 @@ function normaliseServer(name, raw, origin) {
     headers: redact(raw.headers ?? raw.http_headers),
     url: raw.url ? safeHost(raw.url) : null,
   };
+  // Needed to probe a remote server, never shown: non-enumerable, so JSON output and the
+  // renderer cannot see them. The URL can carry a token in its query; header templates
+  // are kept only when they are ${VAR} references (a reference is not a secret).
+  if (raw.url) Object.defineProperty(server, 'probeUrl', { value: raw.url, enumerable: false });
+  const refs = Object.fromEntries(
+    Object.entries(raw.headers ?? raw.http_headers ?? {}).filter(([, v]) => typeof v === 'string' && isReference(v))
+  );
+  for (const [h, envName] of Object.entries(raw.env_http_headers ?? {})) refs[h] = `\${${envName}}`; // Codex names the variable
+  Object.defineProperty(server, 'headerRefs', { value: refs, enumerable: false });
+  return server;
 }
 
 function safeHost(url) {

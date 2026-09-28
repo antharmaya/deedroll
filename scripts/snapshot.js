@@ -16,11 +16,18 @@
  *   node scripts/snapshot.js [--tools 500]   take today's snapshot (skips if one exists)
  *   node scripts/snapshot.js --status        the last runs, and a warning if the record went stale
  *   node scripts/snapshot.js --verify        re-hash every file and check the chain
+ *   node scripts/snapshot.js --upload        publish anything not yet uploaded to R2
+ *
+ * Publishing: with MCPSCAN_R2_BUCKET set, each run uploads its files and the chain to that
+ * Cloudflare R2 bucket (via wrangler), which the mcpscan Worker serves read-only at
+ * /history/. Uploads are tracked by content hash in archive/uploaded.json, so a failed
+ * night is retried the next day and nothing is uploaded twice.
  */
 import { createHash } from 'node:crypto';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { inspectRemote } from '../src/remote-scan.js';
 import { fingerprintTools } from '../src/pins-core.js';
 
@@ -179,6 +186,35 @@ async function toolsSlice(listings, n) {
   return { rows, total: endpoints.length };
 }
 
+/* ---------- publishing to R2 ---------- */
+
+const CONTENT_TYPE = { '.gz': 'application/gzip', '.json': 'application/json', '.jsonl': 'application/x-ndjson' };
+
+function upload(bucket) {
+  const statePath = join(ARCHIVE, 'uploaded.json');
+  const state = existsSync(statePath) ? JSON.parse(readFileSync(statePath, 'utf8')) : {};
+  const files = readChain().flatMap(({ entry }) => entry.files.map((f) => f.file));
+  const pending = [...files, 'chain.jsonl'].filter((f) => {
+    const p = join(ARCHIVE, f);
+    return existsSync(p) && state[f] !== sha256(readFileSync(p));
+  });
+  let done = 0;
+  for (const f of pending) {
+    const p = join(ARCHIVE, f);
+    const type = CONTENT_TYPE[(f.match(/(\.[a-z]+)$/) ?? [])[1]] ?? 'application/octet-stream';
+    try {
+      execFileSync('npx', ['--yes', 'wrangler@4', 'r2', 'object', 'put', `${bucket}/${f}`, '--file', p, '--content-type', type, '--remote'], { stdio: ['ignore', 'ignore', 'pipe'], timeout: 180000 });
+      state[f] = sha256(readFileSync(p));
+      done++;
+    } catch (err) {
+      log(`upload FAILED for ${f}: ${String(err.stderr ?? err.message).split('\n').filter(Boolean).slice(-1)[0] ?? ''}`);
+    }
+  }
+  writeFileSync(statePath, `${JSON.stringify(state, null, 1)}\n`);
+  log(`uploaded ${done} of ${pending.length} pending file(s) to r2://${bucket}`);
+  return done === pending.length;
+}
+
 /* ---------- commands ---------- */
 
 function writeGz(path, rows) {
@@ -216,6 +252,7 @@ async function take() {
   if (tools.rows.length) files.push(writeGz(join(ARCHIVE, 'tools', `${today}.jsonl.gz`), tools.rows));
 
   appendChain({ date: today, took: Math.round((Date.now() - t0) / 1000), pages, listings: listings.length, endpoints: tools.total, probed: tools.rows.filter((r) => r.probed).length, files });
+  if (process.env.MCPSCAN_R2_BUCKET) upload(process.env.MCPSCAN_R2_BUCKET);
   log(`snapshot ${today}: ${listings.length} listings (${pages} pages), ${summary}; tools for ${tools.rows.length} of ${tools.total} endpoints (${tools.rows.filter((r) => r.probed).length} answered); ${Math.round((Date.now() - t0) / 1000)} s`);
 }
 
@@ -263,6 +300,13 @@ function verify() {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (args.includes('--status')) status();
+  else if (args.includes('--upload')) {
+    const bucket = process.env.MCPSCAN_R2_BUCKET ?? flag('--upload', null);
+    if (!bucket || bucket === true) {
+      console.log('set MCPSCAN_R2_BUCKET, or pass the bucket: --upload mcpscan-history');
+      process.exitCode = 2;
+    } else process.exitCode = upload(bucket) ? 0 : 1;
+  }
   else if (args.includes('--verify')) verify();
   else take().catch((err) => {
     log(`snapshot FAILED: ${err.message}`);

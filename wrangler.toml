@@ -1,0 +1,24 @@
+# mcpscan on Cloudflare Workers. Build the assets first: node scripts/build-site.js
+name = "mcpscan"
+main = "deploy/worker.js"
+compatibility_date = "2026-09-28"
+
+[assets]
+directory = "./site"
+binding = "ASSETS"
+run_worker_first = ["/", "/api/*", "/history/*"]
+
+[[r2_buckets]]
+binding = "HISTORY"
+bucket_name = "mcpscan-history"
+
+[[ratelimits]]
+name = "PROBE_LIMIT"
+namespace_id = "7301"
+
+[ratelimits.simple]
+limit = 20
+period = 60
+
+[observability]
+enabled = true

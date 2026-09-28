@@ -57,6 +57,22 @@ createServer(async (req, res) => {
     res.writeHead(302, { location: '/web/' });
     return res.end();
   }
+  // The registry history, read-only from archive/, as the Worker serves it from R2.
+  if (path.startsWith('/history/')) {
+    const file = normalize(join(ROOT, 'archive', path.slice('/history/'.length)));
+    if (!file.startsWith(join(ROOT, 'archive'))) {
+      res.writeHead(403);
+      return res.end();
+    }
+    try {
+      const body = await readFile(file);
+      res.writeHead(200, { 'content-type': file.endsWith('.gz') ? 'application/gzip' : file.endsWith('.json') ? 'application/json' : 'application/x-ndjson', 'cache-control': 'no-store' });
+      return res.end(body);
+    } catch {
+      res.writeHead(404);
+      return res.end();
+    }
+  }
   let file = normalize(join(ROOT, path));
   if (!file.startsWith(ROOT) || file.split(sep).includes('node_modules')) {
     res.writeHead(403);

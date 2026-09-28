@@ -35,16 +35,16 @@
         <h1 id="title"><span class="line"><span>Read the label,</span></span><span class="line"><span>then read the code.</span></span></h1>
         <p class="lede">Scan an MCP server's package in your browser. See what it reads, runs and contacts beside what it tells you.</p>
         <form class="scan-form" id="scan-form" novalidate>
-          <label for="pkg">npm package</label>
+          <label for="pkg">npm or PyPI package</label>
           <div class="field">
-            <input id="pkg" name="pkg" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@scope/server-name" aria-describedby="pkg-help">
+            <input id="pkg" name="pkg" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@scope/server or pypi:name" aria-describedby="pkg-help">
             <button class="btn" type="submit" id="scan-btn">Scan package</button>
           </div>
           <p class="help" id="pkg-help" aria-live="polite">Nothing is installed or run. Only public package names and versions leave your browser.</p>
           <div class="examples" translate="no"><span translate="yes">Try</span>
             <button class="chip" type="button" data-pkg="pretrip-mcp">pretrip-mcp</button>
             <button class="chip" type="button" data-pkg="@heroku/mcp-server">@heroku/mcp-server</button>
-            <button class="chip" type="button" data-pkg="@modelcontextprotocol/server-filesystem">server-filesystem</button>
+            <button class="chip" type="button" data-pkg="pypi:srclight">pypi:srclight</button>
           </div>
         </form>
       </div>
@@ -99,23 +99,24 @@
     <h2 id="how-h">How a scan works</h2>
     <div>
       <ol>
-        <li><h3>Download the package</h3><p>Straight from npm, then checked against npm's own hash of it.</p></li>
+        <li><h3>Download the package</h3><p>Straight from npm or PyPI, then checked against the registry's own hash of it. For PyPI, the wheel pip would install.</p></li>
         <li><h3>Read it without running it</h3><p>The package is unpacked in memory. Its install scripts never run and nothing touches your disk.</p></li>
         <li><h3>Compare the label with the code</h3><p>What its registry listing declares, against what the code reads, runs and contacts. Every finding points at a file and a line.</p></li>
       </ol>
-      <p class="promise"><b>What leaves your browser:</b> the package name and version, sent to npm, the MCP registry and OSV.dev. No scan result is ever sent anywhere.</p>
+      <p class="promise"><b>What leaves your browser:</b> the package name and version, sent to npm or PyPI, the MCP registry and OSV.dev. No scan result is ever sent anywhere.</p>
     </div>
   </section>
 
   <section class="cli" id="cli" aria-labelledby="cli-h">
     <div>
       <h2 id="cli-h">Check what your agents already trust</h2>
-      <p>The command line reads the MCP configs of Claude Code, Codex, Cursor, Devin and Gemini CLI, and never launches a server.</p>
+      <p>The command line also probes hosted servers and pins their tools, reads the MCP configs of Claude Code, Codex, Cursor, Devin and Gemini CLI without launching anything, and writes SARIF for code scanning.</p>
     </div>
     <div class="term" role="group" aria-label="Commands" translate="no">
       <div><code>npx @antharmaya/mcpscan --installed</code><span>every configured server</span></div>
       <div><code>npx @antharmaya/mcpscan https://host/mcp</code><span>a hosted server, pinned</span></div>
-      <div><code>npx @antharmaya/mcpscan npm:&lt;package&gt;</code><span>before you install</span></div>
+      <div><code>npx @antharmaya/mcpscan pypi:&lt;package&gt;</code><span>before you install</span></div>
+      <div><code>npx @antharmaya/mcpscan explain</code><span>what every check means</span></div>
     </div>
   </section>
 

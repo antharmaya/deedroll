@@ -16,12 +16,24 @@ const SECRETISH = /(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH|PRIVATE|ACC
  */
 const LOCATOR_SUFFIX = /_(URL|URI|ENDPOINT|HOST|HOSTNAME|DOMAIN|ISSUER|AUDIENCE|FILE|PATH|DIR|PORT)$/i;
 
-/** On/off switches that mention AUTH: FIRECRAWL_MCP_SEARCH_OAUTH_ONLY, MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD (found live). */
-const FLAG_SUFFIX = /_(ONLY|ENABLED|ENABLE|DISABLED|DISABLE|MODE|AUD|STRICT|REQUIRED|DEBUG|VERBOSE|TIMEOUT|TTL|LIMIT|COUNT|RETRIES)$/i;
+/**
+ * On/off switches and quantities that mention a secret word: FIRECRAWL_MCP_SEARCH_OAUTH_ONLY,
+ * MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD, JDOCMUNCH_SESSION_TOKEN_BUDGET (all found live).
+ */
+const FLAG_SUFFIX = /_(ONLY|ENABLED|ENABLE|DISABLED|DISABLE|MODE|AUD|STRICT|REQUIRED|DEBUG|VERBOSE|TIMEOUT|TTL|LIMIT|COUNT|RETRIES|BUDGET|SIZE|LENGTH|THRESHOLD|INTERVAL|DELAY|HOURS|DAYS|MINUTES|SECONDS|MS)$/i;
+
+/**
+ * The secret word has to END a segment of the name. Matching it anywhere flagged
+ * KEYCLOAK_REALM (KEY-cloak), CLIO_LEXICAL_MAX_TOKENS_PER_CHUNK (a count of tokens) and
+ * would flag GIT_AUTHOR_NAME (AUTH-or); all three found or implied by the PyPI benchmark
+ * of 2026-09-28. A segment ending in the word still counts: OPENAIKEY, API_KEYS.
+ */
+const SECRET_SEGMENT = /(KEYS?|TOKEN|SECRETS?|PASSWORD|PASSWD|CREDENTIALS?|AUTH|AUTHORIZATION|PRIVATE|ACCESS|BEARER|DSN|WEBHOOK)$/;
 
 /** One definition of "this env var name holds a credential", shared by every check. */
 export function isCredentialName(name) {
   if (!SECRETISH.test(name)) return false;
+  if (!String(name).toUpperCase().split(/[_.-]+/).some((seg) => SECRET_SEGMENT.test(seg))) return false;
   if (LOCATOR_SUFFIX.test(name) && !/WEBHOOK/i.test(name)) return false;
   if (FLAG_SUFFIX.test(name)) return false;
   return true;

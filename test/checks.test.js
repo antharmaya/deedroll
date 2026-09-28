@@ -104,6 +104,18 @@ test('credential names: secrets yes, things that point at secrets no, webhook UR
   assert.equal(isCredentialName('NODE_ENV'), false);
   assert.equal(isCredentialName('FIRECRAWL_MCP_SEARCH_OAUTH_ONLY'), false);
   assert.equal(isCredentialName('MCP_OAUTH_ACCEPT_LEGACY_V2_MCP_AUD'), false);
+  // Segment endings, not substrings (false positives from the 2026-09-28 PyPI benchmark).
+  assert.equal(isCredentialName('KEYCLOAK_REALM'), false);
+  assert.equal(isCredentialName('KEYCLOAK_DEFAULT_DATE_FROM_HOURS'), false);
+  assert.equal(isCredentialName('KEYCLOAK_CLIENT_SECRET'), true);
+  assert.equal(isCredentialName('CLIO_LEXICAL_MAX_TOKENS_PER_CHUNK'), false);
+  assert.equal(isCredentialName('JDOCMUNCH_SESSION_TOKEN_BUDGET'), false);
+  assert.equal(isCredentialName('GIT_AUTHOR_NAME'), false);
+  assert.equal(isCredentialName('Authorization'), true); // header names go through the same rule
+  assert.equal(isCredentialName('OPENAIKEY'), true);
+  assert.equal(isCredentialName('SERVICE_API_KEYS'), true);
+  assert.equal(isCredentialName('GITHUB_PERSONAL_ACCESS_TOKEN'), true);
+  assert.equal(isCredentialName('SYNPAREIA_PRIVATE_KEY_B64'), true);
   assert.equal(isCredentialName('MCP_DELEGATED_CREDENTIAL_SECRET'), true);
   assert.equal(isCredentialName('KEYLESS_PROXY_SECRET'), true);
 });

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>mcpscan: check an MCP server before you install it</title>
-<meta name="description" content="Scan an MCP server's package in your browser. See what it reads, runs and contacts beside what it tells you. Nothing is installed or run.">
+<meta name="description" content="Scan any MCP server in your browser: a package, a hosted URL or a registry name. See what it reads, runs and contacts beside what it tells you.">
 <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1714" media="(prefers-color-scheme: dark)">
 <link rel="preload" href="fonts/bricolage-grotesque-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
@@ -33,18 +33,28 @@
     <section class="hero" aria-labelledby="title">
       <div class="hero-copy">
         <h1 id="title"><span class="line"><span>Read the label,</span></span><span class="line"><span>then read the code.</span></span></h1>
-        <p class="lede">Scan an MCP server's package in your browser. See what it reads, runs and contacts beside what it tells you.</p>
+        <p class="lede">Scan any MCP server in your browser. See what it reads, runs and contacts beside what it tells you.</p>
         <form class="scan-form" id="scan-form" novalidate>
-          <label for="pkg">npm or PyPI package</label>
+          <label for="pkg">Server URL, package or registry name</label>
           <div class="field">
-            <input id="pkg" name="pkg" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@scope/server or pypi:name" aria-describedby="pkg-help">
-            <button class="btn" type="submit" id="scan-btn">Scan package</button>
+            <input id="pkg" name="pkg" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://…/mcp, @scope/server, pypi:name" aria-describedby="pkg-help">
+            <button class="btn" type="submit" id="scan-btn">Scan</button>
           </div>
-          <p class="help" id="pkg-help" aria-live="polite">Nothing is installed or run. Only public package names and versions leave your browser.</p>
+          <p class="help" id="pkg-help" aria-live="polite">Nothing is installed or run, and no tool is ever called.</p>
+          <div class="relay-ask" id="relay-ask" role="region" aria-labelledby="relay-why" hidden>
+            <p id="relay-why"></p>
+            <p class="relay-what">mcpscan's relay can send the same read-only requests from its server and show you the answer. The relay sees this URL; it stores nothing.</p>
+            <div class="relay-actions">
+              <button class="btn" type="button" id="relay-go">Probe through the relay</button>
+              <label class="relay-always"><input type="checkbox" id="relay-always"> Always, when a server needs it</label>
+            </div>
+            <p class="relay-alt">Or on your own machine: <code translate="no">npx @antharmaya/mcpscan &lt;url&gt;</code></p>
+          </div>
           <div class="examples" translate="no"><span translate="yes">Try</span>
             <button class="chip" type="button" data-pkg="pretrip-mcp">pretrip-mcp</button>
-            <button class="chip" type="button" data-pkg="@heroku/mcp-server">@heroku/mcp-server</button>
             <button class="chip" type="button" data-pkg="pypi:srclight">pypi:srclight</button>
+            <button class="chip" type="button" data-pkg="https://mcp.deepwiki.com/mcp">mcp.deepwiki.com</button>
+            <button class="chip" type="button" data-pkg="https://mcp.higgsfield.ai/mcp">mcp.higgsfield.ai</button>
           </div>
         </form>
       </div>
@@ -99,11 +109,11 @@
     <h2 id="how-h">How a scan works</h2>
     <div>
       <ol>
-        <li><h3>Download the package</h3><p>Straight from npm or PyPI, then checked against the registry's own hash of it. For PyPI, the wheel pip would install.</p></li>
-        <li><h3>Read it without running it</h3><p>The package is unpacked in memory. Its install scripts never run and nothing touches your disk.</p></li>
+        <li><h3>Fetch it</h3><p>Packages come straight from npm or PyPI and are checked against the registry's own hash. A hosted server is asked for its list of tools, and for how its sign-in works.</p></li>
+        <li><h3>Read it without running it</h3><p>Packages are unpacked in memory: install scripts never run and nothing touches your disk. Hosted servers get discovery requests only, never a tool call.</p></li>
         <li><h3>Compare the label with the code</h3><p>What its registry listing declares, against what the code reads, runs and contacts. Every finding points at a file and a line.</p></li>
       </ol>
-      <p class="promise"><b>What leaves your browser:</b> the package name and version, sent to npm or PyPI, the MCP registry and OSV.dev. No scan result is ever sent anywhere.</p>
+      <p class="promise"><b>What leaves your browser:</b> package names and versions (to npm or PyPI, the MCP registry and OSV.dev), and for a hosted server, the discovery requests to that server. If you choose the relay, the URL goes to mcpscan's relay, which keeps nothing. Tools you scan are remembered in this browser only, so a later change stands out.</p>
     </div>
   </section>
 

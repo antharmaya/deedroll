@@ -2,6 +2,9 @@
 import { scan } from '../src/index.js';
 import { render, renderInstalled, exitCode } from '../src/report.js';
 import { auditInstalled } from '../src/audit.js';
+import { readFileSync } from 'node:fs';
+import { buildDisclosureRequest } from '../src/disclosure.js';
+import { buildAgentRequest, createAgentJudge } from '../src/agent-judge.js';
 
 const USAGE = `
 mcpscan — static trust scanner for MCP servers
@@ -17,8 +20,10 @@ mcpscan — static trust scanner for MCP servers
   mcpscan <target> --no-osv      skip the known-vulnerability lookup (it sends package names and
                                  versions to OSV.dev; nothing else ever leaves the machine)
   mcpscan <target> --no-cache    do not read or write the local tarball cache
-  mcpscan <target> --semantic    also judge whether descriptions disclose what the code can do
-                                 (needs TYPESAFE_API_KEY; the default scan stays offline)
+  mcpscan <target> --semantic=agent   print a judgment request for the agent running you to answer
+                                      (no API key; see the mcpscan skill)
+  mcpscan --answers <file.json>       apply an agent's answers to that request and report
+  mcpscan <target> --semantic         judge via TypeSafe's API instead (needs TYPESAFE_API_KEY)
 
 It never installs, extracts or executes what it inspects: the tarball is read in memory.
 
@@ -28,11 +33,13 @@ Examples
 `;
 
 function parseArgs(argv) {
-  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true };
+  const args = { target: null, json: false, failOn: 'high', version: 'latest', semantic: false, installed: false, all: false, deps: false, osv: true, agentRequest: false, answers: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') args.json = true;
     else if (a === '--semantic') args.semantic = true;
+    else if (a === '--semantic=agent') args.agentRequest = true;
+    else if (a === '--answers') args.answers = argv[++i];
     else if (a === '--installed') args.installed = true;
     else if (a === '--all') args.all = true;
     else if (a === '--deps') args.deps = true;
@@ -47,6 +54,43 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2));
+
+if (args.agentRequest && args.target) {
+  // Step 1: the agent protocol. Machine-readable only: this output is for an agent.
+  try {
+    const r = await scan(args.target, { version: args.version, deps: args.deps, osv: false });
+    const built = buildDisclosureRequest({ pkg: r.pkg, entry: r.entry, findings: r.findings });
+    const out = built.skip
+      ? { format: 'mcpscan-judgment-request/1', target: args.target, skip: built.skip.disclosure.reason }
+      : buildAgentRequest({ target: args.target, pkg: r.pkg, request: built.request, options: { deps: args.deps } });
+    process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
+    process.exit(0);
+  } catch (err) {
+    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.exit(2);
+  }
+}
+
+if (args.answers) {
+  // Step 2: re-scan exactly what was judged, then apply the answers.
+  try {
+    const doc = JSON.parse(readFileSync(args.answers, 'utf8'));
+    const judge = createAgentJudge(doc);
+    const result = await scan(doc.target, {
+      version: doc.version,
+      deps: Boolean(doc.options?.deps),
+      semantic: true,
+      judge,
+      osv: args.osv,
+    });
+    if (args.json) process.stdout.write(`${JSON.stringify({ target: result.target, disclosure: result.disclosure, findings: result.findings }, null, 2)}\n`);
+    else process.stdout.write(`${render(result)}\n`);
+    process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
+  } catch (err) {
+    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.exit(2);
+  }
+}
 
 if (args.installed && !args.help) {
   try {

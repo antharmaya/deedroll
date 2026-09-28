@@ -117,7 +117,8 @@ export async function scan(
 }
 
 export { fetchRegistryEntry, fetchNpmPackage, declaredEnvVars, npmIdentifiers };
-export { checkDisclosure, DEFAULT_THRESHOLDS } from './disclosure.js';
+export { checkDisclosure, buildDisclosureRequest, applyJudgments, DEFAULT_THRESHOLDS } from './disclosure.js';
+export { buildAgentRequest, createAgentJudge, requestId, AGENT_RULES } from './agent-judge.js';
 export { createTypeSafeJudge, JudgeConfigError } from './judge.js';
 export { extractTools } from './tools.js';
 export { selectDependencies, vendorToken } from './deps.js';

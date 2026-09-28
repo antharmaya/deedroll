@@ -8,6 +8,9 @@
  */
 import { readFileSync } from 'node:fs';
 import { fetchRegistryEntry } from './sources.js';
+import { searchTerms, shipsPackage } from './model.js';
+
+export { searchTerms } from './model.js';
 
 const REGISTRY = 'https://registry.modelcontextprotocol.io/v0/servers';
 export const FRESH_DAYS = 7;
@@ -22,20 +25,6 @@ export function loadIndex() {
   }
   return cachedIndex;
 }
-
-/** Words worth searching for: "@acme/weather-mcp-server" -> ["weather", "acme"]. */
-export function searchTerms(npmName) {
-  const scope = /^@([^/]+)\//.exec(npmName)?.[1];
-  const bare = npmName.replace(/^@[^/]+\//, '');
-  const core = bare
-    .replace(/(^|[-_])(mcp|server|model-context-protocol)(?=$|[-_])/gi, '$1')
-    .replace(/[-_]+/g, '-')
-    .replace(/^-|-$/g, '');
-  return [...new Set([core, scope].filter((t) => t && t.length >= 3))].slice(0, 2);
-}
-
-const shipsPackage = (server, npmName) =>
-  (server?.packages ?? []).some((p) => (p.registryType ?? '').toLowerCase() === 'npm' && p.identifier === npmName);
 
 /**
  * @returns {Promise<{entry: object|null, source: 'index'|'search'|'index-miss'|null, listings: string[], indexBuiltAt: string|null}>}

@@ -62,6 +62,7 @@ asks for them — or doesn't ask, and reads one you already exported.
 | `known-vulnerability` | high / medium / low | Published advisories for this exact version, from OSV.dev (includes GitHub's), with the fixed version. A failed lookup is reported as failed, never as clean. |
 | `provenance-dropped` | medium | Earlier versions were published with npm provenance (built by CI from a named repo) and this one was not — a known sign of a publish from a stolen token. Never having provenance is not flagged. |
 | `multiple-listings` | info | More than one registry listing points at this package. |
+| `instruction-like-text` | high / medium | A tool description that tries to instruct the model: ignore its instructions, hide something from the user, or read/send a credential store. The tool-poisoning shape. |
 | `network-egress` | info | Every external host reachable from the source, minus hosts the entry declares. |
 | `capability` | info | Process execution, dynamic evaluation, filesystem writes, raw sockets. |
 
@@ -99,6 +100,46 @@ Measured on 27 vendor servers (`node scripts/vendor-benchmark.js --deps`):
   appeared across five vendors and essentially none were real: SDK documentation examples, an
   example `roll_dice`, Liquid template filters, another agent's internal tools, and a different MCP
   server shipped in the same package.
+
+## Use it from Claude Code or Codex — the agent is the judge
+
+The static scan knows what a server's code *can* do. Whether its descriptions *tell you* is a
+language question, and the agent you already run answers it — no API key.
+
+```
+mcpscan npm:<package> --semantic=agent > request.json   # 1. what to judge, and the rules
+# 2. the agent answers yes / no / unsure per question, quoting the disclosing sentence for "yes"
+mcpscan --answers answers.json                          # 3. applied and reported
+```
+
+The descriptions being judged were written by the server's publisher, so the design assumes they
+may try to talk to the judge:
+
+- the request declares every description untrusted data, never instructions;
+- a "yes" must quote the disclosing sentence, and mcpscan checks it verbatim — an invented quote is
+  downgraded to "unsure";
+- answers are bound to a request id (a hash of the exact descriptions and questions), so answers
+  written for another version of the package are rejected;
+- answers are yes / no / unsure, not probabilities: a chat model's "0.73" is not calibrated;
+- `instruction-like-text` flags descriptions that try to instruct the model — "ignore previous
+  instructions", "do not tell the user", directions to read `~/.ssh` or an agent's `mcp.json`.
+  Measured before shipping on 5,811 real tool descriptions (458 registry servers, 27 vendors):
+  zero false positives, while all three patterns fire on the published tool-poisoning shape. It
+  also found no poisoning-shaped text anywhere in those 5,811.
+
+**Install the skill**
+
+```
+# Claude Code (from a clone; or the GitHub repo once published)
+claude plugin marketplace add ./mcpscan
+claude plugin install mcpscan@antharmaya
+
+# Codex
+cp -r mcpscan/skills/mcpscan ~/.codex/skills/
+```
+
+The skill tells the agent to scan before installing any MCP server, how to run the judgment, and
+how to report: file and line for every finding, what was not checked, never a secret value.
 
 ## Semantic check (optional)
 
@@ -175,7 +216,7 @@ why the sampling is random and why publisher counts are reported next to server 
 ## Development
 
 ```
-npm test          # 83 tests, no network
+npm test          # 93 tests, no network
 node bin/mcpscan.js npm:<package>
 node scripts/build-index.js          # rebuild the registry index
 node scripts/collect-population.js   # cache the npm-backed population

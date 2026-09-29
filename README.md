@@ -36,8 +36,9 @@ The page does everything the command line does:
 | Why each finding matters, and every check | `mcpscan explain` |
 | The registry history, and **verifying it** in your browser | `snapshot.js --status`, `--verify` |
 
-Not in the page: `--deps` and the agent-judge protocol (`--semantic=agent`), which need a
-command line.
+Not in the page: `--deps`, the agent-judge protocol (`--semantic=agent`), and tool-name
+collisions (which needs every configured server's tools fetched at once, not one at a
+time on click) — these need a command line.
 
 **On the command line** (Node 22+):
 

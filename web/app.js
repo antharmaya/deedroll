@@ -169,7 +169,7 @@ function buildModel(r) {
     key: 'tells:declared',
     sev: 'ok',
     text: r.declared.length ? `Declares ${plural(r.declared.length, 'setting')}` : 'Declares no settings',
-    detail: r.declared.length ? r.declared.slice(0, 4) : null,
+    detail: r.declared.length ? r.declared : null,
   });
   const reg = r.ecosystem === 'pypi' ? 'PyPI' : 'npm';
   tells.push({ key: 'tells:provenance', sev: r.provenance ? 'ok' : 'info', text: r.provenance ? `Built by CI, with ${reg} provenance` : 'No provenance attestation' });
@@ -178,11 +178,11 @@ function buildModel(r) {
   }
 
   const creds = names('does:credentials');
-  if (creds.length) does.push({ key: 'does:credentials', sev: worst(byKey.get('does:credentials')), text: `Reads ${plural(creds.length, 'credential')} it doesn't declare`, detail: creds.slice(0, 3) });
+  if (creds.length) does.push({ key: 'does:credentials', sev: worst(byKey.get('does:credentials')), text: `Reads ${plural(creds.length, 'credential')} it doesn't declare`, detail: creds });
   const settings = names('does:settings');
-  if (settings.length) does.push({ key: 'does:settings', sev: 'low', text: `Reads ${plural(settings.length, 'other setting')}`, detail: settings.slice(0, 3) });
+  if (settings.length) does.push({ key: 'does:settings', sev: 'low', text: `Reads ${plural(settings.length, 'other setting')}`, detail: settings });
   const hosts = (byKey.get('does:hosts') ?? []).map((f) => f.message.replace(/^contacts /, ''));
-  if (hosts.length) does.push({ key: 'does:hosts', sev: 'info', text: `Contacts ${plural(hosts.length, 'host')}`, detail: hosts.slice(0, 3) });
+  if (hosts.length) does.push({ key: 'does:hosts', sev: 'info', text: `Contacts ${plural(hosts.length, 'host')}`, detail: hosts });
   for (const [k, fs] of byKey) if (k.startsWith('does:cap:')) does.push({ key: k, sev: 'info', text: sentence(fs[0]).replace(/\.$/, '') });
   if (byKey.has('does:install')) does.push({ key: 'does:install', sev: 'high', text: sentence(byKey.get('does:install')[0]).replace(/\.$/, '') });
   if (byKey.has('does:vulns')) does.push({ key: 'does:vulns', sev: worst(byKey.get('does:vulns')), text: `Has ${plural(byKey.get('does:vulns').length, 'known vulnerability', 'known vulnerabilities')}` });
@@ -215,22 +215,64 @@ function finishAll() {
   }
 }
 
+/**
+ * A list beyond DETAIL_MAX never just disappears: the rest sits behind one real, clickable
+ * "+N more" that expands in place. Nothing shown here is ever silently dropped.
+ */
+const DETAIL_MAX = 4;
+export function renderDetail(items, { max = DETAIL_MAX } = {}) {
+  const list = [].concat(items ?? []);
+  const span = el('span', { class: 'detail' });
+  const shown = list.slice(0, max);
+  const rest = list.slice(max);
+  shown.forEach((d, i) => span.append(i ? ', ' : '', el('code', {}, d)));
+  if (rest.length) {
+    const btn = el('button', { type: 'button', class: 'more-inline' }, `+${rest.length} more`);
+    btn.addEventListener('click', () => {
+      const extra = document.createDocumentFragment();
+      rest.forEach((d) => extra.append(', ', el('code', {}, d)));
+      btn.replaceWith(extra);
+      if (!REDUCE) [...extra.childNodes].filter((n) => n.nodeType === 1).forEach((n, i) => reveal(n, i * 20, { y: 0, duration: 220 }));
+    });
+    span.append(btn);
+  }
+  return span;
+}
+
 function renderLedger(ul, items) {
   ul.replaceChildren(
     ...items.map((it) =>
       el('li', { dataset: { key: it.key }, class: it.sev === 'ok' && /no |nothing/i.test(it.text) ? 'empty' : null },
         glyph(it.sev),
-        el('span', {}, it.text, it.detail && el('span', { class: 'detail' }, ...[].concat(it.detail).flatMap((d, i) => [i ? ', ' : null, el('code', {}, d)]))))
+        el('span', {}, it.text, it.detail && renderDetail(it.detail)))
     )
   );
 }
 
-function renderManifest(files, maxRows) {
-  const shown = files.length > maxRows ? files.slice(0, maxRows - 1) : files;
-  const rows = shown.map((f) => el('li', {}, el('span', { class: 'glyph-slot' }), el('span', { class: 'path', title: f.path }, f.path), el('span', { class: 'lines' }, f.lines)));
-  if (shown.length < files.length) rows.push(el('li', { class: 'overflow' }, el('span', { class: 'glyph-slot' }), el('span', { class: 'path' }, `and ${files.length - shown.length} more files`), el('span')));
+/** Every file gets its own row. Long packages scroll inside the panel instead of being cut off. */
+function renderManifest(files) {
+  const rows = files.map((f) => el('li', {}, el('span', { class: 'glyph-slot' }), el('span', { class: 'path', title: f.path }, f.path), el('span', { class: 'lines' }, f.lines)));
   manifest.replaceChildren(...rows);
-  return shown.length;
+}
+
+/**
+ * Fades the edge a panel is scrollable toward; never the edge already fully in view. The
+ * listener and observer attach once per node; every call still re-checks the current fit,
+ * since new content can change what's scrollable without changing the box's own size.
+ */
+function wireScrollFade(node) {
+  const update = () => {
+    const above = node.scrollTop > 2;
+    const below = node.scrollTop + node.clientHeight < node.scrollHeight - 2;
+    node.classList.toggle('fade-t', above);
+    node.classList.toggle('fade-b', below);
+  };
+  if (!node._fadeWired) {
+    node._fadeWired = true;
+    node.addEventListener('scroll', update, { passive: true });
+    new ResizeObserver(update).observe(node);
+  }
+  update();
 }
 
 function skeleton(n = 10) {
@@ -272,12 +314,11 @@ async function play(model, my) {
   running = [];
   skipRequested = false;
   drops.replaceChildren();
-  // Ledgers first: they set the stage's height, and the manifest fills whatever it is.
   renderLedger($('#tells'), model.tells);
   renderLedger($('#does'), model.does);
-  manifest.replaceChildren();
-  const maxRows = Math.max(6, Math.floor((manifest.clientHeight - 32) / 24));
-  const shown = renderManifest(model.files, maxRows);
+  renderManifest(model.files);
+  wireScrollFade(manifest);
+  wireScrollFade($('.ledgers'));
   $('#tells-n').textContent = '';
   $('#does-n').textContent = '';
 
@@ -289,7 +330,7 @@ async function play(model, my) {
   if (REDUCE) {
     for (const r of rows) (r.style.opacity = 1), r.classList.add('developed');
     for (const li of [...tellsLis, ...doesLis]) li.style.opacity = 1;
-    markRows(model, rows, shown);
+    markRows(model, rows);
     return;
   }
 
@@ -323,7 +364,7 @@ async function play(model, my) {
     const dev = track(r.animate([{ opacity: 0.32, color: 'var(--text-faint)' }, { opacity: 1, color: 'var(--text)' }], { duration: 260, delay: t, easing: EASE_OUT, fill: 'both' }));
     dev.finished.then(() => r.classList.add('developed'), () => {});
 
-    const here = model.hits.filter((h) => (i < shown ? h.row === i : h.row >= shown));
+    const here = model.hits.filter((h) => h.row === i);
     if (!here.length) return;
     const slot = r.querySelector('.glyph-slot');
     const g = glyph(worst(here.map((h) => h.f)));
@@ -348,12 +389,12 @@ async function play(model, my) {
 
   await Promise.allSettled(running.map((a) => a.finished));
   if (stale(my)) return; // a newer flow owns the stage now
-  markRows(model, rows, shown);
+  markRows(model, rows);
 }
 
-function markRows(model, rows, shown) {
+function markRows(model, rows) {
   rows.forEach((r, i) => {
-    const here = model.hits.filter((h) => (i < shown ? h.row === i : h.row >= shown));
+    const here = model.hits.filter((h) => h.row === i);
     if (here.length && !r.querySelector('.glyph')) r.querySelector('.glyph-slot').replaceChildren(glyph(worst(here.map((h) => h.f))));
   });
   $('#tells-n').textContent = plural(model.tells.length, 'fact');
@@ -437,7 +478,11 @@ function renderFindings(model, { replay }) {
   const sub = model.subtitle ?? (replay
     ? `Replay of a real scan of ${model.name} ${model.version}, ${fmtDate(model.scannedAt)}. Scan your own above.`
     : `${model.name} ${model.version}, scanned in your browser just now.`);
-  $('#results-sub').textContent = sub;
+  // A shape, not just a sentence: everything below this line is this scan's own output, never
+  // page copy. Replay gets a static ring (a stored, past result); a fresh scan gets a dot that
+  // pulses a few times, honestly, then settles — it never pulses forever.
+  const tag = el('span', { class: `live-tag ${replay ? 'replay' : 'live'}` }, el('span', { class: 'live-dot', 'aria-hidden': 'true' }), replay ? 'Replay' : 'Live');
+  $('#results-sub').replaceChildren(tag, sub);
 
   const counts = { high: 0, medium: 0, low: 0, info: 0 };
   for (const f of model.findings) counts[f.severity]++;
@@ -966,6 +1011,6 @@ async function intro() {
   await show(fromDemo(demo), { replay: true, my });
 }
 
-initSetup({ el, glyph, sentence, plural, scanTarget, RANK });
+initSetup({ el, glyph, sentence, plural, scanTarget, RANK, renderDetail, wireScrollFade });
 band();
 intro();

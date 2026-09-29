@@ -121,7 +121,7 @@ function localRow(r) {
     const names = r.found.tools.map((t) => t.name);
     return el('li', { class: 'setup-row' }, glyph('high'),
       el('div', {}, el('b', {}, `${where}: any website can reach it`),
-        el('p', {}, `This page just listed its ${h.plural(names.length, 'tool')}${names.length ? `: ${names.slice(0, 6).join(', ')}${names.length > 6 ? '…' : ''}` : ''}. A website you visit could do the same, and call them.`),
+        el('p', {}, `This page just listed its ${h.plural(names.length, 'tool')}${names.length ? ': ' : '.'}`, names.length ? h.renderDetail(names, { max: 6 }) : null, names.length ? '. A website you visit could do the same, and call them.' : ''),
         ...findings.filter((f) => f.severity !== 'info').map((f) => el('p', { class: 'why' }, sentence(f))),
         el('p', { class: 'why' }, RULES['no-origin-validation'].fix)));
   }
@@ -249,7 +249,7 @@ async function loadHistory() {
   if (diffFile) {
     try {
       const d = await (await fetch(`${HISTORY}${diffFile.file}`)).json();
-      const list = (label, items, fmt = (x) => x) => items.length ? el('div', {}, el('h3', {}, `${label} (${items.length})`), el('ul', {}, ...items.slice(0, 8).map((x) => el('li', {}, el('code', { translate: 'no' }, fmt(x)))), items.length > 8 ? el('li', {}, `and ${items.length - 8} more`) : null)) : null;
+      const list = (label, items, fmt = (x) => x) => items.length ? el('div', {}, el('h3', {}, `${label} (${items.length})`), el('ul', {}, ...items.map((x) => el('li', {}, el('code', { translate: 'no' }, fmt(x)))))) : null;
       diff.append(el('p', {}, `Since ${d.since}:`),
         list('Removed or deprecated by the registry', d.status.filter((x) => x.to !== 'active'), (x) => `${x.name}: ${x.from} → ${x.to}`),
         list('Changed what they declare', d.declarations, (x) => `${x.name} ${x.from} → ${x.to}`),

@@ -235,9 +235,9 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
   box-shadow: var(--shadow);
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto; /* content-sized: a small result never stretches to fill a fixed box */
   grid-template-columns: minmax(0, 1fr); /* an auto column grows to a long package name */
-  min-height: 560px;
+  min-height: 340px; /* just covers the loading skeleton; real content settles below this */
   isolation: isolate;
 }
 .stage-head {
@@ -257,21 +257,34 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
 .stage-head .skip:hover { border-color: var(--accent); background: var(--accent-soft); }
 .stage-head .skip[hidden] { display: none; }
 .stage-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* flex, not grid: a grid row's height is the max of every item sharing it, so a 2-row
+     manifest would still be padded out to match a tall ledger even with align-items:start.
+     Flex items size independently — a short column stays exactly as short as its content. */
+  display: flex;
+  align-items: flex-start;
   min-height: 0;
 }
+/* basis:50% (not the usual 0) because a 0-basis grow-split treats each item's own padding as
+   a size floor before distributing space: .ledgers's padding would have won it ~50px over
+   .manifest's padding-less rows for no reason tied to content. */
+.manifest, .ledgers { flex: 0 1 50%; min-width: 0; }
 
-/* manifest: the package's own files, developed by the scan */
+/* manifest: the package's own files, developed by the scan. Scrolls internally past --panel-cap
+   rather than truncating into a dead "and N more" line: every file stays reachable. */
 .manifest {
   position: relative;
   margin: 0; padding: var(--s4) 0 var(--s4) 0;
   list-style: none;
   border-right: 1px solid var(--rule-soft);
-  overflow: hidden;
+  overflow-y: auto; overflow-x: hidden;
+  max-height: var(--panel-cap, min(560px, 62vh));
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
   background:
     repeating-linear-gradient(to bottom, transparent 0 23px, var(--rule-soft) 23px 24px) 0 var(--s4) / 100% calc(100% - var(--s4)) no-repeat;
 }
+.manifest::-webkit-scrollbar { width: 8px; }
+.manifest::-webkit-scrollbar-thumb { background: var(--rule); border-radius: var(--r-pill); }
+.manifest::-webkit-scrollbar-track { background: transparent; }
 .manifest li {
   display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: var(--s2);
   height: 24px;
@@ -298,8 +311,28 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
   box-shadow: 0 0 14px 1px var(--accent-soft);
 }
 
-/* ledgers: what it tells you / what the code does */
-.ledgers { display: grid; grid-template-rows: auto auto; align-content: start; padding: var(--s5); gap: var(--s6); }
+/* ledgers: what it tells you / what the code does. Same scroll-not-truncate rule as the manifest,
+   so the two columns of the instrument behave identically under load. */
+.ledgers {
+  position: relative;
+  display: grid; grid-template-rows: auto auto; align-content: start; gap: var(--s6);
+  padding: var(--s5);
+  overflow-y: auto; overflow-x: hidden;
+  max-height: var(--panel-cap, min(560px, 62vh));
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+.ledgers::-webkit-scrollbar { width: 8px; }
+.ledgers::-webkit-scrollbar-thumb { background: var(--rule); border-radius: var(--r-pill); }
+.ledgers::-webkit-scrollbar-track { background: transparent; }
+
+/* a scroll cue on the panel's own edge, not a line of dead text; never moves with the content
+   it fades, so it reads correctly at any scroll position */
+.manifest.fade-b, .ledgers.fade-b { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); }
+.manifest.fade-t, .ledgers.fade-t { -webkit-mask-image: linear-gradient(to top, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to top, #000 calc(100% - 36px), transparent); }
+.manifest.fade-t.fade-b, .ledgers.fade-t.fade-b {
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 36px, #000 calc(100% - 36px), transparent);
+}
 .ledger h2 {
   font-family: var(--font-display); font-weight: 650; font-size: var(--t-base); letter-spacing: -0.01em;
   margin: 0 0 var(--s3);
@@ -313,9 +346,13 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
   opacity: 0;
 }
 .ledger li .glyph { margin-top: 5px; }
-.ledger li .detail { display: block; font-size: var(--t-xs); color: var(--text-muted); margin-top: 2px; }
+.ledger li .detail { display: block; font-size: var(--t-xs); color: var(--text-muted); margin-top: 2px; overflow-wrap: anywhere; }
 .ledger li .detail code { font-size: 11.5px; }
 .ledger li.empty { color: var(--text-muted); }
+
+/* a real, clickable "+N more" — every truncated list in this app expands instead of hiding */
+.more-inline { appearance: none; border: 0; background: none; padding: 0; cursor: pointer; font: inherit; color: var(--accent); font-weight: 600; }
+.more-inline:hover { text-decoration: underline; }
 
 .drops { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
 .drop { position: absolute; left: 0; top: 0; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: var(--accent); }
@@ -333,7 +370,21 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
 .results[hidden] { display: none; }
 .results-head { display: flex; align-items: baseline; gap: var(--s5); flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: var(--s7); margin-bottom: var(--s6); }
 .results-head h2 { font-family: var(--font-display); font-size: var(--t-xl); font-weight: 700; letter-spacing: -0.025em; margin: 0; }
-.results-head p { margin: 0; color: var(--text-muted); }
+.results-head p { margin: 0; color: var(--text-muted); display: flex; align-items: center; flex-wrap: wrap; gap: var(--s2); }
+
+/* the live/replay tag: a shape, not just a sentence, marking this text as the scan's own
+   output rather than page copy. A fresh result pulses a few honest times, then settles for
+   good — never a perpetual animation. */
+.live-tag { display: inline-flex; align-items: center; gap: 6px; font: 650 11px/1 var(--font-body); letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-faint); }
+.live-tag .live-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.live-tag.replay .live-dot { background: none; border: 1.5px solid var(--text-faint); }
+.live-tag.live { color: var(--accent); }
+.live-tag.live .live-dot { background: var(--accent); animation: live-pulse 1.1s ease-out 3; animation-fill-mode: forwards; }
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 var(--accent-soft); }
+  70% { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
 .verdict { display: grid; grid-template-columns: repeat(4, auto); gap: var(--s5); margin-left: auto; font-size: var(--t-sm); color: var(--text-muted); }
 .verdict span { display: inline-flex; align-items: center; gap: var(--s2); }
 .verdict b { color: var(--text); font-variant-numeric: tabular-nums; }
@@ -431,8 +482,9 @@ footer.site-foot span:first-child { margin-right: auto; }
   .stage-head { flex-wrap: wrap; row-gap: var(--s1); }
   .stage-head .pkg { flex: 1 1 100%; }
   .stage-head .status { margin-left: 0; text-align: left; flex-shrink: 1; }
-  .stage-body { grid-template-columns: 1fr; }
-  .manifest { border-right: 0; border-bottom: 1px solid var(--rule-soft); max-height: 168px; }
+  .stage-body { flex-direction: column; }
+  .manifest, .ledgers { --panel-cap: 260px; }
+  .manifest { border-right: 0; border-bottom: 1px solid var(--rule-soft); }
   .verdict { grid-template-columns: repeat(2, auto); }
   .field { flex-direction: column; }
   .btn { width: 100%; }
@@ -445,9 +497,8 @@ footer.site-foot span:first-child { margin-right: auto; }
   .scanbar, .drops { display: none; }
 }
 
-/* manifest rows: slots, skeletons, overflow */
+/* manifest rows: slots, skeletons */
 .manifest li .glyph-slot { display: grid; place-items: center; width: 22px; height: 24px; }
-.manifest li.overflow .path { font-family: var(--font-body); font-style: normal; color: var(--text-muted); }
 .manifest li.skeleton { opacity: 0.4; }
 .manifest li.skeleton .bar { height: 7px; border-radius: var(--r-pill); background: var(--rule); display: block; }
 

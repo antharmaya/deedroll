@@ -86,13 +86,37 @@ const META = {
 };
 const meta = (pkg) => META[pkg.ecosystem ?? 'npm'] ?? META.npm;
 
+/**
+ * A line that is ENTIRELY a comment, in JS/TS or Python: a full-line double-slash line, a
+ * full-line hash line, a JSDoc-block continuation (a line starting with a lone star), or a
+ * bare block-comment open or close line. Deliberately narrow: no cross-line tokenizing, no
+ * string-literal awareness, so it never mis-treats real code containing a double slash
+ * inside a URL string as a comment. Found live: a package's own doc comment explaining, in
+ * prose, that a certain variable "is empty unless…" was cited as the evidence for reading
+ * that variable, when the real read was a different line entirely — the wrong proof for a
+ * right conclusion. This exists so a finding's evidence is always a real, executable line,
+ * never commentary that mentions one.
+ */
+const COMMENT_ONLY_LINE = /^\s*(\/\/|#(?!!)|\*(?!\/)|\/\*\*?\s*$|\*\/\s*$)/;
+
+/**
+ * A package's own test suite, excluded from every pattern-based check (undeclared-env,
+ * network-egress, capability): a test routinely stubs env vars with fake values, spawns
+ * fixture processes, and hardcodes example hosts, none of which the shipped server does
+ * for a real deployer. Found live: a package's own config-loader test set and deleted
+ * three fake env vars, and each was reported as the server reading a real credential.
+ */
+const TEST_FILE = /(^|\/)(tests?|__tests__|__mocks__|spec)\/|\.(test|spec)\.[cm]?[jt]sx?$|(^|\/)test_[^/]+\.py$|_test\.py$/i;
+
 function* eachLine(files) {
   for (const [path, buf] of files) {
     if (path === 'package.json' || path.endsWith('/package.json')) continue; // manifests, not code
+    if (TEST_FILE.test(path)) continue;
     const text = buf.toString('utf8');
     if (text.includes('\0')) continue; // binary
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i++) {
+      if (COMMENT_ONLY_LINE.test(lines[i])) continue;
       yield { path, line: i + 1, text: lines[i] };
     }
   }

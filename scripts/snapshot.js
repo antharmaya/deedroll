@@ -25,7 +25,7 @@
  */
 import { createHash } from 'node:crypto';
 import { gzipSync, gunzipSync } from 'node:zlib';
-import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync, readdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync, readdirSync, rmSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { inspectRemote } from '../src/remote-scan.js';
@@ -223,8 +223,38 @@ function writeGz(path, rows) {
   return { file: path.slice(ARCHIVE.length + 1), sha256: sha256(bytes), bytes: bytes.length, count: rows.length };
 }
 
+/**
+ * One run at a time. Two runs on the same day would both write that day's files and both
+ * append to the chain (it happened: restarting the timer fired a catch-up run beside a
+ * manual one, 2026-09-29). An exclusive lock file; a lock older than 3 hours is stale.
+ */
+function lock() {
+  const path = join(ARCHIVE, '.snapshot.lock');
+  try {
+    writeFileSync(path, String(Date.now()), { flag: 'wx' }); // create-and-write in one step: exclusive
+  } catch {
+    const age = Date.now() - Number(readFileSync(path, 'utf8') || Date.now());
+    if (age < 3 * 3600 * 1000) return null;
+    writeFileSync(path, String(Date.now())); // stale: a crashed run left it
+  }
+  return () => rmSync(path, { force: true });
+}
+
 async function take() {
   mkdirSync(join(ARCHIVE, 'registry'), { recursive: true });
+  const unlock = lock();
+  if (!unlock) {
+    log('another snapshot is running; not starting a second one');
+    return;
+  }
+  try {
+    await takeLocked();
+  } finally {
+    unlock();
+  }
+}
+
+async function takeLocked() {
   mkdirSync(join(ARCHIVE, 'tools'), { recursive: true });
   const target = join(ARCHIVE, 'registry', `${today}.jsonl.gz`);
   if (existsSync(target)) {
@@ -267,12 +297,21 @@ function status() {
   for (const { entry: e } of chain.slice(-7)) {
     console.log(`${e.date}  ${String(e.listings).padStart(6)} listings  ${String(e.probed ?? 0).padStart(4)}/${e.endpoints ?? 0} endpoints answered  ${e.took}s  ${e.files.map((f) => `${f.file} ${Math.round(f.bytes / 1024)}kB`).join(', ')}`);
   }
+  // Daily at 00:30 UTC: after 02:00 UTC today's entry must exist. A looser window hid a
+  // missed day (2026-09-29): 'ok' is only said when nothing is missing.
   const last = chain.at(-1).entry.date;
-  const ageH = (Date.now() - Date.parse(`${last}T00:00:00Z`)) / 3600000;
-  if (ageH > 48) {
-    console.log(`STALE: the last snapshot is from ${last} (${Math.round(ageH)} h ago). Check: systemctl --user status mcpscan-snapshot.timer`);
+  const now = new Date();
+  const due = now.getUTCHours() >= 2 ? today : new Date(now.getTime() - 86400000).toISOString().slice(0, 10);
+  const days = new Set(chain.map(({ entry }) => entry.date));
+  const gaps = [];
+  for (let d = Date.parse(`${chain[0].entry.date}T00:00:00Z`); d <= Date.parse(`${due}T00:00:00Z`); d += 86400000) {
+    const k = new Date(d).toISOString().slice(0, 10);
+    if (!days.has(k)) gaps.push(k);
+  }
+  if (gaps.length) {
+    console.log(`MISSING: no snapshot for ${gaps.join(', ')}${last < due ? ` (last is ${last})` : ''}. Check: systemctl --user status mcpscan-snapshot.timer`);
     process.exitCode = 1;
-  } else console.log(`ok: ${chain.length} snapshot(s), last ${last}`);
+  } else console.log(`ok: ${chain.length} snapshot(s), last ${last}, none missing`);
 }
 
 function verify() {

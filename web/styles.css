@@ -327,9 +327,9 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
 
 /* a scroll cue on the panel's own edge, not a line of dead text; never moves with the content
    it fades, so it reads correctly at any scroll position */
-.manifest.fade-b, .ledgers.fade-b { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); }
-.manifest.fade-t, .ledgers.fade-t { -webkit-mask-image: linear-gradient(to top, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to top, #000 calc(100% - 36px), transparent); }
-.manifest.fade-t.fade-b, .ledgers.fade-t.fade-b {
+.manifest.fade-b, .ledgers.fade-b, #catalog-body.fade-b, .history-cat ul.fade-b { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 36px), transparent); }
+.manifest.fade-t, .ledgers.fade-t, #catalog-body.fade-t, .history-cat ul.fade-t { -webkit-mask-image: linear-gradient(to top, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to top, #000 calc(100% - 36px), transparent); }
+.manifest.fade-t.fade-b, .ledgers.fade-t.fade-b, #catalog-body.fade-t.fade-b, .history-cat ul.fade-t.fade-b {
   -webkit-mask-image: linear-gradient(to bottom, transparent, #000 36px, #000 calc(100% - 36px), transparent);
   mask-image: linear-gradient(to bottom, transparent, #000 36px, #000 calc(100% - 36px), transparent);
 }
@@ -571,19 +571,43 @@ kbd { font: 500 0.85em var(--font-code); padding: 0 4px; border: 1px solid var(-
 .history-stats > div { border-top: 1px solid var(--rule); padding-top: var(--s3); }
 .history-stats dt { font-size: var(--t-xs); color: var(--text-muted); }
 .history-stats dd { margin: var(--s1) 0 0; font: 700 var(--t-lg)/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
-.history-diff h3 { font: 650 var(--t-sm) var(--font-display); margin: var(--s4) 0 var(--s2); }
-.history-diff ul { margin: 0; padding-left: var(--s5); font-size: var(--t-sm); }
 .history-diff > p { color: var(--text-muted); margin: 0; }
 .history-verify { margin-top: var(--s6); }
 
-/* every check */
-.catalog { grid-column: 2; margin-top: var(--s5); border-top: 1px solid var(--rule); padding-top: var(--s4); }
-.catalog summary { cursor: pointer; font: 650 var(--t-md) var(--font-display); }
+/* one FAQ-style dropdown per kind of change: a day's diff can run to hundreds of rows, so it
+   stays closed by default, and the open list scrolls in place instead of taking over the page. */
+.history-cat { border-top: 1px solid var(--rule-soft); padding: var(--s3) 0; }
+.history-cat summary { cursor: pointer; font: 650 var(--t-sm) var(--font-display); padding: var(--s1) 0; }
+.history-cat ul {
+  margin: var(--s3) 0 0; padding-left: var(--s5); font-size: var(--t-sm);
+  max-height: min(320px, 45vh); overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+.history-cat ul::-webkit-scrollbar { width: 8px; }
+.history-cat ul::-webkit-scrollbar-thumb { background: var(--rule); border-radius: var(--r-pill); }
+.history-cat ul::-webkit-scrollbar-track { background: transparent; }
+
+/* every check. A closed summary and the next block need real air between them, or the next
+   block (unrelated: the privacy promise) reads as if it belongs to this disclosure. */
+.catalog { grid-column: 2; margin: var(--s5) 0 var(--s7); border-top: 1px solid var(--rule); padding-top: var(--s4); }
+.catalog summary { cursor: pointer; font: 650 var(--t-md) var(--font-display); padding: var(--s2) 0; }
 .catalog h3 { font: 650 var(--t-sm) var(--font-display); color: var(--text-muted); margin: var(--s6) 0 var(--s3); }
 .catalog dt { font-weight: 600; margin-top: var(--s4); display: flex; gap: var(--s2); align-items: baseline; flex-wrap: wrap; }
 .catalog dd { margin: var(--s1) 0 0 26px; font-size: var(--t-sm); color: var(--text-muted); max-width: var(--measure); }
 .catalog dd p { margin: 0 0 var(--s1); }
 .catalog dd b { color: var(--text); font-weight: 600; }
+/* 44 checks, each with a why-and-fix paragraph, easily runs past a screen: the open catalog
+   scrolls inside its own bounded panel rather than pushing "How a scan works" far down the page. */
+#catalog-body {
+  margin-top: var(--s4); padding: var(--s5);
+  border: 1px solid var(--rule); border-radius: var(--r-panel); background: var(--paper-raised);
+  max-height: min(480px, 55vh); overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--rule) transparent;
+}
+#catalog-body::-webkit-scrollbar { width: 8px; }
+#catalog-body::-webkit-scrollbar-thumb { background: var(--rule); border-radius: var(--r-pill); }
+#catalog-body::-webkit-scrollbar-track { background: transparent; }
+#catalog-body h3:first-child { margin-top: 0; }
 
 @media (max-width: 980px) {
   .setup-grid { grid-template-columns: 1fr; gap: var(--s7); }

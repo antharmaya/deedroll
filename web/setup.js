@@ -211,11 +211,13 @@ function renderCatalog() {
   const { el, glyph } = h;
   const total = Object.keys(RULES).length;
   $('#catalog summary').textContent = `Every check mcpscan makes (${total})`;
-  $('#catalog-body').replaceChildren(...CHECK_GROUPS.map(([title, ids]) =>
+  const body = $('#catalog-body');
+  body.replaceChildren(...CHECK_GROUPS.map(([title, ids]) =>
     el('section', {}, el('h3', {}, title), el('dl', {}, ...ids.flatMap((id) => [
       el('dt', {}, glyph(RULES[id].level === 'high' ? 'high' : RULES[id].level), el('code', { translate: 'no' }, id), ` ${RULES[id].title}`),
       el('dd', {}, el('p', {}, el('b', {}, 'Why it matters. '), RULES[id].why), el('p', {}, el('b', {}, 'What to do. '), RULES[id].fix)),
     ])))));
+  $('#catalog').addEventListener('toggle', () => $('#catalog').open && h.wireScrollFade(body));
 }
 
 /* ---------- the registry history ---------- */
@@ -249,7 +251,15 @@ async function loadHistory() {
   if (diffFile) {
     try {
       const d = await (await fetch(`${HISTORY}${diffFile.file}`)).json();
-      const list = (label, items, fmt = (x) => x) => items.length ? el('div', {}, el('h3', {}, `${label} (${items.length})`), el('ul', {}, ...items.map((x) => el('li', {}, el('code', { translate: 'no' }, fmt(x)))))) : null;
+      // A day's diff can run to hundreds of rows; closed by default, like the checks catalog,
+      // and the open list itself scrolls rather than pushing the rest of the page down a screen.
+      const list = (label, items, fmt = (x) => x) => {
+        if (!items.length) return null;
+        const ul = el('ul', {}, ...items.map((x) => el('li', {}, el('code', { translate: 'no' }, fmt(x)))));
+        const node = el('details', { class: 'history-cat' }, el('summary', {}, `${label} (${items.length})`), ul);
+        node.addEventListener('toggle', () => node.open && h.wireScrollFade(ul));
+        return node;
+      };
       diff.append(el('p', {}, `Since ${d.since}:`),
         list('Removed or deprecated by the registry', d.status.filter((x) => x.to !== 'active'), (x) => `${x.name}: ${x.from} → ${x.to}`),
         list('Changed what they declare', d.declarations, (x) => `${x.name} ${x.from} → ${x.to}`),

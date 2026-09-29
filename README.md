@@ -255,13 +255,19 @@ reports that a credential is *read*, not where it goes. `info` findings are not 
 
 ## Measurements
 
-**npm, 2026-09-26.** A seeded random sample of 60 npm-backed registry servers
-(`node scripts/registry-sweep.js 60`, seed `20260926`): 57 scanned across 53 publishers, and **13
-(23%, 95% CI 14–35%) read a credential their listing never declares**, across 10 publishers. Four
-read an undeclared `X402_PRIVATE_KEY` (agent payment keys). The credential rule was tightened twice
-(locator names like `*_URL` on 2026-09-27; words inside other words, like KEY in KEYCLOAK, on
-2026-09-28); recomputed from the stored rows each time, the figure held at 13. Raw rows:
-`findings.json`. Limits: npm-backed servers in the first 12,000 registry entries only.
+**npm, 2026-09-26, re-run 2026-09-29.** A seeded random sample of 60 npm-backed registry servers
+(`node scripts/registry-sweep.js 60`, seed `20260926`): 57 scanned across 53 publishers, and **12
+(21%, 95% CI 12–33%) read a credential their listing never declares**, across 9 publishers. Four
+read an undeclared `X402_PRIVATE_KEY` (agent payment keys). The credential rule was tightened
+three times (locator names like `*_URL` on 2026-09-27; words inside other words, like KEY in
+KEYCLOAK, on 2026-09-28; singular quantity suffixes like `_HOUR`/`_DURATION` on 2026-09-29) and
+the evidence itself was tightened twice more on 2026-09-29, before any of the sample's publishers
+were contacted: the scanner no longer cites a package's own comments (a docstring mentioning
+`process.env.X` in prose is not a read) or its own test fixtures (`*.test.ts` stubbing a fake env
+var to test config-loading is not the shipped server reading a credential) as evidence. Recomputed
+by re-running the full sample fresh each time, the count moved from 14 to 13 to 12. Raw rows:
+`findings.json` (the 2026-09-26 snapshot; re-run the sweep for current rows). Limits: npm-backed
+servers in the first 12,000 registry entries only.
 
 **PyPI, 2026-09-28.** 40 random PyPI-backed listings (`node scripts/pypi-benchmark.js 40`): all 40
 scanned, none errored. A benchmark of the scanner, not a published statistic.

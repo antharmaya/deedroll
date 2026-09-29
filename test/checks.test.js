@@ -87,6 +87,49 @@ test('reads python environment access too', () => {
   assert.equal(findings[0].severity, 'high');
 });
 
+test('a variable only ever mentioned in a comment is not evidence; a real read elsewhere still is', () => {
+  // Found live (@vidofy/mcp, 2026-09-29): a JSDoc paragraph explaining old debugging
+  // history literally contained "process.env.REDIS_PASSWORD", and the checker cited that
+  // prose line as proof of a read the package's real code made three lines further down.
+  const pkg = pkgWith({
+    'store.js': [
+      '/**',
+      ' * Historically this broke because `process.env.REDIS_PASSWORD` was empty',
+      ' * unless a human exported it by hand.',
+      ' */',
+      '// process.env.REDIS_PASSWORD would also be a comment here',
+      '# process.env.REDIS_PASSWORD (python-style full-line comment too)',
+      'const real = process.env.REDIS_PASSWORD;',
+    ].join('\n'),
+  });
+  const findings = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(findings.length, 1, 'one variable, not one finding per mention');
+  assert.equal(findings[0].evidence.length, 1);
+  assert.equal(findings[0].evidence[0].line, 7, 'evidence is the real code line, not a comment line');
+  assert.match(findings[0].evidence[0].text, /const real/);
+});
+
+test('a mid-line comment (code followed by //) is still scanned: only whole-line comments are skipped', () => {
+  const pkg = pkgWith({ 'index.js': 'const k = process.env.ACME_API_KEY; // read once at startup\n' });
+  const findings = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].evidence[0].line, 1);
+});
+
+test('a package\'s own test suite stubbing env vars is not evidence the server reads them', () => {
+  // Found live (@digital-science-dsl/dimensions-analytics-mcp, 2026-09-29): three of four
+  // flagged variables were only ever set or deleted inside the package's own *.test.ts
+  // fixtures, testing its config-loader — not a real read by the shipped server.
+  const pkg = pkgWith({
+    'dist/config.js': 'const real = process.env.REAL_SERVER_SECRET;\n',
+    'test/client/config/loader.test.ts': 'process.env.FAKE_TEST_SECRET = "test-value";\ndelete process.env.FAKE_TEST_SECRET;\n',
+    'tests/other.spec.js': 'process.env.ANOTHER_FAKE_KEY = "x";\n',
+    'src/test_helpers.py': 'os.environ["PY_FAKE_TOKEN"] = "x"\n',
+  });
+  const findings = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.deepEqual(findings.map((f) => f.subject), ['REAL_SERVER_SECRET']);
+});
+
 test('install scripts: postinstall is high; prepare never runs for a consumer, so it is not flagged', () => {
   const findings = checkInstallScripts(
     pkgWith({}, { scripts: { postinstall: 'node steal.js', prepare: 'npm run build' } })

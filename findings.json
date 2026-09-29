@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-09-26T13:02:42.915Z",
+  "scannedAt": "2026-09-29T07:03:17.755Z",
   "seed": 20260926,
   "populationSize": 469,
   "sampled": 60,
@@ -117,20 +117,11 @@
       "pkg": "@digital-science-dsl/dimensions-analytics-mcp@1.4.2",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [
-        "${envPrefix}_API_KEY",
-        "${envPrefix}_AUTH_URL",
-        "${envPrefix}_TOKEN_CACHE_DURATION",
-        "DSL_SERVICE_PASSWORD",
-        "RADAR_AUTH_URL",
-        "DIMENSIONS_AUTH_URL",
-        "DIMENSIONS_TOKEN_CACHE_DURATION",
-        "CUSTOM_API_KEY",
-        "DIMENSIONS_DSL_API_KEY",
-        "DIMENSIONS_UNKNOWN_API_KEY"
+        "DSL_SERVICE_PASSWORD"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 10
+      "high": 1
     },
     {
       "name": "ai.agentutility/mcp-prooflayer",
@@ -211,13 +202,10 @@
       "publisher": "ai.inite",
       "pkg": "@inite/visibility@1.1.2",
       "declaredEnvCount": 1,
-      "undeclaredSecrets": [
-        "INITE_AUTH_URL",
-        "INITE_TOKEN_FILE"
-      ],
+      "undeclaredSecrets": [],
       "installScript": false,
       "noRepository": false,
-      "high": 2
+      "high": 0
     },
     {
       "name": "br.com.mupag/mcp-server",
@@ -355,12 +343,10 @@
       "publisher": "ai.vidofy",
       "pkg": "@vidofy/mcp@0.1.2",
       "declaredEnvCount": 1,
-      "undeclaredSecrets": [
-        "REDIS_PASSWORD"
-      ],
+      "undeclaredSecrets": [],
       "installScript": false,
       "noRepository": false,
-      "high": 1
+      "high": 0
     },
     {
       "name": "ai.tradesearcher/mcp-server",
@@ -412,15 +398,14 @@
     {
       "name": "ca.honkio/mcp",
       "publisher": "ca.honkio",
-      "pkg": "@honkio/mcp@1.9.0",
-      "declaredEnvCount": 1,
+      "pkg": "@honkio/mcp@1.11.1",
+      "declaredEnvCount": 2,
       "undeclaredSecrets": [
-        "MCP_AUTH_FAILURES_PER_MINUTE",
         "MCP_SERVICE_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 2
+      "high": 1
     },
     {
       "name": "app.percher/percher",
@@ -435,7 +420,7 @@
     {
       "name": "co.yungle/yungle",
       "publisher": "co.yungle",
-      "pkg": "yungle-mcp@0.1.2",
+      "pkg": "yungle-mcp@0.2.4",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
       "installScript": false,

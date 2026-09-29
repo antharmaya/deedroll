@@ -44,13 +44,13 @@ environment variables the code actually reads against the ones the registry entr
 ```
   scanned successfully                  57   across 53 publishers
   declare no environment variables      23 (40%)  19 publishers
-  read a credential they never declare  13 (23%)  10 publishers
-      95% CI                            14% – 35%
+  read a credential they never declare  12 (21%)   9 publishers
+      95% CI                            12% – 33%
   run an install script                 1 (2%)
   no repository field                   11 (19%)
 ```
 
-Among the 13: four servers reading an undeclared `X402_PRIVATE_KEY`, and one reading
+Among the 12: four servers reading an undeclared `X402_PRIVATE_KEY`, and one reading
 `PAYER_PRIVATE_KEY`. Those are agent payment keys — asked for by the code, absent from the metadata
 a user reads before installing.
 
@@ -151,3 +151,15 @@ The worse number was the wrong one.
 And a second correction, found by pointing the scanner at a real machine: it first counted names
 like `OAUTH_AUTH_SERVER_URL` as credentials. They point at a secret; they are not one. Excluding
 them moved the headline from 14 (25%) to 13 (23%).
+
+A third, found while re-checking this exact sample before contacting the publishers named in
+it — never repeat a claim without re-deriving it first: two more name-shaped false positives
+(`_PER_MINUTE`, `_CACHE_DURATION` — quantities, not secrets, and neither changed whether the row
+they were on was flagged, since both belonged to servers already flagged for a different, real
+variable), and two evidence-quality bugs in the scanner itself. It was citing a package's own
+comment as proof of a code read when the comment only *mentioned* `process.env.X` in prose, and
+citing a package's own test file stubbing a fake value to test its config loader as if the shipped
+server read that value from a real user. Both are fixed. One publisher's finding — a doc comment
+that was the *only* mention of a credential name in the whole package — turned out to have no real
+code behind it once that comment stopped counting as evidence, and dropped out. That moved the
+headline from 13 (23%) to 12 (21%) — still true, on this data, that more than one in five do it.

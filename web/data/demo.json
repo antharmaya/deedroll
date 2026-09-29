@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-09-28T06:41:51.839Z",
+  "scannedAt": "2026-09-29T07:06:15.719Z",
   "package": {
     "name": "@upstash/context7-mcp",
     "version": "4.1.1",
@@ -294,18 +294,6 @@
           "file": "dist/lib/vercelMarketplaceJwt.js",
           "line": 22,
           "text": "const audience = process.env.VERCEL_MARKETPLACE_OIDC_AUDIENCE ?? \"\";"
-        }
-      ]
-    },
-    {
-      "check": "provenance",
-      "severity": "low",
-      "message": "published 13 day(s) ago",
-      "evidence": [
-        {
-          "file": "npm",
-          "line": 0,
-          "text": "2026-09-14T14:52:39.435Z"
         }
       ]
     },

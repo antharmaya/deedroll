@@ -1,14 +1,14 @@
 {
-  "sampledAt": "2026-09-26T13:02:42.915Z",
+  "sampledAt": "2026-09-29T07:03:17.755Z",
   "seed": 20260926,
   "population": 469,
   "sampled": 60,
   "scanned": 57,
-  "flagged": 13,
-  "publishersFlagged": 10,
+  "flagged": 12,
+  "publishersFlagged": 9,
   "interval": [
-    14,
-    35
+    12,
+    33
   ],
   "rows": [
     {
@@ -83,13 +83,7 @@
       "publisher": "ai.dimensions",
       "flagged": true,
       "secrets": [
-        "${envPrefix}_API_KEY",
-        "${envPrefix}_TOKEN_CACHE_DURATION",
-        "DSL_SERVICE_PASSWORD",
-        "DIMENSIONS_TOKEN_CACHE_DURATION",
-        "CUSTOM_API_KEY",
-        "DIMENSIONS_DSL_API_KEY",
-        "DIMENSIONS_UNKNOWN_API_KEY"
+        "DSL_SERVICE_PASSWORD"
       ]
     },
     {
@@ -225,10 +219,8 @@
     {
       "name": "ai.vidofy/mcp",
       "publisher": "ai.vidofy",
-      "flagged": true,
-      "secrets": [
-        "REDIS_PASSWORD"
-      ]
+      "flagged": false,
+      "secrets": []
     },
     {
       "name": "ai.tradesearcher/mcp-server",
@@ -261,7 +253,6 @@
       "publisher": "ca.honkio",
       "flagged": true,
       "secrets": [
-        "MCP_AUTH_FAILURES_PER_MINUTE",
         "MCP_SERVICE_KEY"
       ]
     },

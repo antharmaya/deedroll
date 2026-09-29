@@ -184,12 +184,17 @@ async function readConfigs(files) {
       : l.kind === 'pypi' ? `PyPI package ${l.name}${l.version ? ` ${l.version}` : ''}`
         : l.kind === 'remote' ? `hosted at ${l.host}` : l.kind === 'container' ? 'a container image' : `a local ${l.runtime ?? l.command ?? 'program'}`;
     const target = l.kind === 'npm' ? l.name : l.kind === 'pypi' ? `pypi:${l.name}` : l.kind === 'remote' ? safeToScan(s.probeUrl) : null;
+    // A server the same name appears more than once under (a global config plus a
+    // project's) needs its scope shown, or the two rows read as an unexplained duplicate.
+    const scopeNote = s.scope ? ` · ${s.scope.startsWith('project:') ? `project ${s.scope.slice(8)}` : s.scope}` : '';
     const action = target
       ? el('button', { type: 'button', class: 'chip', dataset: { scan: target } }, 'Scan it')
-      : el('span', { class: 'why' }, l.kind === 'remote' ? 'Its URL holds a credential: scan it with the command line, which keeps it on your machine.' : 'Not scannable from here yet.');
+      : el('p', { class: 'why' }, l.kind === 'remote' ? 'Its URL holds a credential: scan it with the command line, which keeps it on your machine.' : 'Not scannable from here yet.');
     return el('li', { class: 'setup-row' }, glyph(worst),
-      el('div', {}, el('b', {}, `${s.name}`), el('span', { class: 'meta' }, ` ${s.agent === 'unknown' ? '' : `${s.agent}, `}${what}`),
-        ...findings.map((f) => el('p', { class: 'why' }, sentence(f))), action));
+      el('div', {},
+        el('b', {}, `${s.name}`),
+        el('div', { class: 'meta' }, `${s.agent === 'unknown' ? '' : `${s.agent}, `}${what}${scopeNote}`),
+        el('div', { class: 'row-body' }, ...findings.map((f) => el('p', { class: 'why' }, sentence(f))), action)));
   }));
   list.onclick = (e) => {
     const t = e.target.closest('[data-scan]')?.dataset.scan;

@@ -15,6 +15,26 @@ with no automated review at all.
 
 So I measured it.
 
+## Try it now
+
+Free, no account, live at a temporary address until my GitHub and npm accounts are back
+from recovery: **https://mcpscan.harshavar968.workers.dev**. It runs the same engine as the
+command line, in your browser, and also does two things a package scan can't:
+
+- **Checks a hosted server's sign-in**, when it needs one, against the official spec
+  (does it publish how to sign in, does it use PKCE, does its token even name the right
+  server) — from public metadata only, no account created.
+- **Checks this computer.** Since the page is itself a website, it can show you exactly
+  what any website could reach on your machine: it lists the tools of any MCP server on
+  the usual ports that doesn't reject requests from other sites, live, in the page.
+
+There's also now a **daily, hash-chained public record** of the whole registry —
+what every listing declares, and what a rotating slice of hosted servers' tools actually
+say — because a hosted server can rewrite its tools after you approved them, and the
+registry itself states it keeps no durability guarantees. Each day's file carries the
+hash of the day before, so the history can be checked, not just trusted; the page has a
+"verify it in your browser" button that does exactly that.
+
 ## What I did
 
 I walked 12,000 registry entries and kept every server shipping an npm package: **469 servers from
@@ -54,12 +74,18 @@ finding out at runtime.
 
 ```
 npx @antharmaya/mcpscan npm:@modelcontextprotocol/server-filesystem
+npx @antharmaya/mcpscan pypi:mcp-server-fetch
 npx @antharmaya/mcpscan io.github.owner/their-server --json
+npx @antharmaya/mcpscan --installed          # every server your agents already trust
+npx @antharmaya/mcpscan --local              # MCP servers on this machine or your network
 ```
 
 It diffs declared against actual and prints file-and-line evidence for everything it claims. It
-also checks install scripts, provenance, typosquatting, network egress and capabilities. Exit code
-is non-zero on high-severity findings, so it drops into CI.
+also checks install scripts, provenance, typosquatting, network egress, capabilities, known
+vulnerabilities (OSV.dev), and whether two servers you already trust offer a tool with the same
+name (a client resolves tools by name, so either could silently answer a call meant for the
+other). Exit code is non-zero on high-severity findings, so it drops into CI; `--sarif` writes
+SARIF for GitHub code scanning and other dashboards.
 
 **It never installs, extracts or executes what it inspects.** The tarball is parsed in memory. A
 scanner that had to run `npm install` first would have already executed three lifecycle hooks
@@ -86,12 +112,19 @@ metadata** against its code, which is where the number above comes from. It flag
 that instruct the model by pattern; judging prompt injection with a model is where they are
 stronger.
 
+(The field is bigger than two tools: at least half a dozen others exist — web scanners you paste a
+URL into, AI-classifier repo scanners, config auditors, trust-score directories, and runtime
+"gateway" products that watch an add-on while it runs rather than before you install it. Several
+send code or attack traffic to their own servers to do it; none of the ones I checked compare a
+listing's declared metadata against the code the way this does.)
+
 ## One thing the registry cannot tell you
 
 The official registry's search matches listing names only, so it cannot answer "which listing
 ships the npm package `pretrip-mcp`?" (the answer is `agency.kesey/pretrip`). mcpscan ships an
 index built by walking every current listing: 36,906 of them on 2026-09-28, pointing at 9,796 npm
-and 3,868 PyPI packages. (On 2026-09-27, 267 npm packages were claimed by more than one listing.)
+and 3,868 PyPI packages (the registry grew to 37,176 listings by 2026-09-29, per the daily record
+above). On 2026-09-27, 267 npm packages were claimed by more than one listing.
 
 ## Reproducing this
 

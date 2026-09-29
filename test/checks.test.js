@@ -112,6 +112,18 @@ test('credential names: secrets yes, things that point at secrets no, webhook UR
   assert.equal(isCredentialName('JDOCMUNCH_SESSION_TOKEN_BUDGET'), false);
   assert.equal(isCredentialName('GIT_AUTHOR_NAME'), false);
   assert.equal(isCredentialName('Authorization'), true); // header names go through the same rule
+  // Singular time units were missing (2026-09-29 false positive, found while re-checking
+  // the published sample before drafting publisher notices): FLAG_SUFFIX had only the
+  // plural "MINUTES", so a real server's rate-limit setting read as a high-severity leak.
+  assert.equal(isCredentialName('MCP_AUTH_FAILURES_PER_MINUTE'), false);
+  assert.equal(isCredentialName('AUTH_RETRY_DELAY'), false);
+  assert.equal(isCredentialName('SESSION_TIMEOUT_SECOND'), false);
+  assert.equal(isCredentialName('CACHE_TTL_HOUR'), false);
+  assert.equal(isCredentialName('LOCKOUT_DURATION_DAY'), false);
+  // A second real one, same class: a token's cache LIFETIME is not the token
+  // (found live in the published sample re-check, @digital-science-dsl/dimensions-analytics-mcp).
+  assert.equal(isCredentialName('DIMENSIONS_TOKEN_CACHE_DURATION'), false);
+  assert.equal(isCredentialName('SESSION_TOKEN'), true); // still a credential without the suffix
   assert.equal(isCredentialName('OPENAIKEY'), true);
   assert.equal(isCredentialName('SERVICE_API_KEYS'), true);
   assert.equal(isCredentialName('GITHUB_PERSONAL_ACCESS_TOKEN'), true);

@@ -328,6 +328,14 @@ Usual severity: **medium**
 
 **What to do.** Pin an exact version in the launch command.
 
+### `tool-name-collision`: Shares a tool name with another server you trust
+
+Usual severity: **medium**
+
+**Why it matters.** A client resolves a tool call by name. Two different servers offering the same name is how a malicious or compromised one hijacks calls meant for the trusted one — the NSA MCP guidance calls this tool invocation path confusion.
+
+**What to do.** Rename one, or remove whichever server you trust less; check which one actually answers the call.
+
 ### `not-scanned`: Configured server not scanned
 
 Usual severity: **info**

@@ -135,7 +135,7 @@ Grouped here; every check, with why and what to do, is in [docs/checks.md](docs/
   servers that require sign-in: whether they publish how to sign in (as the spec requires),
   PKCE, issuer and token-audience checks, and registration only through deprecated mechanisms.
 - **Upstream status.** Reference servers the MCP project has archived, which PyPI does not mark.
-- **Your own configs.** Plaintext secrets, and launches that always pull the newest version.
+- **Your own configs.** Plaintext secrets, launches that always pull the newest version, and two different servers offering a tool with the same name (a client resolves tools by name, so either could silently answer a call meant for the other).
 
 ## How it compares
 

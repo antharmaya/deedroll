@@ -6,6 +6,8 @@ import { discoverInstalled, configFindings } from './installed.js';
 import { scan, scanRemote } from './index.js';
 import { resolveHeaderRefs } from './remote.js';
 import { SEVERITY_ORDER } from './checks.js';
+import { extractTools } from './tools.js';
+import { detectToolCollisions, collisionFindings } from './collisions.js';
 
 /** Run async jobs with at most `limit` in flight. */
 async function pool(items, limit, fn) {
@@ -40,7 +42,10 @@ export async function auditInstalled({ home, cwd, concurrency = 4, semantic = fa
   await pool([...jobs], concurrency, async ([key, job]) => {
     try {
       const r = await scan(`${job.ecosystem}:${job.name}`, { version: job.version, semantic, judge, deps, osv });
-      scanned.set(key, { pkg: { name: r.pkg.name, version: r.pkg.version }, findings: r.findings, disclosure: r.disclosure });
+      // Static, best-effort (src/tools.js): used only to catch cross-server tool-name
+      // collisions below, never reported as "this is everything the server offers".
+      const tools = extractTools(r.pkg.files).tools.map((t) => t.name);
+      scanned.set(key, { pkg: { name: r.pkg.name, version: r.pkg.version }, findings: r.findings, disclosure: r.disclosure, tools });
     } catch (err) {
       scanned.set(key, {
         pkg: null,
@@ -76,6 +81,17 @@ export async function auditInstalled({ home, cwd, concurrency = 4, semantic = fa
     });
   }
 
+  // Tool-name collisions: one entry per DISTINCT install (package job or probed host),
+  // never per config file, so the same server named twice is not a collision with itself.
+  const installs = [
+    ...[...jobs.keys()].map((key) => ({ key: `pkg:${key}`, label: key, tools: scanned.get(key)?.tools ?? [] })),
+    ...[...probes.entries()].map(([url, r]) => ({ key: `url:${url}`, label: new URL(url).host, tools: r.remote?.toolNames ?? [] })),
+  ].filter((i) => i.tools.length);
+  const collisions = detectToolCollisions(installs);
+  const labelOf = (k) => installs.find((i) => i.key === k)?.label ?? k;
+  const installKeyFor = (s) =>
+    s.launch.kind === 'npm' || s.launch.kind === 'pypi' ? `pkg:${launchKey(s.launch)}` : s.probeUrl ? `url:${s.probeUrl}` : null;
+
   const results = servers.map((s) => {
     const own = configFindings(s);
     let pkg = null;
@@ -87,11 +103,13 @@ export async function auditInstalled({ home, cwd, concurrency = 4, semantic = fa
     }
     const probe = s.probeUrl ? probes.get(s.probeUrl) : null;
     const remoteFindings = probe?.findings ?? [];
-    const findings = [...own, ...pkgFindings, ...remoteFindings]
+    const installKey = installKeyFor(s);
+    const collisionHits = installKey ? collisionFindings(collisions, { key: installKey }, labelOf) : [];
+    const findings = [...own, ...pkgFindings, ...remoteFindings, ...collisionHits]
       .filter((f) => !(probe && f.check === 'not-scanned'))
       .sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
     return { ...s, pkg, remote: probe?.remote ?? null, findings };
   });
 
-  return { configs, servers: results, packagesScanned: scanned.size, remoteProbed: probes.size };
+  return { configs, servers: results, packagesScanned: scanned.size, remoteProbed: probes.size, toolCollisions: collisions.length };
 }

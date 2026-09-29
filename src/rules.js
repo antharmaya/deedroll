@@ -36,6 +36,7 @@ export const RULES = {
   'disclosure-not-judged': { title: 'Disclosure was not judged', level: 'info', why: 'Descriptions were missing or cut off, so no verdict would be honest.', fix: 'None needed.' },
   'plaintext-secret': { title: 'A secret sits in plain text in an agent config', level: 'medium', why: 'Config files get synced, shared and pasted into bug reports.', fix: 'Reference an environment variable or a file instead.' },
   'credential-unresolved': { title: 'A referenced credential is not set', level: 'info', why: 'The config points at a variable that is not in the environment.', fix: 'Set it, or remove the reference.' },
+  'tool-name-collision': { title: 'Shares a tool name with another server you trust', level: 'medium', why: 'A client resolves a tool call by name. Two different servers offering the same name is how a malicious or compromised one hijacks calls meant for the trusted one \u2014 the NSA MCP guidance calls this tool invocation path confusion.', fix: 'Rename one, or remove whichever server you trust less; check which one actually answers the call.' },
   'unpinned-launch': { title: 'Launches whatever version is newest', level: 'medium', why: 'npx or uvx without a version runs the latest release at every start, so a bad release reaches you without any action on your part.', fix: 'Pin an exact version in the launch command.' },
   'not-scanned': { title: 'Configured server not scanned', level: 'info', why: 'Its launch method is not one mcpscan reads yet.', fix: 'None needed.' },
   'scan-error': { title: 'The scan failed', level: 'info', why: 'Something went wrong fetching or reading this server.', fix: 'Run it again; report it if it persists.' },
@@ -87,6 +88,6 @@ export const CHECK_GROUPS = [
   ['MCP servers on your own machine or network (--local)', ['local-network-exposed', 'no-origin-validation']],
   ['Hosted servers: sign-in', ['unauthenticated', 'custom-auth', 'oauth-metadata-missing', 'oauth-resource-mismatch', 'oauth-issuer-mismatch', 'oauth-no-pkce', 'oauth-dcr-only']],
   ['Hosted servers (probe and pins)', ['remote-not-probed', 'deprecated-transport', 'pinned', 'pins-updated', 'tool-description-changed', 'tool-schema-changed', 'tool-added', 'tool-removed', 'tools-truncated']],
-  ['What your agents already trust (--installed)', ['plaintext-secret', 'credential-unresolved', 'unpinned-launch', 'not-scanned', 'scan-error']],
+  ['What your agents already trust (--installed)', ['plaintext-secret', 'credential-unresolved', 'unpinned-launch', 'tool-name-collision', 'not-scanned', 'scan-error']],
   ['Semantic judgment (optional)', ['undisclosed-capability', 'disclosure-unclear', 'disclosure-not-judged']],
 ];

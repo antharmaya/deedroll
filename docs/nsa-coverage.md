@@ -13,7 +13,7 @@ mcpscan does; "no" means mcpscan does not do it, not that it cannot matter.
 | Poisoned tool metadata, hidden instructions ("poisoning output", tool poisoning) | **Partly** | `instruction-like-text` flags descriptions that instruct the model (0 false positives on 5,811 real descriptions). It does not judge tool *outputs*, which only exist at runtime. |
 | Token and session security (OAuth, bearer tokens, lifecycle) | **Partly** | For servers that require sign-in: resource metadata present, token audience, issuer match, PKCE, deprecated registration. It does not test token lifetime or revocation: that needs an account. |
 | Misconfigurations and poor implementation | **Partly** | Static reading of the code: undeclared credentials, install-time code, capabilities, hosts contacted. Not dataflow. |
-| Tool invocation path confusion (naming collisions) | **Partly** | `typosquat` for npm names close to official ones; `multiple-listings` when several listings claim one package. Tool-name collisions across servers are not checked. |
+| Tool invocation path confusion (naming collisions) | **Yes** | `typosquat` for npm names close to official ones; `multiple-listings` when several listings claim one package; `tool-name-collision` (2026-09-29) flags two distinct servers in `--installed` that offer a tool with the same name. |
 | Access control, RBAC, missing audit logs, DoS | **No** | Properties of a deployment at runtime, not of a package or a listing. |
 | Remote code execution in toolchains (CVE-2025-49596 in MCP Inspector) | **Yes, for known ones** | `known-vulnerability` via OSV.dev for the exact version. |
 
@@ -35,5 +35,4 @@ mcpscan does; "no" means mcpscan does not do it, not that it cannot matter.
 
 1. ~~Local network discovery~~: built 2026-09-28 (`mcpscan --local`, and "Check this computer" in
    the page).
-2. **Tool-name collisions** across the servers an agent has configured (`--installed`), the
-   "naming collisions" class it describes.
+2. ~~Tool-name collisions~~: built 2026-09-29 (`tool-name-collision` in `--installed`).

@@ -15,7 +15,7 @@ import { join, resolve } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { emptyLedger, foldDay, foldProbes, toShards, fromShards, publicRecord, indexEntry, searchFiles, SHARDS, LEDGER_VERSION } from '../src/ledger.js';
+import { emptyLedger, foldDay, foldProbes, foldScans, toShards, fromShards, publicRecord, indexEntry, searchFiles, SHARDS, LEDGER_VERSION } from '../src/ledger.js';
 
 const ARCHIVE = resolve(process.env.MCPSCAN_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
 const STATE = join(ARCHIVE, 'ledger', 'state');
@@ -39,16 +39,41 @@ function loadState() {
   return fromShards(meta, shards);
 }
 
+/** Package scans (scripts/scan-packages.js), oldest first. */
+function scans() {
+  const path = join(ARCHIVE, 'scans', 'packages.jsonl');
+  if (!existsSync(path)) return [];
+  return readFileSync(path, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)).sort((a, b) => a.at.localeCompare(b.at));
+}
+
 function build() {
   const ledger = loadState();
   const todo = days().filter((d) => !ledger.last || d > ledger.last);
-  for (const d of todo) {
-    foldDay(ledger, d, readGzLines(join(ARCHIVE, 'registry', `${d}.jsonl.gz`)));
-    const tools = join(ARCHIVE, 'tools', `${d}.jsonl.gz`);
-    if (existsSync(tools)) foldProbes(ledger, d, readGzLines(tools));
-    log(`folded ${d}: ${ledger.servers.size} servers`);
+  const pending = scans().filter((x) => x.at > ledger.scansThrough);
+  // One order for both modes: each day's snapshot, then the scans made that day. A rebuild and
+  // the nightly fold walk the same sequence, so they give the same ledger.
+  const scanDays = new Map();
+  for (const x of pending) {
+    const d = x.at.slice(0, 10);
+    if (!scanDays.has(d)) scanDays.set(d, []);
+    scanDays.get(d).push(x);
   }
-  if (!todo.length) log(`nothing new (last ${ledger.last})`);
+  for (const d of [...new Set([...todo, ...scanDays.keys()])].sort()) {
+    if (todo.includes(d)) {
+      foldDay(ledger, d, readGzLines(join(ARCHIVE, 'registry', `${d}.jsonl.gz`)));
+      const tools = join(ARCHIVE, 'tools', `${d}.jsonl.gz`);
+      if (existsSync(tools)) foldProbes(ledger, d, readGzLines(tools));
+      log(`folded ${d}: ${ledger.servers.size} servers`);
+    }
+    // A scan waits until its own day's snapshot is folded: matched against an older day's
+    // listings it would find no package version and be skipped for good.
+    if (scanDays.has(d) && ledger.last && d <= ledger.last) {
+      foldScans(ledger, d, scanDays.get(d));
+      ledger.scansThrough = scanDays.get(d).at(-1).at;
+      log(`folded ${scanDays.get(d).length} package scans from ${d}`);
+    }
+  }
+  if (!todo.length && !pending.length) log(`nothing new (last ${ledger.last})`);
 
   mkdirSync(STATE, { recursive: true });
   mkdirSync(join(PUBLIC, 'servers'), { recursive: true });
@@ -69,7 +94,7 @@ function build() {
   writeAtomic(join(PUBLIC, 'search-entries.txt'), search.entries);
   writeAtomic(join(PUBLIC, 'meta.json'), JSON.stringify(meta));
   // Written last: if a run dies before this line, the next run re-folds the day, which is a no-op.
-  writeAtomic(join(STATE, 'meta.json'), JSON.stringify({ version: LEDGER_VERSION, start: ledger.start, last: ledger.last }));
+  writeAtomic(join(STATE, 'meta.json'), JSON.stringify({ version: LEDGER_VERSION, start: ledger.start, last: ledger.last, scansThrough: ledger.scansThrough }));
   log(`wrote ${SHARDS} shards and the index (${index.entries.length} servers, record ${ledger.start} → ${ledger.last})`);
 }
 

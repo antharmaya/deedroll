@@ -51,7 +51,7 @@ npx @antharmaya/mcpscan --installed                     # everything your agents
 npx @antharmaya/mcpscan explain                         # what every check means
 ```
 
-From a clone, `node bin/mcpscan.js` works the same way. (Not yet published to npm.)
+From a clone, `node bin/mcpscan.js` works the same way.
 
 ## What it can scan
 

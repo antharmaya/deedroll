@@ -17,8 +17,9 @@ So I measured it.
 
 ## Try it now
 
-Free, no account, live at a temporary address until my GitHub and npm accounts are back
-from recovery: **https://mcpscan.harshavar968.workers.dev**. It runs the same engine as the
+Free, no account, live at a temporary address until it moves to an antharmaya.com subdomain:
+**https://mcpscan.harshavar968.workers.dev**. Source: **https://github.com/antharmaya/mcpscan**.
+It runs the same engine as the
 command line, in your browser, and also does two things a package scan can't:
 
 - **Checks a hosted server's sign-in**, when it needs one, against the official spec
@@ -129,7 +130,7 @@ above). On 2026-09-27, 267 npm packages were claimed by more than one listing.
 ## Reproducing this
 
 ```
-git clone <repo> && cd mcpscan
+git clone https://github.com/antharmaya/mcpscan && cd mcpscan
 node scripts/collect-population.js     # walks the registry, caches npm-backed servers
 node scripts/registry-sweep.js 60      # seeded random sample, seed 20260926
 ```

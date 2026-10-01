@@ -18,10 +18,18 @@
     "test": "node --test test/*.test.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "license": "MIT",
   "author": "varbees <harshavar968@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antharmaya/mcpscan.git"
+  },
+  "homepage": "https://github.com/antharmaya/mcpscan#readme",
+  "bugs": {
+    "url": "https://github.com/antharmaya/mcpscan/issues"
+  },
   "keywords": [
     "mcp",
     "model-context-protocol",

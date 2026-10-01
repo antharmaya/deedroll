@@ -12,6 +12,7 @@
 import { readZip, stripTopDirectory } from './zip.js';
 import { Bytes, readTar, gunzip, digest, hex, download } from './archive.js';
 import { pickPypiFile, pypiSourceUrl, repoSlug } from './model.js';
+import { DOC_FILE, splitDocs } from './docs.js';
 
 const PYPI = 'https://pypi.org';
 const SCANNABLE = /\.(py|pyi|json|toml|cfg|m?js|cjs|ts)$/i;
@@ -99,9 +100,9 @@ export async function fetchPypiPackage(name, spec = 'latest', { fetchImpl = glob
   const archive = await download(pick.file.url, onProgress, fetchImpl);
   const sha256 = hex(await digest('SHA-256', archive));
   onProgress({ stage: 'unpack' });
-  // METADATA and PKG-INFO embed the README: documentation, not code, so they are not read
-  // (their links read as network egress otherwise; found on mcp-server-fetch).
-  const keep = (p) => SCANNABLE.test(p) || /(^|\/)(setup\.py|pyproject\.toml)$/.test(p);
+  // METADATA and PKG-INFO embed the README: documentation, not code. They are read into
+  // `docs`, never `files` (their links read as network egress otherwise; found on mcp-server-fetch).
+  const keep = (p) => SCANNABLE.test(p) || /(^|\/)(setup\.py|pyproject\.toml)$/.test(p) || DOC_FILE.test(p);
 
   let raw;
   if (/\.(whl|zip)$/i.test(pick.file.filename)) {
@@ -112,7 +113,7 @@ export async function fetchPypiPackage(name, spec = 'latest', { fetchImpl = glob
   } else {
     throw new Error(`cannot read ${pick.file.filename}`);
   }
-  const filesMap = new Map([...raw].map(([k, v]) => [k, v instanceof Bytes ? v : new Bytes(v)]));
+  const { files: filesMap, docs } = splitDocs(new Map([...raw].map(([k, v]) => [k, v instanceof Bytes ? v : new Bytes(v)])));
 
   // Presence and history come from the Simple API (PEP 691 JSON), which lists every file
   // with a provenance URL or null: one request, served from the index, reliable. The
@@ -137,6 +138,7 @@ export async function fetchPypiPackage(name, spec = 'latest', { fetchImpl = glob
     },
     artifact: { filename: pick.file.filename, kind: pick.kind, buildsFromSource: pick.buildsFromSource },
     files: filesMap,
+    docs,
     integrityOk: pick.file.digests?.sha256 ? pick.file.digests.sha256 === sha256 : null,
     tarballBytes: archive.length,
     sha256,

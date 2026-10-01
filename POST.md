@@ -1,4 +1,4 @@
-# More than one in five MCP servers read credentials their registry entry never mentions
+# One in five MCP servers leaves a credential out of its registry listing. Most explain it in the README
 
 *Draft launch post. Publish from the GitHub repo, not from antharmaya.com.*
 
@@ -8,12 +8,13 @@ The official MCP registry schema has a field for this. Each package entry can li
 `environmentVariables`, and each one can be marked `isSecret` and `isRequired`. It is exactly the
 thing you would want to read before you install a server and hand it your shell.
 
-Most publishers leave it empty. Nobody checks, because [the official registry does not scan
+Many publishers leave it empty. Nobody checks, because [the official registry does not scan
 servers](https://dev.to/sam_curatedmcp/five-hard-problems-in-the-mcp-ecosystem-3651), and [9 of 11
 major MCP directories accepted typosquatted payloads](https://nimblebrain.ai/blog/state-of-mcp-security-2026/)
 with no automated review at all.
 
-So I measured it.
+So I measured it, and then measured it again, more carefully, after a maintainer showed me
+where my first count was wrong.
 
 ## Try it now
 
@@ -39,25 +40,28 @@ hash of the day before, so the history can be checked, not just trusted; the pag
 
 I walked 12,000 registry entries and kept every server shipping an npm package: **469 servers from
 405 publishers**. I took a seeded random sample of 60, downloaded each package, and compared the
-environment variables the code actually reads against the ones the registry entry declares.
+environment variables the code actually reads against the ones the registry entry declares, and
+against the package's own README.
 
 ```
-  scanned successfully                  57   across 53 publishers
-  declare no environment variables      23 (40%)  19 publishers
-  read a credential they never declare  12 (21%)   9 publishers
-      95% CI                            12% – 33%
-  run an install script                 1 (2%)
-  no repository field                   11 (19%)
+  scanned successfully                     57   across 53 publishers
+  declare no environment variables         23 (40%)  19 publishers
+  credential missing from the listing      12 (21%)
+    ...explained in the README             8 (14%)
+    ...mentioned nowhere                   4 (7%)    95% CI 3% – 17%
+  run an install script                    1 (2%)
+  no repository field                      11 (19%)
 ```
 
-Among the 12: four servers reading an undeclared `X402_PRIVATE_KEY`, and one reading
-`PAYER_PRIVATE_KEY`. Those are agent payment keys — asked for by the code, absent from the metadata
-a user reads before installing.
+Among the 8 that explain it in the README: four servers whose README shows `X402_PRIVATE_KEY` in
+a config example, and one whose README explains `PAYER_PRIVATE_KEY` is optional and should be a
+throwaway wallet. Those are agent payment keys. A careful reader of the README knows; the listing,
+which is what catalogs and agents read, does not say.
 
 ## What this is and isn't
 
-It is a **metadata gap**, not proof of malice. Every one of these servers probably documents its
-variables in a README. The problem is that the registry is what tooling reads, what a catalogue
+It is a **metadata gap**, not proof of malice: two-thirds of these servers do document the
+variable, in their README. The problem is that the registry is what tooling reads, what a catalogue
 renders, and increasingly what an agent consults before installing something on your behalf. A
 README is for humans who are already paying attention.
 
@@ -163,3 +167,13 @@ server read that value from a real user. Both are fixed. One publisher's finding
 that was the *only* mention of a credential name in the whole package — turned out to have no real
 code behind it once that comment stopped counting as evidence, and dropped out. That moved the
 headline from 13 (23%) to 12 (21%) — still true, on this data, that more than one in five do it.
+
+A fourth, the largest, found because a maintainer replied. Until 2026-10-01 the scanner never read
+a package's README at all: its readers kept code files only. It reported a "hardcoded fallback
+key" in one server as an undeclared credential; the maintainer pointed out it is their public
+free-tier key, documented in the README. They were right, and so were seven others in the
+sample. The scanner now reads the README, keeps it apart from the code (so a README's examples
+are never cited as code), and reports a documented credential as a listing gap at low severity.
+Every one of the 8 was checked by hand. The number that means "mentioned nowhere" went from 12 to
+4. The headline above used to read "more than one in five read credentials their registry entry
+never mentions". The registry half of that was true; the implication that nobody was told was not.

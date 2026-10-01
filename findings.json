@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-09-29T07:03:17.755Z",
+  "scannedAt": "2026-10-01T05:01:57.533Z",
   "seed": 20260926,
   "populationSize": 469,
   "sampled": 60,
@@ -10,6 +10,7 @@
       "pkg": "windsock-mcp@0.1.2",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -20,6 +21,7 @@
       "pkg": "@black-duck/mcp-server@1.1.8",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -29,12 +31,13 @@
       "publisher": "ai.agentutility",
       "pkg": "@agentutility/mcp-rollforge@0.1.5",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "X402_PRIVATE_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 1
+      "high": 0
     },
     {
       "name": "ai.verlon/mcp",
@@ -42,6 +45,7 @@
       "pkg": "@verlon-ai/mcp@0.4.1",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -52,6 +56,7 @@
       "pkg": "@meetlark/mcp-server@1.0.3",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -62,6 +67,7 @@
       "pkg": "trawlia-mcp@0.1.0",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -69,9 +75,10 @@
     {
       "name": "com.execbro/execbro",
       "publisher": "com.execbro",
-      "pkg": "execbro@2.12.3",
+      "pkg": "execbro@2.13.0",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -82,6 +89,7 @@
       "pkg": "@kuailian/mcp-server@0.1.5",
       "declaredEnvCount": 3,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -92,24 +100,27 @@
       "pkg": "docfork@1.3.0",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [
-        "DOCFORK_API_KEY",
         "CLIENT_IP_ENCRYPTION_KEY"
+      ],
+      "readmeOnlySecrets": [
+        "DOCFORK_API_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 2
+      "high": 1
     },
     {
       "name": "app.trustrails/server",
       "publisher": "app.trustrails",
       "pkg": "@trustrails/mcp-server@1.0.7",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "TRUSTRAILS_API_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 1
+      "high": 0
     },
     {
       "name": "ai.dimensions/analytics-mcp",
@@ -119,6 +130,7 @@
       "undeclaredSecrets": [
         "DSL_SERVICE_PASSWORD"
       ],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 1
@@ -128,12 +140,13 @@
       "publisher": "ai.agentutility",
       "pkg": "@agentutility/mcp-prooflayer@0.2.4",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "X402_PRIVATE_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 1
+      "high": 0
     },
     {
       "name": "com.coildesk/coildesk-hvac-tools",
@@ -141,6 +154,7 @@
       "pkg": "@ellul-estate/coildesk-com-coildesk-hvac-tools-mcp@1.0.0",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -151,6 +165,7 @@
       "pkg": "@clize/inbox@0.35.5",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -161,6 +176,7 @@
       "pkg": "@elopstudio/ai-wave-mcp@1.0.3",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -171,6 +187,7 @@
       "pkg": "@unpaper/cli@0.3.0",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -180,12 +197,13 @@
       "publisher": "co.lovie",
       "pkg": "lovie@1.0.10",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "LOVIE_API_KEY"
       ],
       "installScript": false,
       "noRepository": true,
-      "high": 1
+      "high": 0
     },
     {
       "name": "com.attrove/mcp",
@@ -193,6 +211,7 @@
       "pkg": "@attrove/mcp@0.6.0",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -203,6 +222,7 @@
       "pkg": "@inite/visibility@1.1.2",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -213,6 +233,7 @@
       "pkg": "@mupag/mcp-server@0.1.0",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -223,6 +244,7 @@
       "pkg": "@easyonward/mcp-server@0.2.0",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -235,6 +257,7 @@
       "undeclaredSecrets": [
         "RAVEN_GRAB_NOTIFY_WEBHOOK"
       ],
+      "readmeOnlySecrets": [],
       "installScript": true,
       "noRepository": false,
       "high": 2
@@ -244,12 +267,13 @@
       "publisher": "ai.agentutility",
       "pkg": "@agentutility/mcp-edge-market@0.15.6",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "X402_PRIVATE_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 1
+      "high": 0
     },
     {
       "name": "ai.adtest/adtest-mcp",
@@ -257,6 +281,7 @@
       "pkg": "adtest-mcp@1.1.0",
       "declaredEnvCount": 3,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -267,6 +292,7 @@
       "pkg": "@gency-ai/gency-mcp@0.6.0",
       "declaredEnvCount": 8,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -276,12 +302,13 @@
       "publisher": "coffee.402",
       "pkg": "402coffee-mcp@0.1.1",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "PAYER_PRIVATE_KEY"
       ],
       "installScript": false,
       "noRepository": true,
-      "high": 1
+      "high": 0
     },
     {
       "name": "ai.llmintel/model-lifecycle",
@@ -289,6 +316,7 @@
       "pkg": "@llmintel/mcp@0.2.0",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -296,9 +324,10 @@
     {
       "name": "cheap.doc/mcp",
       "publisher": "cheap.doc",
-      "pkg": "@doc-cheap/mcp@0.3.7",
+      "pkg": "@doc-cheap/mcp@0.3.9",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -309,6 +338,7 @@
       "pkg": "guildctl@2.3.0",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -319,6 +349,7 @@
       "pkg": "@ellul-estate/damagerestorehq-com-claims-index-mcp@1.0.0",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -329,6 +360,7 @@
       "pkg": "eonik-mcp@2.0.0",
       "declaredEnvCount": 3,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -344,6 +376,7 @@
       "pkg": "@vidofy/mcp@0.1.2",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -354,6 +387,7 @@
       "pkg": "@tradesearcher/mcp-server@0.1.1",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -369,6 +403,7 @@
       "pkg": "@dbhawk/mcp@0.3.0",
       "declaredEnvCount": 3,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -379,6 +414,7 @@
       "pkg": "@proofslip/mcp-server@0.2.3",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -388,24 +424,26 @@
       "publisher": "ai.agentutility",
       "pkg": "@agentutility/mcp-compose@0.13.0",
       "declaredEnvCount": 0,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "X402_PRIVATE_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 1
+      "high": 0
     },
     {
       "name": "ca.honkio/mcp",
       "publisher": "ca.honkio",
       "pkg": "@honkio/mcp@1.11.1",
       "declaredEnvCount": 2,
-      "undeclaredSecrets": [
+      "undeclaredSecrets": [],
+      "readmeOnlySecrets": [
         "MCP_SERVICE_KEY"
       ],
       "installScript": false,
       "noRepository": false,
-      "high": 1
+      "high": 0
     },
     {
       "name": "app.percher/percher",
@@ -413,6 +451,7 @@
       "pkg": "@percher/mcp@1.0.3",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -420,9 +459,10 @@
     {
       "name": "co.yungle/yungle",
       "publisher": "co.yungle",
-      "pkg": "yungle-mcp@0.2.4",
+      "pkg": "yungle-mcp@0.3.0",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -433,6 +473,7 @@
       "pkg": "todoglow-mcp@1.1.2",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -443,6 +484,7 @@
       "pkg": "@fouradata/mcp@0.7.3",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -453,6 +495,7 @@
       "pkg": "@arcnautical/mcp@0.2.1",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -463,6 +506,7 @@
       "pkg": "@clize/domains@0.35.5",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -473,6 +517,7 @@
       "pkg": "contadeo-mcp@0.25.0",
       "declaredEnvCount": 3,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": true,
       "high": 0
@@ -483,6 +528,7 @@
       "pkg": "@cleanor/mcp@0.6.1",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -498,6 +544,7 @@
       "pkg": "@bolthub/mcp-registry@0.1.6",
       "declaredEnvCount": 9,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -508,6 +555,7 @@
       "pkg": "@shippp/mcp@0.1.1",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -518,6 +566,7 @@
       "pkg": "@drantoniou/uploadcheck-mcp@0.1.1",
       "declaredEnvCount": 2,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -528,6 +577,7 @@
       "pkg": "@bvcc/agent-mcp@0.2.2",
       "declaredEnvCount": 6,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -538,6 +588,7 @@
       "pkg": "casemargin-mcp-server@1.0.2",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -548,6 +599,7 @@
       "pkg": "diemdesk-mcp@0.1.2",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -558,6 +610,7 @@
       "pkg": "@elfa-ai/mcp@4.3.0",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -570,6 +623,7 @@
       "undeclaredSecrets": [
         "UPLINK_API_KEY"
       ],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 1
@@ -580,6 +634,7 @@
       "pkg": "dribba@1.1.0",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -590,6 +645,7 @@
       "pkg": "@fidensa/mcp-server@0.4.1",
       "declaredEnvCount": 1,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -600,6 +656,7 @@
       "pkg": "@ellul-estate/carbikly-com-carbikly-tools-mcp@1.0.0",
       "declaredEnvCount": 0,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0
@@ -610,6 +667,7 @@
       "pkg": "vedetta-mcp@1.1.0",
       "declaredEnvCount": 3,
       "undeclaredSecrets": [],
+      "readmeOnlySecrets": [],
       "installScript": false,
       "noRepository": false,
       "high": 0

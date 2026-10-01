@@ -16,7 +16,7 @@ understanding before you rely on it. **low**, good to know. **info**, context, n
 
 Usual severity: **high**
 
-**Why it matters.** The registry listing is what people read before installing; a credential the code reads but the listing never mentions is access nobody agreed to.
+**Why it matters.** The registry listing is what catalogs, install tools and agents read before installing. A credential the code reads but the listing does not mention reaches the user only through the README, or at runtime. Many servers do document it in their README; when they do, mcpscan says so and reports it as worth knowing rather than as a hidden read.
 
 **What to do.** Declare every environment variable in the server.json listing, marking credentials isSecret.
 

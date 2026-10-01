@@ -13,12 +13,12 @@ import { resolveVersion, provenanceHistory, declaredEnvVars, shipsPackage, norma
 import { fetchPypiPackage } from './pypi.js';
 import { checkKnownVulnerabilities } from './osv.js';
 import { Bytes, readTar, gunzip, digest, hex, base64, download } from './archive.js';
+import { keepNpmFile, splitDocs } from './docs.js';
 
 export { Bytes, readTar } from './archive.js';
 
 const NPM = 'https://registry.npmjs.org';
 const REGISTRY = 'https://registry.modelcontextprotocol.io';
-const SCANNABLE = /\.(m?js|cjs|ts|mts|cts|py|json)$/i;
 
 /**
  * npm answers a missing *scoped* package with a 404 that has no CORS header, so in a tab
@@ -61,7 +61,7 @@ export async function fetchPackageInBrowser(name, spec = 'latest', { onProgress 
     : manifest.dist.shasum === hex(await digest('SHA-1', tgz));
 
   onProgress({ stage: 'unpack' });
-  const files = readTar(await gunzip(tgz), (p) => SCANNABLE.test(p) || p === 'package.json');
+  const { files, docs } = splitDocs(readTar(await gunzip(tgz), keepNpmFile));
 
   return {
     name,
@@ -69,6 +69,7 @@ export async function fetchPackageInBrowser(name, spec = 'latest', { onProgress 
     approximate,
     manifest,
     files,
+    docs,
     integrityOk,
     tarballBytes: tgz.length,
     sha256: hex(await digest('SHA-256', tgz)),

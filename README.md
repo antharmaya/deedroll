@@ -329,7 +329,7 @@ kept apart from the code checks, so its examples are never cited as code). A cre
 documents is reported as `low`, a listing gap rather than a hidden read. Every one of the 8 was
 re-checked by hand against its README. The credential rule was tightened
 three times (locator names like `*_URL` on 2026-09-27; words inside other words, like KEY in
-KEYCLOAK, on 2026-09-28; singular quantity suffixes like `_HOUR`/`_DURATION` on 2026-09-29) and
+KEYCLOAK, on 2026-09-28; singular quantity suffixes like `_HOUR`/`_DURATION` on 2026-09-29; names that describe a credential rather than hold one, like `_CREDENTIAL_BACKEND` or `_KEY_PREFIX`, on 2026-10-01, found across 5,707 credential-flagged reads in the full registry scan, which left this sample unchanged) and
 the evidence itself was tightened twice more on 2026-09-29, before any of the sample's publishers
 were contacted: the scanner no longer cites a package's own comments (a docstring mentioning
 `process.env.X` in prose is not a read) or its own test fixtures (`*.test.ts` stubbing a fake env

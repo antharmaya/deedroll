@@ -301,3 +301,19 @@ test('an attested source repository counts as traceable; Python runtime variable
   const py = pkgWith({ 'server.py': 'import os\nenc = os.environ.get("PYTHONIOENCODING")\nv = os.environ.get("VIRTUAL_ENV")\n' });
   assert.deepEqual(checkUndeclaredSecrets(py, null, new Map()), []);
 });
+
+// Found in the first full registry scan (2026-10-01): names that describe a credential (where
+// it is stored, its scope, the header it goes in) are settings, not credentials.
+test('names that describe a credential rather than hold one are not credentials', () => {
+  for (const n of ['REVIEWABLE_MCP_CREDENTIAL_BACKEND', 'RATE_LIMIT_REDIS_KEY_PREFIX', 'FL_API_KEY_HEADER', 'MCP_OAUTH_SCOPES',
+    'SERVICENOW_AUTH_METHOD', 'X402_TOKEN_ADDRESS', 'SSH_AUTH_SOCK', 'TYPESHIP_CREDENTIAL_STORE', 'PDFGATE_WEBHOOK_PORT',
+    'SAP_MCP_AUTH_TYPE', 'COINBASE_CDP_KEY_NAME', '__NEXT_PRIVATE_CPU_PROFILE', 'NEXT_PRIVATE_WORKER']) {
+    assert.equal(isCredentialName(n), false, n);
+  }
+});
+
+test('key material in another encoding is still a credential', () => {
+  for (const n of ['MCP_CLIENT_PRIVATE_KEY_PEM', 'FIDACY_SIGNING_KEY_B64', 'GCS_SERVICE_ACCOUNT_KEY_JSON', 'MINITOK_MCP_AUTH_TOKEN_NEXT', 'AWS_ACCESS_KEY_ID', 'X402_PRIVATE_KEY']) {
+    assert.equal(isCredentialName(n), true, n);
+  }
+});

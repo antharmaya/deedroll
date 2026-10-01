@@ -203,6 +203,44 @@ node scripts/snapshot.js --verify     # re-hash every file and check every link 
 Published at https://mcpscan.antharmaya.com/history/chain.jsonl (Cloudflare R2), and
 verifiable from the web page. The local copy is under `archive/` (not in git). Measured on the first run: about 4 MB a day (3.4 MB of listings, 0.6 MB of tool lists), roughly 1.5 GB a year before deduplication. At 500 endpoints a day, every hosted endpoint comes round about every 46 days.
 
+## The ledger: every MCP server's history
+
+The daily snapshots fold into a timeline per server, like `git log`. Each server's timeline
+records:
+- when the record first saw it;
+- every release;
+- every change to its description, status, repository, packages, declared settings (including
+  secret flags), endpoints and headers;
+- every change in what its hosted tools say;
+- when it disappeared or came back.
+
+```
+GET /api/servers?q=github&limit=25        search all servers (exact name, then prefix, then text)
+GET /api/servers/<registry name>          one server: its latest listing, probes and full log
+GET /api/servers                          the ledger's span and size
+```
+
+Live at `https://mcpscan.antharmaya.com/api/servers`. JSON, open to any origin, cached at the
+edge for ten minutes.
+
+`node scripts/build-ledger.js` folds any new day into the saved state;
+`--rebuild` replays every snapshot from scratch and must give the same result
+(`test/ledger.test.js` holds it to that); `--upload` publishes changed files to R2 under
+`ledger/`. The nightly service runs it after each snapshot.
+
+**Design notes:**
+- The snapshots are the source of truth; the ledger is a view of them, so its storage can
+  change for the price of a rebuild.
+- 64 shard files, because each upload is one wrangler call: about 9 minutes a night today.
+- Search scans plain ASCII texts with `indexOf` and parses only the lines that match, so it
+  fits a Worker's CPU budget (2–6 ms a query on 37,892 servers). Words in non-Latin scripts
+  inside descriptions are not searchable yet.
+- Each search file starts with its build stamp, and the Worker never combines files from two
+  different builds.
+
+"Seen" means seen by this record, which began on 2026-09-28. A server listed that day may be
+much older; its `publishedAt` says when.
+
 ## Audit what you already trust
 
 ```

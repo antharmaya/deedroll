@@ -9,6 +9,7 @@
  * this Worker does not have; the checks are the first line, not the only one.
  */
 import { handleProbe, privateAddress, refusedHost, createLimiter } from '../src/relay-core.js';
+import { searchStore, searchLedger, shardOf } from '../src/ledger.js';
 
 const fallbackLimit = createLimiter({ max: 20, windowMs: 60 * 1000 });
 const IP = /^(\d+\.){3}\d+$|:/;
@@ -92,6 +93,11 @@ export default {
       return Response.json(out.body, { status: out.status, headers: { 'cache-control': 'no-store' } });
     }
 
+    if (url.pathname === '/api/servers' || url.pathname.startsWith('/api/servers/')) {
+      if (request.method !== 'GET' && request.method !== 'HEAD') return new Response(null, { status: 405, headers: { allow: 'GET, HEAD' } });
+      return cached(request, () => servers(url, env));
+    }
+
     if (url.pathname.startsWith('/history/')) {
       if (request.method !== 'GET' && request.method !== 'HEAD') return new Response(null, { status: 405 });
       return history(url.pathname, env);
@@ -112,4 +118,57 @@ function noInjection(res) {
   const cc = out.headers.get('cache-control');
   out.headers.set('cache-control', cc ? `${cc}, no-transform` : 'no-transform');
   return out;
+}
+
+/* ---------- the ledger API: /api/servers ---------- */
+
+const JSON_HEADERS = { 'content-type': 'application/json; charset=utf-8', 'access-control-allow-origin': '*', 'cache-control': 'public, max-age=600' };
+const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: JSON_HEADERS });
+
+// Per isolate: the search texts are indexed once and kept for ten minutes. A set whose build
+// stamps disagree (mid-upload) is refused and the previous one kept.
+let ledgerStore = null;
+let ledgerAt = 0;
+async function store(env) {
+  if (ledgerStore && Date.now() - ledgerAt < 10 * 60 * 1000) return ledgerStore;
+  const keys = ['search-names.txt', 'search-descs.txt', 'search-entries.txt', 'meta.json'];
+  const [names, descs, entries, meta] = await Promise.all(keys.map((k) => env.HISTORY.get(`ledger/${k}`)));
+  if (!names || !descs || !entries || !meta) return ledgerStore;
+  const next = searchStore({ names: await names.text(), descs: await descs.text(), entries: await entries.text() });
+  if (next) {
+    next.meta = await meta.json();
+    ledgerStore = next;
+    ledgerAt = Date.now();
+  }
+  return ledgerStore;
+}
+
+async function servers(url, env) {
+  const name = decodeURIComponent(url.pathname.slice('/api/servers/'.length));
+  if (url.pathname.startsWith('/api/servers/') && name) {
+    if (name.length > 200) return json({ error: 'name too long' }, 400);
+    const obj = await env.HISTORY.get(`ledger/servers/${shardOf(name)}.json`);
+    if (!obj) return json({ error: 'the ledger is not available right now' }, 503);
+    const shard = await obj.json();
+    const record = shard.servers?.[name];
+    if (!record) return json({ error: `no server called "${name}" in the ledger`, hint: 'search with /api/servers?q=' }, 404);
+    return json({ name, record });
+  }
+  const s = await store(env);
+  if (!s) return json({ error: 'the ledger is not available right now' }, 503);
+  const ledger = { start: s.meta.start, last: s.meta.last, servers: s.meta.servers, builtAt: s.meta.builtAt };
+  const q = url.searchParams.get('q');
+  if (!q) return json({ ledger, usage: { search: '/api/servers?q=github', server: '/api/servers/<registry name>' } });
+  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit')) || 25));
+  return json({ query: q, ledger, results: searchLedger(s, q.slice(0, 100), limit) });
+}
+
+/** Serve from the edge cache when we can: a repeated query costs no Worker CPU. */
+async function cached(request, produce) {
+  const cache = caches.default;
+  const hit = await cache.match(request);
+  if (hit) return hit;
+  const res = await produce();
+  if (res.status === 200) await cache.put(request, res.clone());
+  return res;
 }

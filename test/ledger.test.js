@@ -210,3 +210,20 @@ test('a listing that points at a package its registry does not have is marked mi
   foldScans(l, '2026-09-28', [{ key: packageKey('npm', 'a', '1.0.0'), type: 'npm', id: 'a', version: '1.0.0', at: '2026-09-28T02:00:00Z', error: 'socket hang up' }]);
   assert.equal(l.servers.get('io.x/a').signals['npm:a'].missing, undefined, 'a network error is not evidence the package is missing');
 });
+
+test('scan entries for one day come out in the same order however the scans were batched', () => {
+  const two = listing('io.x/two', { packages: [
+    { type: 'npm', id: 'zeta', version: '1.0.0', transport: 'stdio', env: [] },
+    { type: 'npm', id: 'alpha', version: '1.0.0', transport: 'stdio', env: [] },
+  ] });
+  const sZeta = scanOf('zeta', '1.0.0', []);
+  const sAlpha = scanOf('alpha', '1.0.0', []);
+  const once = emptyLedger();
+  foldDay(once, '2026-09-28', [two]);
+  foldScans(once, '2026-09-28', [sZeta, sAlpha]);
+  const split = emptyLedger();
+  foldDay(split, '2026-09-28', [two]);
+  foldScans(split, '2026-09-28', [sAlpha]);
+  foldScans(split, '2026-09-28', [sZeta]);
+  assert.deepEqual(split.servers.get('io.x/two').log, once.servers.get('io.x/two').log);
+});

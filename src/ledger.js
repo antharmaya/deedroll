@@ -205,6 +205,16 @@ function signalChange(prev, cur) {
 }
 
 /**
+ * Same-day scan entries are kept in package order, so a day folded in one batch or several
+ * (the nightly build folds scans as they arrive) gives the same log as a full rebuild.
+ */
+function insertScanned(log, entry) {
+  let i = log.length;
+  while (i > 0 && log[i - 1].kind === 'scanned' && log[i - 1].date === entry.date && log[i - 1].package > entry.package) i--;
+  log.splice(i, 0, entry);
+}
+
+/**
  * Fold package scans (scripts/scan-packages.js) into every server that ships the scanned
  * package version. A 'scanned' entry is logged on the first scan and whenever the facts
  * change: a release that starts reading a credential, contacting a host, running an
@@ -223,7 +233,7 @@ export function foldScans(ledger, date, summaries) {
       const cur = signalOf(s, p);
       rec.signals ??= {};
       const entry = signalChange(rec.signals[id], cur);
-      if (entry) rec.log.push({ date, kind: 'scanned', package: id, version: cur.version, ...entry });
+      if (entry) insertScanned(rec.log, { date, kind: 'scanned', package: id, version: cur.version, ...entry });
       rec.signals[id] = cur;
     }
   }

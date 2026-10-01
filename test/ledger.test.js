@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { diffListing, emptyLedger, foldDay, foldProbes, toShards, fromShards, shardOf, searchIndex, searchFiles, searchStore, searchLedger, indexEntry, publicRecord, SHARDS } from '../src/ledger.js';
+import { diffListing, emptyLedger, foldDay, foldProbes, toShards, fromShards, shardOf, searchIndex, searchFiles, searchStore, searchLedger, indexEntry, publicRecord, SHARDS, foldScans, signalOf, packageKey } from '../src/ledger.js';
 
 const listing = (name, over = {}) => ({
   name,
@@ -161,4 +161,42 @@ test('the build stamp line is never returned as a result', () => {
   foldDay(l, '2026-09-28', [listing('io.x/a')]);
   const store = searchStore(searchFiles([...l.servers.values()].map(indexEntry), 'build-2026'));
   assert.deepEqual(searchLedger(store, 'build-2026'), []);
+});
+
+const scanOf = (id, version, reads, extra = {}) => ({ key: packageKey('npm', id, version), type: 'npm', id, version, at: '2026-09-29T01:00:00Z', files: 3, provenance: false, reads, dynamicEnv: 0, hosts: [], caps: [], install: [], vulns: [], other: [], ...extra });
+
+test('reads are judged against what this listing declares, and README-documented ones kept apart', () => {
+  const sig = signalOf(scanOf('a', '1.0.0', [
+    { n: 'API_KEY', cred: true, doc: false, at: 'i.js:1' },      // declared by the listing
+    { n: 'PAY_KEY', cred: true, doc: false, at: 'i.js:2' },      // mentioned nowhere
+    { n: 'FREE_KEY', cred: true, doc: true, at: 'i.js:3' },      // README only
+    { n: 'REGION', cred: false, doc: false, at: 'i.js:4' },      // a setting
+  ]), { type: 'npm', id: 'a', version: '1.0.0', env: [{ name: 'API_KEY', secret: true }] });
+  assert.deepEqual(sig.undeclared, [{ n: 'PAY_KEY', at: 'i.js:2' }]);
+  assert.deepEqual(sig.readmeOnly, ['FREE_KEY']);
+  assert.deepEqual(sig.settings, ['REGION']);
+});
+
+test('a release that starts reading a credential is logged; one with the same facts is not', () => {
+  const l = emptyLedger();
+  foldDay(l, '2026-09-28', [listing('io.x/a')]);
+  foldScans(l, '2026-09-28', [scanOf('a', '1.0.0', [{ n: 'API_KEY', cred: true, doc: false, at: 'i.js:1' }])]);
+  foldDay(l, '2026-09-29', [listing('io.x/a', { version: '1.1.0', packages: [{ type: 'npm', id: 'a', version: '1.1.0', transport: 'stdio', env: [{ name: 'API_KEY', secret: true, required: true }] }] })]);
+  foldScans(l, '2026-09-29', [scanOf('a', '1.1.0', [{ n: 'API_KEY', cred: true, doc: false, at: 'i.js:1' }, { n: 'X402_PRIVATE_KEY', cred: true, doc: false, at: 'pay.js:9' }])]);
+  foldDay(l, '2026-09-30', [listing('io.x/a', { version: '1.1.1', packages: [{ type: 'npm', id: 'a', version: '1.1.1', transport: 'stdio', env: [{ name: 'API_KEY', secret: true, required: true }] }] })]);
+  foldScans(l, '2026-09-30', [scanOf('a', '1.1.1', [{ n: 'API_KEY', cred: true, doc: false, at: 'i.js:1' }, { n: 'X402_PRIVATE_KEY', cred: true, doc: false, at: 'pay.js:9' }])]);
+  const scanned = l.servers.get('io.x/a').log.filter((e) => e.kind === 'scanned');
+  assert.equal(scanned.length, 2, 'first scan, then the release that added a key; the identical 1.1.1 adds nothing');
+  assert.equal(scanned[0].first, true);
+  assert.deepEqual(scanned[1].undeclared, { added: ['X402_PRIVATE_KEY'], removed: [] });
+  assert.equal(indexEntry(l.servers.get('io.x/a')).x, 1);
+});
+
+test('a failed scan is kept as a fact but never logged as a change', () => {
+  const l = emptyLedger();
+  foldDay(l, '2026-09-28', [listing('io.x/a')]);
+  foldScans(l, '2026-09-28', [{ key: packageKey('npm', 'a', '1.0.0'), type: 'npm', id: 'a', version: '1.0.0', at: '2026-09-28T01:00:00Z', error: 'tarball 404' }]);
+  const rec = l.servers.get('io.x/a');
+  assert.equal(rec.log.filter((e) => e.kind === 'scanned').length, 0);
+  assert.equal(rec.signals['npm:a'].error, 'tarball 404');
 });

@@ -70,7 +70,7 @@ export function diffListing(prev, cur) {
 
 /** A fresh ledger state: one record per server name ever seen. */
 export function emptyLedger() {
-  return { version: LEDGER_VERSION, start: null, last: null, servers: new Map() };
+  return { version: LEDGER_VERSION, start: null, last: null, scansThrough: '', servers: new Map() };
 }
 
 /**
@@ -151,10 +151,83 @@ function probeChange(prev, cur) {
   return { probed: true, reason: null, tools: cur.tools, added, removed, descriptionChanged: described, inputsChanged: reshaped };
 }
 
+/** The key of one package version, shared by the batch scanner and the ledger. */
+export const packageKey = (type, id, version) => `${type}:${id}@${version ?? 'latest'}`;
+
+/**
+ * What one package's scan means for one listing: its reads are judged against what *that*
+ * listing declares (two listings can ship the same package and declare it differently).
+ */
+export function signalOf(summary, listingPkg) {
+  if (summary.error) return { version: summary.version ?? null, scanned: summary.at.slice(0, 10), error: summary.error };
+  const declared = new Set((listingPkg.env ?? []).map((e) => e.name));
+  const reads = summary.reads.filter((r) => !declared.has(r.n));
+  return {
+    version: summary.version,
+    scanned: summary.at.slice(0, 10),
+    undeclared: reads.filter((r) => r.cred && !r.doc).map((r) => ({ n: r.n, at: r.at })),
+    readmeOnly: reads.filter((r) => r.cred && r.doc).map((r) => r.n),
+    settings: reads.filter((r) => !r.cred).map((r) => r.n),
+    hosts: summary.hosts,
+    caps: summary.caps,
+    install: summary.install,
+    vulns: summary.vulns.length,
+    provenance: summary.provenance,
+    files: summary.files,
+  };
+}
+
+function signalChange(prev, cur) {
+  if (cur.error) return null;
+  if (!prev || prev.error) return { first: true, undeclared: cur.undeclared.map((r) => r.n), readmeOnly: cur.readmeOnly, hosts: cur.hosts.length, caps: cur.caps, install: cur.install.length, vulns: cur.vulns };
+  const diff = (a, b) => ({ added: b.filter((x) => !a.includes(x)).sort(), removed: a.filter((x) => !b.includes(x)).sort() });
+  const out = {};
+  const sets = {
+    undeclared: [prev.undeclared.map((r) => r.n), cur.undeclared.map((r) => r.n)],
+    readmeOnly: [prev.readmeOnly, cur.readmeOnly],
+    hosts: [prev.hosts, cur.hosts],
+    caps: [prev.caps, cur.caps],
+    install: [prev.install, cur.install],
+  };
+  for (const [k, [a, b]] of Object.entries(sets)) {
+    const d = diff(a, b);
+    if (d.added.length || d.removed.length) out[k] = d;
+  }
+  if (prev.vulns !== cur.vulns) out.vulns = { from: prev.vulns, to: cur.vulns };
+  if (prev.provenance !== cur.provenance) out.provenance = { from: prev.provenance, to: cur.provenance };
+  return Object.keys(out).length ? out : null;
+}
+
+/**
+ * Fold package scans (scripts/scan-packages.js) into every server that ships the scanned
+ * package version. A 'scanned' entry is logged on the first scan and whenever the facts
+ * change: a release that starts reading a credential, contacting a host, running an
+ * install script. A new version with identical facts adds nothing (its release is already
+ * logged by 'changed').
+ */
+export function foldScans(ledger, date, summaries) {
+  if (!summaries.length) return ledger;
+  const byKey = new Map(summaries.map((x) => [x.key, x]));
+  for (const rec of ledger.servers.values()) {
+    if (rec.gone) continue;
+    for (const p of rec.latest.packages ?? []) {
+      const s = byKey.get(packageKey(p.type, p.id, p.version));
+      if (!s) continue;
+      const id = `${p.type}:${p.id}`;
+      const cur = signalOf(s, p);
+      rec.signals ??= {};
+      const entry = signalChange(rec.signals[id], cur);
+      if (entry) rec.log.push({ date, kind: 'scanned', package: id, version: cur.version, ...entry });
+      rec.signals[id] = cur;
+    }
+  }
+  return ledger;
+}
+
 /** A record as published: probes keep their latest summary only, without the fingerprint. */
 export function publicRecord(rec) {
   const probes = Object.fromEntries(Object.entries(rec.probes).map(([url, p]) => [url, { date: p.date, probed: p.probed, reason: p.reason, tools: p.tools }]));
-  return { name: rec.name, firstSeen: rec.firstSeen, lastSeen: rec.lastSeen, gone: rec.gone, latest: rec.latest, probes, log: rec.log };
+  return { name: rec.name, firstSeen: rec.firstSeen, lastSeen: rec.lastSeen, gone: rec.gone, latest: rec.latest, signals: rec.signals ?? {}, probes, log: rec.log };
 }
 
 /** One line of the search index: enough to list and filter, nothing more. */
@@ -170,6 +243,7 @@ export function indexEntry(rec) {
     s: l.status ?? null,
     c: last?.date ?? rec.firstSeen,
     g: rec.gone,
+    x: Object.values(rec.signals ?? {}).reduce((n, sig) => n + (sig.undeclared?.length ?? 0), 0),
   };
 }
 
@@ -279,7 +353,7 @@ export function toShards(ledger) {
 }
 
 export function fromShards(meta, shardObjects) {
-  const ledger = { version: meta.version, start: meta.start, last: meta.last, servers: new Map() };
+  const ledger = { version: meta.version, start: meta.start, last: meta.last, scansThrough: meta.scansThrough ?? '', servers: new Map() };
   for (const obj of shardObjects) for (const [name, rec] of Object.entries(obj.servers ?? obj)) ledger.servers.set(name, rec);
   return ledger;
 }

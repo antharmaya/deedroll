@@ -238,6 +238,21 @@ edge for ten minutes.
 - Each search file starts with its build stamp, and the Worker never combines files from two
   different builds.
 
+**Package facts.** `node scripts/scan-packages.js [--limit 1500]` scans every distinct npm and
+PyPI package version the registry points at (about 14,300), once each, without running it, and
+with no tarball cache. Each run takes new versions of already-scanned packages first, then the
+rest, then retries failures older than a week.
+- A package's facts are package-level: what its code reads, contacts and can do, install
+  scripts, provenance, known vulnerabilities.
+- Whether a read is *declared* belongs to each listing, so the ledger judges it per server.
+  Every record carries `signals` per package: credentials mentioned nowhere, ones its README
+  explains, other settings, hosts, capabilities.
+- It logs a `scanned` entry when those facts change, such as a release that starts reading a
+  payment key.
+- A scan waits until its own day's snapshot is in the ledger.
+- `test/build-ledger.test.js` runs the real script night by night and against `--rebuild`, and
+  requires identical output.
+
 "Seen" means seen by this record, which began on 2026-09-28. A server listed that day may be
 much older; its `publishedAt` says when.
 

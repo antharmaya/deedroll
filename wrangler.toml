@@ -1,19 +1,22 @@
 # mcpscan on Cloudflare Workers. Build the assets first: node scripts/build-site.js
 #
-# Temporary home: mcpscan.harshavar968.workers.dev, until GitHub and npm access are back.
-# The move to an Antharmaya subdomain is this block, uncommented (the zone must be on this
-# Cloudflare account), then `npx wrangler deploy`:
-#
-# routes = [{ pattern = "mcpscan.antharmaya.com", custom_domain = true }]
-# workers_dev = false   # only once the custom domain answers
+# Home: https://mcpscan.antharmaya.com (custom domain; Cloudflare creates the DNS record and
+# certificate). The old mcpscan.harshavar968.workers.dev stays on, because links already sent
+# point at it: the Worker sends its GETs to the canonical host with a 301.
 name = "mcpscan"
 main = "deploy/worker.js"
 compatibility_date = "2026-09-28"
+routes = [{ pattern = "mcpscan.antharmaya.com", custom_domain = true }]
+workers_dev = true
+
+[vars]
+CANONICAL_HOST = "mcpscan.antharmaya.com"
 
 [assets]
 directory = "./site"
 binding = "ASSETS"
-run_worker_first = ["/", "/api/*", "/history/*"]
+# Every request runs the Worker first, so the workers.dev redirect also covers /web/* pages.
+run_worker_first = true
 
 [[r2_buckets]]
 binding = "HISTORY"

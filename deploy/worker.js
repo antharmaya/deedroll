@@ -64,6 +64,16 @@ async function history(path, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    // One canonical address. Links already sent out (disclosure emails, posts) point at the old
+    // workers.dev host, so it keeps answering, with a permanent redirect for anything readable.
+    // POSTs are left alone: a page opened before the move still talks to its own relay.
+    const canonical = env.CANONICAL_HOST;
+    if (canonical && url.hostname !== canonical && url.hostname.endsWith('.workers.dev') && (request.method === 'GET' || request.method === 'HEAD')) {
+      return new Response(null, {
+        status: 301,
+        headers: { location: `https://${canonical}${url.pathname}${url.search}`, 'access-control-allow-origin': '*' },
+      });
+    }
     if (url.pathname === '/') return Response.redirect(`${url.origin}/web/`, 302);
 
     if (url.pathname === '/api/probe') {
@@ -87,6 +97,19 @@ export default {
       return history(url.pathname, env);
     }
 
-    return env.ASSETS.fetch(request);
+    return noInjection(await env.ASSETS.fetch(request));
   },
 };
+
+/**
+ * The antharmaya.com zone has Cloudflare Web Analytics on, which injects a beacon script into
+ * every HTML page. The page's CSP already blocks it, but a scanner that promises no third-party
+ * scripts should not carry the tag at all. Cloudflare leaves `no-transform` responses unmodified.
+ */
+function noInjection(res) {
+  if (!(res.headers.get('content-type') ?? '').includes('text/html')) return res;
+  const out = new Response(res.body, res);
+  const cc = out.headers.get('cache-control');
+  out.headers.set('cache-control', cc ? `${cc}, no-transform` : 'no-transform');
+  return out;
+}

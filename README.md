@@ -14,7 +14,7 @@ description is ever sent anywhere. No account, no API key.
 
 ## Try it in a minute
 
-**In a browser:** https://mcpscan.harshavar968.workers.dev (the same engine, running in the page).
+**In a browser:** https://mcpscan.antharmaya.com (the same engine, running in the page).
 To run it locally instead: `node scripts/serve.js`, then open http://localhost:4173/web/.
 
 Type a server URL, a package or a registry name, click an example, or paste what your config
@@ -200,7 +200,7 @@ node scripts/snapshot.js --status     # the last runs, and a warning if the reco
 node scripts/snapshot.js --verify     # re-hash every file and check every link in the chain
 ```
 
-Published at https://mcpscan.harshavar968.workers.dev/history/chain.jsonl (Cloudflare R2), and
+Published at https://mcpscan.antharmaya.com/history/chain.jsonl (Cloudflare R2), and
 verifiable from the web page. The local copy is under `archive/` (not in git). Measured on the first run: about 4 MB a day (3.4 MB of listings, 0.6 MB of tool lists), roughly 1.5 GB a year before deduplication. At 500 endpoints a day, every hosted endpoint comes round about every 46 days.
 
 ## Audit what you already trust
@@ -293,13 +293,20 @@ node scripts/build-site.js      # site/: the page and engine, with a Content-Sec
 npx wrangler deploy             # static assets, /api/probe (rate-limited), /history/* from R2
 ```
 
+It answers at `mcpscan.antharmaya.com`, a Workers custom domain: Cloudflare manages its DNS
+record and certificate. The old `mcpscan.harshavar968.workers.dev` address stays on, because
+links already sent point at it. Its GET and HEAD requests get a 301 to the same path on the
+canonical host, while POSTs to its relay are still answered. HTML responses carry
+`Cache-Control: no-transform`, so Cloudflare does not inject the zone's analytics beacon into
+a page that promises no third-party scripts.
+
 The daily snapshot uploads to the R2 bucket when `MCPSCAN_R2_BUCKET` is set (the systemd unit
 sets it); `node scripts/snapshot.js --upload mcpscan-history` retries anything not yet uploaded.
 
 ## Development
 
 ```
-npm test                              # ~140 tests, no network
+npm test                              # 171 tests, no network
 node scripts/serve.js                 # the web page at http://localhost:4173/web/
 node scripts/browser-parity.js        # browser and CLI give identical results (uses the network)
 node scripts/build-index.js           # rebuild the registry index (~10 minutes)

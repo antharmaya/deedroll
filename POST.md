@@ -17,9 +17,8 @@ So I measured it.
 
 ## Try it now
 
-Free, no account, live at a temporary address until it moves to an antharmaya.com subdomain:
-**https://mcpscan.harshavar968.workers.dev**. Source: **https://github.com/antharmaya/mcpscan**.
-It runs the same engine as the
+Free, no account: **https://mcpscan.antharmaya.com**. Source:
+**https://github.com/antharmaya/mcpscan**. It runs the same engine as the
 command line, in your browser, and also does two things a package scan can't:
 
 - **Checks a hosted server's sign-in**, when it needs one, against the official spec

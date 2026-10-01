@@ -200,3 +200,13 @@ test('a failed scan is kept as a fact but never logged as a change', () => {
   assert.equal(rec.log.filter((e) => e.kind === 'scanned').length, 0);
   assert.equal(rec.signals['npm:a'].error, 'tarball 404');
 });
+
+test('a listing that points at a package its registry does not have is marked missing', () => {
+  const l = emptyLedger();
+  foldDay(l, '2026-09-28', [listing('io.x/a')]);
+  foldScans(l, '2026-09-28', [{ key: packageKey('npm', 'a', '1.0.0'), type: 'npm', id: 'a', version: '1.0.0', at: '2026-09-28T01:00:00Z', error: 'version 1.0.0 not found for a' }]);
+  assert.equal(l.servers.get('io.x/a').signals['npm:a'].missing, true);
+  assert.equal(indexEntry(l.servers.get('io.x/a')).m, true);
+  foldScans(l, '2026-09-28', [{ key: packageKey('npm', 'a', '1.0.0'), type: 'npm', id: 'a', version: '1.0.0', at: '2026-09-28T02:00:00Z', error: 'socket hang up' }]);
+  assert.equal(l.servers.get('io.x/a').signals['npm:a'].missing, undefined, 'a network error is not evidence the package is missing');
+});

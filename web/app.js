@@ -56,6 +56,7 @@ export function sentence(f) {
   const m = f.message ?? '';
   switch (f.check) {
     case 'undeclared-env':
+      if (f.documented) return `Reads ${f.subject}, a credential its README explains but its registry listing doesn't mention.`;
       if (f.severity === 'high') return `Reads ${f.subject}, a credential its listing doesn't declare.`;
       if (f.severity === 'medium') return `Reads ${f.subject}, a credential, with no registry listing to declare it in.`;
       return `Reads the setting ${f.subject}, which its listing doesn't mention.`;
@@ -134,7 +135,7 @@ export function sentence(f) {
 
 function ledgerKey(f) {
   switch (f.check) {
-    case 'undeclared-env': return f.severity === 'low' ? 'does:settings' : 'does:credentials';
+    case 'undeclared-env': return f.documented ? 'does:documented' : f.severity === 'low' ? 'does:settings' : 'does:credentials';
     case 'dynamic-env': return 'does:settings';
     case 'network-egress': return 'does:hosts';
     case 'capability': return `does:cap:${f.message}`;
@@ -179,6 +180,8 @@ function buildModel(r) {
 
   const creds = names('does:credentials');
   if (creds.length) does.push({ key: 'does:credentials', sev: worst(byKey.get('does:credentials')), text: `Reads ${plural(creds.length, 'credential')} it doesn't declare`, detail: creds });
+  const documented = names('does:documented');
+  if (documented.length) does.push({ key: 'does:documented', sev: worst(byKey.get('does:documented')), text: `Reads ${plural(documented.length, 'credential')} its README explains, not its listing`, detail: documented });
   const settings = names('does:settings');
   if (settings.length) does.push({ key: 'does:settings', sev: 'low', text: `Reads ${plural(settings.length, 'other setting')}`, detail: settings });
   const hosts = (byKey.get('does:hosts') ?? []).map((f) => f.message.replace(/^contacts /, ''));
@@ -946,15 +949,20 @@ syncChrome();
 async function band() {
   const h = await (await fetch('data/registry-health.json')).json();
   $('#figure').replaceChildren(String(h.flagged), el('small', {}, ` of ${h.scanned}`));
+  const readme = h.readmeOnly ? ` ${h.readmeOnly} more explain theirs in the README but not the listing.` : '';
   $('#band-method').textContent =
-    `A random sample of npm-published servers in the official MCP registry, ${fmtDate(h.sampledAt)}. Across the whole registry that points to between ${h.interval[0]}% and ${h.interval[1]}%, at 95% confidence.`;
+    `A random sample of npm-published servers in the official MCP registry, ${fmtDate(h.sampledAt)}. Across the whole registry that points to between ${h.interval[0]}% and ${h.interval[1]}%, at 95% confidence.${readme}`;
   const dots = $('#dots');
   dots.setAttribute('role', 'group');
   const note = $('#dot-note');
-  const rows = [...h.rows].sort((a, b) => Number(b.flagged) - Number(a.flagged));
+  const rank = (r) => (r.flagged ? 0 : r.readmeOnly?.length ? 1 : 2);
+  const rows = [...h.rows].sort((a, b) => rank(a) - rank(b));
+  const said = (r) => (r.flagged
+    ? ` reads ${r.secrets.join(', ')}; neither its listing nor its README mentions it.`
+    : r.readmeOnly?.length ? ` reads ${r.readmeOnly.join(', ')}; its README explains it, its listing doesn't.` : ' declares what it reads.');
   dots.replaceChildren(...rows.map((r) => {
-    const d = el('button', { class: `dot${r.flagged ? ' flagged' : ''}`, type: 'button', 'aria-label': `${r.name}: ${r.flagged ? `reads ${r.secrets.join(', ')} without declaring it` : 'declares what it reads'}` });
-    const say = () => note.replaceChildren(el('b', {}, r.name), r.flagged ? ` reads ${r.secrets.join(', ')} without declaring it.` : ' declares what it reads.');
+    const d = el('button', { class: `dot${r.flagged ? ' flagged' : r.readmeOnly?.length ? ' readme' : ''}`, type: 'button', 'aria-label': `${r.name}:${said(r).replace(/\.$/, '')}` });
+    const say = () => note.replaceChildren(el('b', {}, r.name), said(r));
     d.addEventListener('pointerenter', say);
     d.addEventListener('focus', say);
     return d;

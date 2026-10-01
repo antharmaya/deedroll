@@ -437,6 +437,8 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
   transition: transform var(--d-micro) var(--ease-out);
 }
 .dot.flagged { background: var(--accent-on-band); border-color: var(--accent-on-band); }
+/* explained in the README, not the listing: ringed in the accent, not filled */
+.dot.readme { border-color: var(--accent-on-band); border-width: 2px; }
 .dot:hover, .dot:focus-visible { transform: scale(1.25); }
 /* .band p outranks a bare class, so these are scoped to .band on purpose */
 .band .dot-note { min-height: 3.2em; margin-top: var(--s5); font-size: var(--t-sm); color: var(--band-muted); max-width: 420px; margin-left: auto; }
@@ -444,6 +446,8 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
 .band .legend { display: flex; gap: var(--s5); font-size: var(--t-xs); color: var(--band-muted); max-width: 420px; margin: var(--s4) 0 0 auto; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: var(--s2); vertical-align: -1px; border: 1.5px solid oklch(0.73 0.022 262 / 0.45); }
 .legend i.on { background: var(--accent-on-band); border-color: var(--accent-on-band); }
+.legend i.readme { border-color: var(--accent-on-band); border-width: 2px; }
+.band .legend { flex-wrap: wrap; row-gap: var(--s2); }
 
 /* ---------- how it works: a real sequence ---------- */
 .steps { padding: var(--section) 0; display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--s8); }

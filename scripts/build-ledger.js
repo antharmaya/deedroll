@@ -31,11 +31,25 @@ const writeAtomic = (path, text) => {
 };
 const days = () => readdirSync(join(ARCHIVE, 'registry')).filter((f) => /^\d{4}-\d{2}-\d{2}\.jsonl\.gz$/.test(f)).map((f) => f.slice(0, 10)).sort();
 
+/**
+ * A fingerprint of the code that decides what a fact is. Found live 2026-10-01: a credential-
+ * rule fix applied only to scans folded after it, so the saved state kept 18 stale verdicts
+ * until a manual --rebuild. When this changes, the next run rebuilds from the snapshots (~4 s).
+ */
+const RULES_HASH = createHash('sha256')
+  .update(readFileSync(new URL('../src/checks.js', import.meta.url)))
+  .update(readFileSync(new URL('../src/ledger.js', import.meta.url)))
+  .digest('hex').slice(0, 16);
+
 function loadState() {
   const metaPath = join(STATE, 'meta.json');
   if (args.includes('--rebuild') || !existsSync(metaPath)) return emptyLedger();
   const meta = JSON.parse(readFileSync(metaPath, 'utf8'));
   if (meta.version !== LEDGER_VERSION) return emptyLedger(); // a new format replays from the snapshots
+  if (meta.rules !== RULES_HASH) {
+    log('the rules changed since the last build: rebuilding from the snapshots');
+    return emptyLedger();
+  }
   const shards = readdirSync(STATE).filter((f) => /^[0-9a-f]{2}\.json$/.test(f)).map((f) => JSON.parse(readFileSync(join(STATE, f), 'utf8')));
   return fromShards(meta, shards);
 }
@@ -99,7 +113,7 @@ function build() {
   writeAtomic(join(PUBLIC, 'search-entries.txt'), search.entries);
   writeAtomic(join(PUBLIC, 'meta.json'), JSON.stringify(meta));
   // Written last: if a run dies before this line, the next run re-folds the day, which is a no-op.
-  writeAtomic(join(STATE, 'meta.json'), JSON.stringify({ version: LEDGER_VERSION, start: ledger.start, last: ledger.last, scansThrough: ledger.scansThrough }));
+  writeAtomic(join(STATE, 'meta.json'), JSON.stringify({ version: LEDGER_VERSION, start: ledger.start, last: ledger.last, scansThrough: ledger.scansThrough, rules: RULES_HASH }));
   log(`wrote ${SHARDS} shards and the index (${index.entries.length} servers, record ${ledger.start} → ${ledger.last})`);
 }
 

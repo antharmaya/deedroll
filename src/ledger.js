@@ -179,13 +179,21 @@ export function signalOf(summary, listingPkg) {
     install: summary.install,
     vulns: summary.vulns.length,
     provenance: summary.provenance,
+    flags: [...new Set((summary.other ?? []).map((o) => o.c).filter((c) => FLAG_CHECKS.includes(c)))].sort(),
     files: summary.files,
   };
 }
 
+/**
+ * Package-level findings worth carrying into the ledger: a tool description that instructs the
+ * AI, a name like an official server's, a release that stopped publishing with provenance (the
+ * pattern a stolen publish token leaves), a publisher mismatch, a deprecated version.
+ */
+const FLAG_CHECKS = ['instruction-like-text', 'typosquat', 'provenance-dropped', 'publisher-mismatch', 'deprecated'];
+
 function signalChange(prev, cur) {
   if (cur.error) return null;
-  if (!prev || prev.error) return { first: true, undeclared: cur.undeclared.map((r) => r.n), readmeOnly: cur.readmeOnly, hosts: cur.hosts.length, caps: cur.caps, install: cur.install.length, vulns: cur.vulns };
+  if (!prev || prev.error) return { first: true, undeclared: cur.undeclared.map((r) => r.n), readmeOnly: cur.readmeOnly, hosts: cur.hosts.length, caps: cur.caps, install: cur.install.length, vulns: cur.vulns, flags: cur.flags };
   const diff = (a, b) => ({ added: b.filter((x) => !a.includes(x)).sort(), removed: a.filter((x) => !b.includes(x)).sort() });
   const out = {};
   const sets = {
@@ -194,6 +202,7 @@ function signalChange(prev, cur) {
     hosts: [prev.hosts, cur.hosts],
     caps: [prev.caps, cur.caps],
     install: [prev.install, cur.install],
+    flags: [prev.flags ?? [], cur.flags ?? []],
   };
   for (const [k, [a, b]] of Object.entries(sets)) {
     const d = diff(a, b);

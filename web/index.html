@@ -132,14 +132,15 @@
 <section class="band" id="registry" aria-labelledby="registry-h">
   <div class="wrap band-grid">
     <div>
-      <div class="figure" id="figure">13<small> of 57</small></div>
-      <h2 id="registry-h">MCP servers read a credential their registry listing never mentions.</h2>
+      <div class="figure" id="figure">4<small> of 57</small></div>
+      <h2 id="registry-h">MCP servers read a credential that neither their registry listing nor their README mentions.</h2>
+      <p>Usually a missing line of metadata, not anything hidden: the code is public, and the fix is one block in the server's listing. It matters because the listing is what catalogs, install tools and agents read before anyone opens a README.</p>
       <p id="band-method">A random sample of npm-published servers in the official MCP registry.</p>
-      <p><a href="https://github.com/varbees/mcpscan#a-first-measurement" class="on-band">How this was measured</a></p>
+      <p><a href="https://github.com/antharmaya/mcpscan#measurements" class="on-band">How this was measured</a></p>
     </div>
     <div>
       <div class="dots" id="dots" role="list" aria-label="Each dot is one sampled server"></div>
-      <div class="legend"><span><i class="on"></i>Reads an undeclared credential</span><span><i></i>Declares what it reads</span></div>
+      <div class="legend"><span><i class="on"></i>Mentioned nowhere</span><span><i class="readme"></i>Explained in its README only</span><span><i></i>Declared in its listing</span></div>
       <p class="dot-note" id="dot-note" aria-live="polite">Point at a dot to see the server.</p>
     </div>
   </div>
@@ -161,6 +162,7 @@
         <li><h3>Compare the label with the code</h3><p>What its registry listing declares, against what the code reads, runs and contacts. Every finding points at a file and a line.</p></li>
       </ol>
       <details class="catalog" id="catalog"><summary>Every check mcpscan makes</summary><div id="catalog-body"></div></details>
+      <p class="promise"><b>What a result is, and isn't:</b> mcpscan reads a server's label beside its code, without running either. A difference between them is a question for the publisher, not a verdict on the server, and most turn out to be documentation gaps. It does not prove a server safe, and it does not yet trace whether a tool's input can reach a shell or a file path, which is where most of 2026's MCP vulnerabilities were found.</p>
       <p class="promise"><b>What leaves your browser:</b> package names and versions (to npm or PyPI, the MCP registry and OSV.dev), and for a hosted server, the discovery requests to that server. If you choose the relay, the URL goes to mcpscan's relay, which keeps nothing. Tools you scan are remembered in this browser only, so a later change stands out.</p>
     </div>
   </section>

@@ -159,7 +159,13 @@ export const packageKey = (type, id, version) => `${type}:${id}@${version ?? 'la
  * listing declares (two listings can ship the same package and declare it differently).
  */
 export function signalOf(summary, listingPkg) {
-  if (summary.error) return { version: summary.version ?? null, scanned: summary.at.slice(0, 10), error: summary.error };
+  if (summary.error) {
+    // A listing that names a package or version its registry doesn't have is a fact worth
+    // keeping: installing from that listing fails, and an unclaimed name can be registered by
+    // anyone. Recorded as what was observed, nothing more.
+    const missing = /not found|has no release|not in this registry|\b404\b/i.test(summary.error);
+    return { version: summary.version ?? null, scanned: summary.at.slice(0, 10), error: summary.error, ...(missing ? { missing: true } : {}) };
+  }
   const declared = new Set((listingPkg.env ?? []).map((e) => e.name));
   const reads = summary.reads.filter((r) => !declared.has(r.n));
   return {
@@ -244,6 +250,7 @@ export function indexEntry(rec) {
     c: last?.date ?? rec.firstSeen,
     g: rec.gone,
     x: Object.values(rec.signals ?? {}).reduce((n, sig) => n + (sig.undeclared?.length ?? 0), 0),
+    m: Object.values(rec.signals ?? {}).some((sig) => sig.missing),
   };
 }
 

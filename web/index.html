@@ -132,16 +132,23 @@
 <section class="band" id="registry" aria-labelledby="registry-h">
   <div class="wrap band-grid">
     <div>
-      <div class="figure" id="figure">4<small> of 57</small></div>
-      <h2 id="registry-h">MCP servers read a credential that neither their registry listing nor their README mentions.</h2>
-      <p>Usually a missing line of metadata, not anything hidden: the code is public, and the fix is one block in the server's listing. It matters because the listing is what catalogs, install tools and agents read before anyone opens a README.</p>
-      <p id="band-method">A random sample of npm-published servers in the official MCP registry.</p>
-      <p><a href="https://github.com/antharmaya/mcpscan#measurements" class="on-band">How this was measured</a></p>
+      <div class="figure" id="figure">37,878</div>
+      <h2 id="registry-h">MCP servers in the official registry. mcpscan reads every listing, every day.</h2>
+      <dl class="census" id="census">
+        <div><dt>New yesterday</dt><dd id="census-added">368</dd></div>
+        <div><dt>Changed what they ask for</dt><dd id="census-declared">84</dd></div>
+        <div><dt>Moved their endpoint</dt><dd id="census-moved">20</dd></div>
+      </dl>
+      <p id="census-when">From the registry record of 1 Oct 2026, chained to every day before it.</p>
     </div>
     <div>
+      <h3 class="sample-h">A closer read: 57 servers, sampled at random</h3>
+      <p class="sample-p" id="sample-summary">Do they say which credentials they need? 4 mention one nowhere; 8 explain it only in their README, not the listing that catalogs and agents read. Usually a missing line of metadata, not anything hidden.</p>
       <div class="dots" id="dots" role="list" aria-label="Each dot is one sampled server"></div>
       <div class="legend"><span><i class="on"></i>Mentioned nowhere</span><span><i class="readme"></i>Explained in its README only</span><span><i></i>Declared in its listing</span></div>
       <p class="dot-note" id="dot-note" aria-live="polite">Point at a dot to see the server.</p>
+      <p class="sample-p" id="band-method">A random sample of npm-published servers in the official MCP registry.</p>
+      <p class="sample-p"><a href="https://github.com/antharmaya/mcpscan#measurements" class="on-band">How this was measured</a></p>
     </div>
   </div>
 </section>

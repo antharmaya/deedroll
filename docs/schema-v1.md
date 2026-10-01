@@ -37,6 +37,7 @@ none will be renamed, retyped or removed without a v2.
 | `findings[].check` | Stable rule id. The catalog, with why each matters and what to do, is `RULES` in `src/rules.js`. Ids are never renamed or reused. |
 | `findings[].severity` | `high`, `medium`, `low` or `info`. The same check can carry different severities (a credential is high, a setting is low). |
 | `findings[].message` | For people. Its wording may change in any release; do not parse it. |
+| `findings[].documented` | Optional, on `undeclared-env` only: `"README"` when the package's own README (or PyPI METADATA) documents the variable. Then the finding is `low` (or `info` with no registry entry): a gap in the listing, not a hidden read. Added 2026-10-01; additive, so schema v1 is unchanged. |
 | `findings[].evidence[]` | `file` is a path inside the package, or a source such as `npm`, `PyPI metadata` or `registry`. `line` 0 means no line. `text` is the line, trimmed. |
 
 `--installed --json` wraps the same finding shape per configured server:

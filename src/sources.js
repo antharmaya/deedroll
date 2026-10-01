@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { readTarGz } from './tar.js';
 import { readCached, writeCached } from './cache.js';
 import { resolveVersion, provenanceHistory } from './model.js';
+import { keepNpmFile, splitDocs } from './docs.js';
 
 // Pure logic lives in model.js so the browser adapter can share it; re-exported here
 // so existing imports keep working.
@@ -15,7 +16,6 @@ export { declaredEnvVars, npmIdentifiers, resolveVersion, provenanceHistory } fr
 const REGISTRY = 'https://registry.modelcontextprotocol.io';
 const NPM = 'https://registry.npmjs.org';
 
-const SCANNABLE = /\.(m?js|cjs|ts|mts|cts|py|json)$/i;
 
 async function getJson(url) {
   const res = await fetch(url, { headers: { accept: 'application/json' } });
@@ -85,7 +85,7 @@ export async function fetchNpmPackage(name, spec = 'latest', { maxUnpackedBytes 
     ? manifest.dist.integrity === `sha512-${sha512}`
     : manifest.dist.shasum === sha1;
 
-  const files = readTarGz(tgz, { keep: (p) => SCANNABLE.test(p) || p === 'package.json' });
+  const { files, docs } = splitDocs(readTarGz(tgz, { keep: keepNpmFile }));
 
   return {
     name,
@@ -93,6 +93,7 @@ export async function fetchNpmPackage(name, spec = 'latest', { maxUnpackedBytes 
     approximate,
     manifest,
     files,
+    docs,
     integrityOk,
     tarballBytes: tgz.length,
     fromCache,

@@ -60,12 +60,19 @@ for (const entry of chosen) {
       .filter((f) => f.check === 'undeclared-env' && f.severity === 'high')
       .map((f) => f.subject)
       .filter(Boolean);
+    // Credentials the README documents but the listing does not: reported apart, never counted
+    // as undeclared reads (found live 2026-09-29, a documented public free-tier key).
+    const readmeOnlySecrets = r.findings
+      .filter((f) => f.check === 'undeclared-env' && f.documented)
+      .map((f) => f.subject)
+      .filter(Boolean);
     rows.push({
       name: entry.name,
       publisher: entry.publisher,
       pkg: r.pkg ? `${r.pkg.name}@${r.pkg.version}` : null,
       declaredEnvCount: r.declared.size,
       undeclaredSecrets,
+      readmeOnlySecrets,
       installScript: r.findings.some((f) => f.check === 'install-script' && f.severity === 'high'),
       noRepository: r.findings.some((f) => f.check === 'provenance' && /repository/.test(f.message)),
       high: sev('high').length,
@@ -82,6 +89,7 @@ const ok = rows.filter((r) => !r.error);
 const pubs = (list) => new Set(list.map((r) => r.publisher)).size;
 const declaresNothing = ok.filter((r) => r.declaredEnvCount === 0);
 const undeclared = ok.filter((r) => (r.undeclaredSecrets ?? []).length > 0);
+const readmeOnly = ok.filter((r) => (r.readmeOnlySecrets ?? []).length > 0 && !(r.undeclaredSecrets ?? []).length);
 const installScripts = ok.filter((r) => r.installScript);
 const noRepo = ok.filter((r) => r.noRepository);
 const [lo, hi] = wilson(undeclared.length, ok.length);
@@ -103,6 +111,8 @@ console.log(`
   scanned successfully                  ${ok.length}   across ${pubs(ok)} publishers
   declare no environment variables      ${declaresNothing.length} (${pct(declaresNothing.length)})  ${pubs(declaresNothing)} publishers
   read a credential they never declare  ${undeclared.length} (${pct(undeclared.length)})  ${pubs(undeclared)} publishers
+    (not in the listing or the README)
+  document it in the README only        ${readmeOnly.length} (${pct(readmeOnly.length)})  ${pubs(readmeOnly)} publishers
       95% CI                            ${(lo * 100).toFixed(0)}% – ${(hi * 100).toFixed(0)}%
   run an install script                 ${installScripts.length} (${pct(installScripts.length)})
   no repository field                   ${noRepo.length} (${pct(noRepo.length)})

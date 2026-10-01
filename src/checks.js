@@ -127,8 +127,17 @@ function trim(s, n = 160) {
   return t.length > n ? `${t.slice(0, n - 1)}…` : t;
 }
 
+/** All of a package's documentation as one text (see src/docs.js for why it is kept apart). */
+function documentationText(docs) {
+  let text = '';
+  for (const buf of docs?.values() ?? []) text += `\n${buf.toString('utf8')}`;
+  return text;
+}
+
 /** CHECK 1 — credentials the code reads that the registry entry never declares. */
 export function checkUndeclaredSecrets(pkg, entry, declared) {
+  const docs = documentationText(pkg.docs);
+  const documented = (name) => docs !== '' && new RegExp(`(^|[^A-Za-z0-9_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^A-Za-z0-9_]|$)`).test(docs);
   const found = new Map(); // NAME -> evidence[]
   for (const { path, line, text } of eachLine(pkg.files)) {
     for (const re of ENV_PATTERNS) {
@@ -160,6 +169,19 @@ export function checkUndeclaredSecrets(pkg, entry, declared) {
       continue;
     }
     const secretish = isCredentialName(name);
+    if (secretish && documented(name)) {
+      findings.push({
+        check: 'undeclared-env',
+        subject: name,
+        severity: entry ? 'low' : 'info',
+        documented: 'README',
+        message: entry
+          ? `reads ${name} (looks like a credential); its README documents it, but the registry entry does not declare it`
+          : `reads ${name} (looks like a credential); its README documents it, and there is no registry entry to declare it in`,
+        evidence,
+      });
+      continue;
+    }
     findings.push({
       check: 'undeclared-env',
       subject: name,

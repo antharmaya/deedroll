@@ -30,7 +30,7 @@ to let an agent run someone else's code) needs "calibrated". So:
 | Headline ≤ 2 lines, lede ≤ 20 words | "Read the label, / then read the code." |
 | Errors direct, never apologise | "No package called "x" on npm. Check the spelling…" |
 | Privacy claims are exact | "Only public package names and versions leave your browser." It is true because OSV.dev and the registry only see names and versions |
-| Numbers carry their uncertainty | the registry figure shows its sample size and interval (12 of 57, 12–33% as of 2026-09-29; regenerate via `scripts/build-web-data.js` after any scanner fix that could change past results) |
+| Numbers carry their uncertainty | the registry figure shows its sample size and interval (4 of 57, 3–17% as of 2026-10-01, with the 8 README-only servers stated beside it; regenerate via `scripts/build-web-data.js` after any scanner fix that could change past results) |
 
 The two ledgers are the page's vocabulary: **What it tells you** (listing, README-level claims)
 and **What the code does** (what the checks found). Every finding is phrased so it can sit in the

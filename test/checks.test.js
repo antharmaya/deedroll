@@ -13,6 +13,7 @@ import {
   isCredentialName,
   checkDeprecated,
 } from '../src/checks.js';
+import { splitDocs, DOC_FILE, keepNpmFile } from '../src/docs.js';
 
 /** Build a single-file tar (ustar) in memory, so the reader is tested on real bytes. */
 function tarWith(path, content) {
@@ -67,6 +68,47 @@ test('flags a credential the registry entry never declared', () => {
   assert.equal(findings[0].severity, 'high');
   assert.match(findings[0].message, /ACME_API_KEY/);
   assert.equal(findings[0].evidence[0].line, 1);
+});
+
+// Found live 2026-09-29: a "hardcoded fallback key" was the server's documented public
+// free-tier key, stated in its README. A credential the README documents is a metadata
+// placement gap, not a hidden read: low, and the message says where it is documented.
+test('a credential its README documents is reported as worth knowing, not as a hidden read', () => {
+  const pkg = pkgWith({ 'index.js': 'const k = process.env.ACME_API_KEY;\nconst s = process.env.OTHER_SECRET;\n' });
+  pkg.docs = new Map([['README.md', Buffer.from('## Setup\nSet `ACME_API_KEY` to your key, or leave it unset to use the free tier.\n')]]);
+  const findings = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  const acme = findings.find((f) => f.subject === 'ACME_API_KEY');
+  const other = findings.find((f) => f.subject === 'OTHER_SECRET');
+  assert.equal(acme.severity, 'low');
+  assert.equal(acme.documented, 'README');
+  assert.match(acme.message, /README documents it/);
+  assert.equal(other.severity, 'high', 'a credential the README never mentions stays high');
+  assert.equal(other.documented, undefined);
+});
+
+test('a README mention must be the whole name, not part of a longer one', () => {
+  const pkg = pkgWith({ 'index.js': 'const k = process.env.API_KEY;\n' });
+  pkg.docs = new Map([['README.md', Buffer.from('Set ACME_API_KEY_V2 for the new endpoint.\n')]]);
+  const [f] = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(f.severity, 'high');
+});
+
+// The first version of the README check passed its tests and found nothing live: the
+// package readers kept only code files, so no README ever reached it. This goes through the
+// real tar reader, and checks the README stays out of every code check.
+test('a README read from a real tarball reaches the credential check, and only that check', () => {
+  const entries = [
+    ['package/index.js', 'const k = process.env.ACME_API_KEY;\n'],
+    ['package/README.md', 'Set `ACME_API_KEY`. Docs at https://docs.example.com\n```js\nconst t = process.env.README_ONLY_TOKEN;\n```\n'],
+  ];
+  const tar = Buffer.concat([...entries.map(([p, c]) => { const t = tarWith(p, c); return t.subarray(0, t.length - 1024); }), Buffer.alloc(1024)]);
+  const { files, docs } = splitDocs(readTarGz(gzipSync(tar), { keep: keepNpmFile }));
+  assert.equal(docs.size, 1, 'the README lands in docs');
+  assert.ok(![...files.keys()].some((p) => DOC_FILE.test(p)), 'and never in the code files');
+  const pkg = { ...pkgWith({}), files, docs };
+  const env = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.deepEqual(env.map((f) => [f.subject, f.severity, f.documented]), [['ACME_API_KEY', 'low', 'README']]);
+  assert.deepEqual(checkNetworkEgress(pkg, null), [], "a README link is not the server contacting a host");
 });
 
 test('stays quiet when the entry declares the variable', () => {

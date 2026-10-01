@@ -254,20 +254,36 @@ It is static. It reads code, not behaviour: a server that builds a hostname at r
 downloads code after starting will not be caught. It does not follow dataflow across files, so it
 reports that a credential is *read*, not where it goes. `info` findings are not accusations.
 
+It does not trace whether a tool's input can reach a shell, a file path or a URL fetch. That is
+where most of 2026's MCP CVEs came from: shell injection was about 43% of an early-2026 wave of
+30+ CVEs, and path traversal about 10% ([bex.co, 2026-09-23](https://bex.co/blog/2026/09/23/mcp-cve-wave-2026-deploy-mcp-supply-chain)).
+mcpscan reports that a server *can* run programs or write files, not whether a caller can steer
+it to. A difference between a listing and the code is a question for the publisher, not a
+verdict; a credential the package's README documents is reported as such, at low severity.
+
 ## Measurements
 
-**npm, 2026-09-26, re-run 2026-09-29.** A seeded random sample of 60 npm-backed registry servers
-(`node scripts/registry-sweep.js 60`, seed `20260926`): 57 scanned across 53 publishers, and **12
-(21%, 95% CI 12–33%) read a credential their listing never declares**, across 9 publishers. Four
-read an undeclared `X402_PRIVATE_KEY` (agent payment keys). The credential rule was tightened
+**npm, 2026-09-26, re-run 2026-10-01.** A seeded random sample of 60 npm-backed registry servers
+(`node scripts/registry-sweep.js 60`, seed `20260926`): 57 scanned across 53 publishers. **12
+(21%) read a credential their registry listing does not declare. 8 of those 12 explain it in their
+README; 4 (7%, 95% CI 3–17%, 4 publishers) mention it nowhere.**
+
+The 2026-10-01 re-run is the biggest correction yet. Until then the scanner never read a package's
+README: its readers kept code files only. So it reported credentials as undeclared that the
+README spells out, in a config example or an env-var table. One maintainer pointed this out after
+being contacted; their key was a documented public free-tier key. The README is now read (and
+kept apart from the code checks, so its examples are never cited as code). A credential it
+documents is reported as `low`, a listing gap rather than a hidden read. Every one of the 8 was
+re-checked by hand against its README. The credential rule was tightened
 three times (locator names like `*_URL` on 2026-09-27; words inside other words, like KEY in
 KEYCLOAK, on 2026-09-28; singular quantity suffixes like `_HOUR`/`_DURATION` on 2026-09-29) and
 the evidence itself was tightened twice more on 2026-09-29, before any of the sample's publishers
 were contacted: the scanner no longer cites a package's own comments (a docstring mentioning
 `process.env.X` in prose is not a read) or its own test fixtures (`*.test.ts` stubbing a fake env
 var to test config-loading is not the shipped server reading a credential) as evidence. Recomputed
-by re-running the full sample fresh each time, the count moved from 14 to 13 to 12. Raw rows:
-`findings.json` (the 2026-09-26 snapshot; re-run the sweep for current rows). Limits: npm-backed
+by re-running the full sample fresh each time, the count moved from 14 to 13 to 12, then to 4
+mentioned nowhere. Raw rows: `findings.json` (re-run 2026-10-01; each row now lists
+`readmeOnlySecrets` apart from `undeclaredSecrets`). Limits: npm-backed
 servers in the first 12,000 registry entries only.
 
 **PyPI, 2026-09-28.** 40 random PyPI-backed listings (`node scripts/pypi-benchmark.js 40`): all 40

@@ -28,7 +28,8 @@ const f = JSON.parse(readFileSync(new URL('../findings.json', import.meta.url), 
 const ok = f.rows.filter((x) => !x.error);
 const rows = ok.map((x) => {
   const secrets = (x.undeclaredSecrets ?? []).filter(isCredentialName);
-  return { name: x.name, publisher: x.publisher, flagged: secrets.length > 0, secrets };
+  const readmeOnly = (x.readmeOnlySecrets ?? []).filter(isCredentialName);
+  return { name: x.name, publisher: x.publisher, flagged: secrets.length > 0, secrets, readmeOnly: secrets.length ? [] : readmeOnly };
 });
 const k = rows.filter((x) => x.flagged).length;
 const n = rows.length;
@@ -36,6 +37,7 @@ const z = 1.96, p = k / n, d = 1 + (z * z) / n, c = p + (z * z) / (2 * n), m = z
 const health = {
   sampledAt: f.scannedAt, seed: f.seed, population: f.populationSize, sampled: f.sampled, scanned: n, flagged: k,
   publishersFlagged: new Set(rows.filter((x) => x.flagged).map((x) => x.publisher)).size,
+  readmeOnly: rows.filter((x) => x.readmeOnly.length).length,
   interval: [Math.round(((c - m) / d) * 100), Math.round(((c + m) / d) * 100)],
   rows,
 };

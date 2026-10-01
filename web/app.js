@@ -946,12 +946,27 @@ $('.theme').addEventListener('click', () => {
 syncChrome();
 
 /* ---------- the registry band ---------- */
+/** The census: the whole registry, from the hash-chained daily record, not a sample. */
+async function census() {
+  const base = new URL('../history/', import.meta.url).href;
+  const lines = (await (await fetch(`${base}chain.jsonl`, { cache: 'no-store' })).text()).split('\n').filter(Boolean);
+  const last = JSON.parse(lines.at(-1));
+  $('#figure').textContent = last.listings.toLocaleString('en');
+  $('#census-when').textContent = `From the registry record of ${fmtDate(last.date)}, chained to ${plural(lines.length - 1, 'day')} before it.`;
+  const diffFile = last.files.find((f) => f.file.endsWith('.diff.json'));
+  if (!diffFile) return;
+  const d = await (await fetch(`${base}${diffFile.file}`)).json();
+  $('#census-added').textContent = d.added.length.toLocaleString('en');
+  $('#census-declared').textContent = d.declarations.length.toLocaleString('en');
+  $('#census-moved').textContent = d.endpoints.length.toLocaleString('en');
+}
+
 async function band() {
+  census().catch(() => { /* the figures in the page stay as the last known record */ });
   const h = await (await fetch('data/registry-health.json')).json();
-  $('#figure').replaceChildren(String(h.flagged), el('small', {}, ` of ${h.scanned}`));
-  const readme = h.readmeOnly ? ` ${h.readmeOnly} more explain theirs in the README but not the listing.` : '';
+  $('#sample-summary').textContent = `Do they say which credentials they need? ${h.flagged} mention one nowhere; ${h.readmeOnly ?? 0} explain it only in their README, not the listing that catalogs and agents read. Usually a missing line of metadata, not anything hidden.`;
   $('#band-method').textContent =
-    `A random sample of npm-published servers in the official MCP registry, ${fmtDate(h.sampledAt)}. Across the whole registry that points to between ${h.interval[0]}% and ${h.interval[1]}%, at 95% confidence.${readme}`;
+    `A random sample of npm-published servers in the official MCP registry, ${fmtDate(h.sampledAt)}. Across the whole registry that points to between ${h.interval[0]}% and ${h.interval[1]}%, at 95% confidence.`;
   const dots = $('#dots');
   dots.setAttribute('role', 'group');
   const note = $('#dot-note');
@@ -986,14 +1001,10 @@ async function band() {
   const io = new IntersectionObserver((entries) => {
     if (!entries.some((e) => e.isIntersecting)) return;
     io.disconnect();
-    // The number and the picture are the same fact: the figure counts up as the flagged
-    // dots fill, then the rest of the sample settles in around them.
-    const fig = $('#figure').firstChild;
+    // The sample arrives as data: mentioned-nowhere first, then README-only, then the rest.
     [...dots.children].forEach((d, i) => {
-      const a = d.animate([{ opacity: 0, transform: 'scale(0.4)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: i * 45, easing: EASE_OUT, fill: 'both' });
-      if (d.classList.contains('flagged')) a.finished.then(() => (fig.textContent = String(Math.min(h.flagged, i + 1))));
+      d.animate([{ opacity: 0, transform: 'scale(0.4)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: i * 45, easing: EASE_OUT, fill: 'both' });
     });
-    fig.textContent = '0';
   }, { threshold: 0.35 });
   io.observe(dots);
 }

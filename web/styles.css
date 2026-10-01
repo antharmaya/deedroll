@@ -425,7 +425,14 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
   padding: var(--section) 0;
 }
 .band-grid { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 6fr); gap: var(--s8); align-items: center; }
-.figure { font-family: var(--font-display); font-weight: 760; font-size: var(--t-figure); line-height: 0.9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+.figure { font-family: var(--font-display); font-weight: 760; font-size: clamp(3.2rem, 1.6rem + 5vw, 6.5rem); line-height: 0.9; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+/* the census: yesterday's movement in the registry, read from the daily record */
+.band .census { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s4); margin: var(--s5) 0 var(--s4); max-width: 34rem; }
+.band .census div { border-top: 1px solid oklch(0.73 0.022 262 / 0.35); padding-top: var(--s2); }
+.band .census dt { font-size: var(--t-xs); color: var(--band-muted); }
+.band .census dd { margin: var(--s1) 0 0; font: 700 var(--t-lg)/1.1 var(--font-display); font-variant-numeric: tabular-nums; color: var(--band-text); }
+.band .sample-h { font: 650 var(--t-base) var(--font-display); margin: 0 0 var(--s2); max-width: 420px; margin-left: auto; }
+.band .sample-p { font-size: var(--t-xs); max-width: 420px; margin: 0 0 var(--s4) auto; }
 .figure small { font-size: 0.42em; color: var(--band-muted); letter-spacing: -0.03em; font-weight: 600; }
 .band h2 { font-family: var(--font-display); font-size: var(--t-lg); font-weight: 650; line-height: 1.2; letter-spacing: -0.02em; margin: var(--s5) 0 var(--s4); max-width: 22ch; }
 .band p { color: var(--band-muted); max-width: 46ch; margin: 0 0 var(--s4); font-size: var(--t-sm); }
@@ -476,7 +483,7 @@ footer.site-foot span:first-child { margin-right: auto; }
   .hero { grid-template-columns: 1fr; padding-bottom: var(--s8); }
   .lede { max-width: 40ch; margin-bottom: var(--s6); }
   .band-grid, .steps, .cli { grid-template-columns: 1fr; gap: var(--s6); }
-  .dots, .band .dot-note, .band .legend { margin-left: 0; }
+  .dots, .band .dot-note, .band .legend, .band .sample-h, .band .sample-p { margin-left: 0; }
   .promise { grid-column: 1; }
   .verdict { margin-left: 0; }
 }

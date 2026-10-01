@@ -227,3 +227,15 @@ test('scan entries for one day come out in the same order however the scans were
   foldScans(split, '2026-09-28', [sZeta]);
   assert.deepEqual(split.servers.get('io.x/two').log, once.servers.get('io.x/two').log);
 });
+
+test('a release that stops publishing with provenance is logged as a flag change', () => {
+  const l = emptyLedger();
+  foldDay(l, '2026-09-28', [listing('io.x/a')]);
+  foldScans(l, '2026-09-28', [scanOf('a', '1.0.0', [], { provenance: true })]);
+  foldDay(l, '2026-09-29', [listing('io.x/a', { version: '1.0.1', packages: [{ type: 'npm', id: 'a', version: '1.0.1', transport: 'stdio', env: [] }] })]);
+  foldScans(l, '2026-09-29', [scanOf('a', '1.0.1', [], { provenance: false, other: [{ c: 'provenance-dropped', s: 'medium', x: null }] })]);
+  const last = l.servers.get('io.x/a').log.at(-1);
+  assert.equal(last.kind, 'scanned');
+  assert.deepEqual(last.flags, { added: ['provenance-dropped'], removed: [] });
+  assert.deepEqual(last.provenance, { from: true, to: false });
+});

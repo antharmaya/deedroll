@@ -15,6 +15,7 @@ import { join, resolve } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { isCredentialName } from '../src/checks.js';
 import { emptyLedger, foldDay, foldProbes, foldScans, toShards, fromShards, publicRecord, indexEntry, searchFiles, SHARDS, LEDGER_VERSION } from '../src/ledger.js';
 
 const ARCHIVE = resolve(process.env.MCPSCAN_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
@@ -43,7 +44,11 @@ function loadState() {
 function scans() {
   const path = join(ARCHIVE, 'scans', 'packages.jsonl');
   if (!existsSync(path)) return [];
-  return readFileSync(path, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)).sort((a, b) => a.at.localeCompare(b.at));
+  // The credential rule is re-applied here, not trusted from scan time: a fix to the rule then
+  // reaches every past scan without re-scanning (as build-web-data does for the sample).
+  return readFileSync(path, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l))
+    .map((x) => (x.reads ? { ...x, reads: x.reads.map((r) => ({ ...r, cred: isCredentialName(r.n) })) } : x))
+    .sort((a, b) => a.at.localeCompare(b.at));
 }
 
 function build() {

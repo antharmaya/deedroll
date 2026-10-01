@@ -31,12 +31,26 @@ const FLAG_SUFFIX = /_(ONLY|ENABLED|ENABLE|DISABLED|DISABLE|MODE|AUD|STRICT|REQU
  */
 const SECRET_SEGMENT = /(KEYS?|TOKEN|SECRETS?|PASSWORD|PASSWD|CREDENTIALS?|AUTH|AUTHORIZATION|PRIVATE|ACCESS|BEARER|DSN|WEBHOOK)$/;
 
+/**
+ * Words that describe a credential rather than hold one: which store or backend keeps it, its
+ * scope, method or type, the header it goes in, a key's prefix, the port a webhook listens on,
+ * a public contract address, an agent socket path. Found across 5,707 credential-flagged reads
+ * in the first full registry scan (2026-10-01): REVIEWABLE_MCP_CREDENTIAL_BACKEND,
+ * RATE_LIMIT_REDIS_KEY_PREFIX, FL_API_KEY_HEADER, MCP_OAUTH_SCOPES, SERVICENOW_AUTH_METHOD,
+ * X402_TOKEN_ADDRESS, SSH_AUTH_SOCK. Kept as credentials: _PEM, _B64, _JSON (key material).
+ */
+const DESCRIPTOR_SUFFIX = /_(PREFIX|PORT|STORE|BACKEND|CACHE|SCHEMENAME|SERVER|LOG|BASE|SCOPES?|SOCK|METHOD|HEADER|PROFILE|DB|URLS|NAME|RESOURCE|TYPE|ADDRESS|WORKER|PROVIDER|SOURCE)$/i;
+
+/** Framework internals bundled into a package (Next.js), not settings its user supplies. */
+const FRAMEWORK_INTERNAL = /^(__NEXT_|NEXT_PRIVATE_)/;
+
 /** One definition of "this env var name holds a credential", shared by every check. */
 export function isCredentialName(name) {
   if (!SECRETISH.test(name)) return false;
   if (!String(name).toUpperCase().split(/[_.-]+/).some((seg) => SECRET_SEGMENT.test(seg))) return false;
   if (LOCATOR_SUFFIX.test(name) && !/WEBHOOK/i.test(name)) return false;
   if (FLAG_SUFFIX.test(name)) return false;
+  if (DESCRIPTOR_SUFFIX.test(name) || FRAMEWORK_INTERNAL.test(name)) return false;
   return true;
 }
 

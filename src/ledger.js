@@ -167,7 +167,8 @@ export function signalOf(summary, listingPkg) {
     return { version: summary.version ?? null, scanned: summary.at.slice(0, 10), error: summary.error, ...(missing ? { missing: true } : {}) };
   }
   const declared = new Set((listingPkg.env ?? []).map((e) => e.name));
-  const reads = summary.reads.filter((r) => !declared.has(r.n));
+  // A name seen only inside a string (example code, instructions text) is not a read.
+  const reads = summary.reads.filter((r) => !r.txt && !declared.has(r.n));
   return {
     version: summary.version,
     scanned: summary.at.slice(0, 10),

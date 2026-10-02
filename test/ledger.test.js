@@ -177,6 +177,16 @@ test('reads are judged against what this listing declares, and README-documented
   assert.deepEqual(sig.settings, ['REGION']);
 });
 
+test('a name seen only inside a string is not counted as a read', () => {
+  const sig = signalOf(scanOf('a', '1.0.0', [
+    { n: 'UPLINK_API_KEY', cred: true, doc: false, at: 'i.js:9', txt: true }, // example code in instructions text
+    { n: 'REAL_KEY', cred: true, doc: false, at: 'i.js:2' },
+  ]), { type: 'npm', id: 'a', version: '1.0.0', env: [] });
+  assert.deepEqual(sig.undeclared, [{ n: 'REAL_KEY', at: 'i.js:2' }]);
+  assert.deepEqual(sig.readmeOnly, []);
+  assert.deepEqual(sig.settings, []);
+});
+
 test('a release that starts reading a credential is logged; one with the same facts is not', () => {
   const l = emptyLedger();
   foldDay(l, '2026-09-28', [listing('io.x/a')]);

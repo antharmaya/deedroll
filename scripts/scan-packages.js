@@ -17,6 +17,7 @@
 import { readFileSync, readdirSync, existsSync, mkdirSync, appendFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { gunzipSync } from 'node:zlib';
+import { createHash } from 'node:crypto';
 import { scan } from '../src/index.js';
 import { isCredentialName } from '../src/checks.js';
 import { packageKey } from '../src/ledger.js';
@@ -32,6 +33,12 @@ const LIMIT = opt('--limit', 1500);
 const CONCURRENCY = opt('--concurrency', 6);
 const RETRY_AFTER_DAYS = 7;
 const log = (...a) => console.log(new Date().toISOString(), 'scan-packages:', ...a);
+// The code that decides what a scan reports. A summary made under other rules is stale: the
+// ledger re-judges stored facts on every rebuild, but some judgements (is this mention inside a
+// string?) can only be made from the source, so those packages are scanned again.
+export const SCAN_RULES = createHash('sha256')
+  .update(['checks.js', 'docs.js'].map((f) => readFileSync(new URL(`../src/${f}`, import.meta.url), 'utf8')).join('\0'))
+  .digest('hex').slice(0, 12);
 // A batch of ~14,000 packages would add ~2.7 GB of cached tarballs (measured ~190 KB each).
 process.env.MCPSCAN_NO_CACHE ??= '1';
 
@@ -46,10 +53,11 @@ export function summarize(type, id, requested, r) {
     id,
     version: r.pkg?.version ?? requested ?? null,
     at: new Date().toISOString(),
+    rules: SCAN_RULES,
     files: r.pkg?.files?.size ?? 0,
     integrityOk: r.pkg?.integrityOk ?? null,
     provenance: Boolean(r.pkg?.provenance?.current),
-    reads: pick('undeclared-env').map((x) => ({ n: x.subject, cred: isCredentialName(x.subject), doc: Boolean(x.documented), at: where(x) })),
+    reads: pick('undeclared-env').map((x) => ({ n: x.subject, cred: isCredentialName(x.subject), doc: Boolean(x.documented), at: where(x), ...(x.inText ? { txt: true } : {}) })),
     dynamicEnv: pick('dynamic-env').length,
     hosts: [...new Set(pick('network-egress').map((x) => x.message.replace(/^contacts /, '')))],
     caps: [...new Set(pick('capability').map((x) => x.message.replace(/^uses /, '')))],
@@ -88,16 +96,21 @@ async function main() {
   }
   const now = Date.now();
   const stale = (s) => s.error && now - Date.parse(s.at) > RETRY_AFTER_DAYS * 86400000;
-  const updates = [], fresh = [], retries = [];
+  const updates = [], fresh = [], retries = [], oldRules = [], oldRulesQuiet = [];
   for (const [key, p] of wanted) {
     const prev = done.get(key);
+    if (prev && !prev.error && prev.rules !== SCAN_RULES) {
+      // Packages whose stored reads a rule change can alter go first.
+      (prev.reads?.some((r) => r.cred && !r.doc) ? oldRules : oldRulesQuiet).push(p);
+      continue;
+    }
     if (prev && !stale(prev)) continue;
     if (prev) retries.push(p);
     else if (scannedIds.has(`${p.type}:${p.id}`)) updates.push(p);
     else fresh.push(p);
   }
-  const queue = [...updates, ...fresh, ...retries].slice(0, LIMIT);
-  log(`${wanted.size} package versions in the registry; ${done.size} already recorded; scanning ${queue.length} (${updates.length} new versions, ${fresh.length} never scanned, ${retries.length} retries pending)`);
+  const queue = [...updates, ...fresh, ...oldRules, ...retries, ...oldRulesQuiet].slice(0, LIMIT);
+  log(`${wanted.size} package versions in the registry; ${done.size} already recorded; scanning ${queue.length} (${updates.length} new versions, ${fresh.length} never scanned, ${oldRules.length + oldRulesQuiet.length} under older rules (${oldRules.length} with credential reads), ${retries.length} retries pending)`);
 
   let ok = 0, failed = 0;
   const worker = async () => {

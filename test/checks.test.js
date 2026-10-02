@@ -317,3 +317,51 @@ test('key material in another encoding is still a credential', () => {
     assert.equal(isCredentialName(n), true, n);
   }
 });
+
+// Found live 2026-10-02 (@uplink-code/mcp@0.1.4): the server ships example code for the agent
+// as a string, so process.env.UPLINK_API_KEY appeared in its instructions text and was
+// reported as a high-severity read. The server never reads it. A mention that only ever sits
+// inside a string is info, with the text as evidence; a real read anywhere keeps its severity.
+test('an env var that only appears inside a string is info, not a read', () => {
+  const pkg = pkgWith({ 'index.js': 'const help = "const s = uplink.session(process.env.ACME_API_KEY)\\n// call it";\n' });
+  const [f] = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(f.severity, 'info');
+  assert.equal(f.inText, true);
+  assert.match(f.message, /only inside a string/);
+  assert.equal(f.evidence[0].line, 1);
+});
+
+test('a real read keeps its severity even when the same name also appears in text', () => {
+  const pkg = pkgWith({ 'index.js': 'const help = `set process.env.ACME_API_KEY first`;\nconst k = process.env.ACME_API_KEY;\n' });
+  const [f] = checkUndeclaredSecrets(pkg, { server: { name: 'x' } }, new Map());
+  assert.equal(f.severity, 'high');
+  assert.equal(f.inText, undefined);
+  assert.equal(f.evidence[0].line, 2, 'evidence is the real read, not the text');
+});
+
+test('string detection survives quotes, regex literals and template expressions on one minified line', () => {
+  const cases = [
+    ['const a = "it\'s"; const k = process.env.ACME_API_KEY;', 'high'],
+    ['s.replace(/"/g, ""); const k = process.env.ACME_API_KEY;', 'high'],
+    ['const u = `${process.env.ACME_API_KEY}`;', 'high'],
+    ['const u = `a ${x ? "b" : `c`} d`; const k = process.env.ACME_API_KEY;', 'high'],
+    ["const t = 'use process.env.ACME_API_KEY in your code';", 'info'],
+  ];
+  for (const [line, want] of cases) {
+    const [f] = checkUndeclaredSecrets(pkgWith({ 'index.js': `${line}\n` }), { server: { name: 'x' } }, new Map());
+    assert.equal(f.severity, want, line);
+  }
+});
+
+test('a template literal that opens lines earlier still counts as text (the live uplink shape)', () => {
+  const src = 'const guide = `Write a script like this:\nconst session = await uplink.session(process.env.ACME_API_KEY)\nthen pair the device.`;\nexport default guide;\n';
+  const [f] = checkUndeclaredSecrets(pkgWith({ 'lib/index.js': src }), { server: { name: 'x' } }, new Map());
+  assert.equal(f.severity, 'info');
+  assert.equal(f.evidence[0].line, 2);
+});
+
+test('a line comment with an apostrophe does not swallow the next line\'s real read', () => {
+  const src = "// don't forget the key\nconst k = process.env.ACME_API_KEY;\n";
+  const [f] = checkUndeclaredSecrets(pkgWith({ 'index.js': src }), { server: { name: 'x' } }, new Map());
+  assert.equal(f.severity, 'high');
+});

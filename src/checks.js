@@ -129,11 +129,77 @@ function* eachLine(files) {
     const text = buf.toString('utf8');
     if (text.includes('\0')) continue; // binary
     const lines = text.split('\n');
+    const inString = stringCursor(text);
+    let offset = 0;
     for (let i = 0; i < lines.length; i++) {
+      const start = offset;
+      offset += lines[i].length + 1;
       if (COMMENT_ONLY_LINE.test(lines[i])) continue;
-      yield { path, line: i + 1, text: lines[i] };
+      yield { path, line: i + 1, text: lines[i], start, inString };
     }
   }
+}
+
+/**
+ * Whether position `idx` of a single source line sits inside a string literal: '…', "…", or
+ * the text part of a `…` template (an `${…}` expression inside a template is code again).
+ * Regex literals are skipped with the usual heuristic: a slash where an expression may start.
+ * Found live 2026-10-02: an MCP server shipped example code for the agent as a string, so its
+ * instructions text contained process.env.UPLINK_API_KEY, and that was reported as the server
+ * reading the credential. It never did. Used only to downgrade such a mention to info, never
+ * to drop it, so a tokenizer mistake on odd minified code can't hide a real read.
+ */
+export function inStringLiteral(text, idx) {
+  return stringCursor(text)(idx);
+}
+
+/**
+ * A resumable scanner over a whole file: positions asked in increasing order cost one pass in
+ * total, which matters on multi-megabyte bundles. Whole-file, not per-line, because the case
+ * found live was a template literal that opened lines before the mention it contained.
+ */
+export function stringCursor(text) {
+  let i = 0;
+  const stack = []; // open template literals; each holds the ${ depth at which it resumes
+  let quote = null; // ' " ` while inside a string
+  let depth = 0; // brace depth inside ${ } expressions
+  let prev = ''; // last significant code character, for the regex heuristic
+  let comment = false; // inside a block comment
+  const reset = () => { i = 0; stack.length = 0; quote = null; depth = 0; prev = ''; comment = false; };
+  let last = -1;
+  return (idx) => {
+    if (idx < last) reset();
+    last = idx;
+    for (; i < idx && i < text.length; i++) {
+      const c = text[i];
+      if (comment) { if (c === '*' && text[i + 1] === '/') { comment = false; i++; } continue; }
+      if (quote) {
+        if (c === '\\') { i++; continue; }
+        if (quote === '`' && c === '$' && text[i + 1] === '{') { stack.push(depth); depth++; quote = null; i++; prev = '{'; continue; }
+        if (c === quote || (c === '\n' && quote !== '`')) { quote = null; prev = c; }
+        continue;
+      }
+      if (c === '/' && text[i + 1] === '/') { const nl = text.indexOf('\n', i); i = nl < 0 ? text.length : nl; prev = ''; continue; }
+      if (c === '/' && text[i + 1] === '*') { comment = true; i++; continue; }
+      if (c === '/' && (prev === '' || '(,=:[!&|?{};+-*%<>~^'.includes(prev))) {
+        for (i++; i < text.length && text[i] !== '/' && text[i] !== '\n'; i++) {
+          if (text[i] === '\\') i++;
+          else if (text[i] === '[') { while (i < text.length && text[i] !== ']' && text[i] !== '\n') { if (text[i] === '\\') i++; i++; } }
+        }
+        prev = '/';
+        continue;
+      }
+      if (c === '"' || c === "'" || c === '`') { quote = c; continue; }
+      if (c === '{' && stack.length) depth++;
+      if (c === '}' && stack.length) {
+        depth--;
+        if (depth === stack[stack.length - 1]) { stack.pop(); quote = '`'; continue; }
+      }
+      if (c === '\n') { prev = ''; continue; }
+      if (!/\s/.test(c)) prev = c;
+    }
+    return quote !== null;
+  };
 }
 
 function trim(s, n = 160) {
@@ -152,24 +218,47 @@ function documentationText(docs) {
 export function checkUndeclaredSecrets(pkg, entry, declared) {
   const docs = documentationText(pkg.docs);
   const documented = (name) => docs !== '' && new RegExp(`(^|[^A-Za-z0-9_])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^A-Za-z0-9_]|$)`).test(docs);
-  const found = new Map(); // NAME -> evidence[]
-  for (const { path, line, text } of eachLine(pkg.files)) {
+  const found = new Map(); // NAME -> { evidence[], real: seen outside a string at least once }
+  for (const { path, line, text, start, inString } of eachLine(pkg.files)) {
+    const hits = [];
     for (const re of ENV_PATTERNS) {
       re.lastIndex = 0;
       let m;
-      while ((m = re.exec(text)) !== null) {
-        const name = m[1];
+      while ((m = re.exec(text)) !== null) hits.push({ name: m[1], index: m.index });
+    }
+    hits.sort((a, b) => a.index - b.index); // the cursor answers increasing positions in one pass
+    for (const m of hits) {
+      {
+        const name = m.name;
         if (AMBIENT.has(name) || name.startsWith('npm_') || name.startsWith('PYTHON')) continue;
-        if (!found.has(name)) found.set(name, []);
-        const ev = found.get(name);
-        if (ev.length < 3) ev.push({ file: path, line, text: trim(text) });
+        if (!found.has(name)) found.set(name, { evidence: [], textOnly: [], real: false });
+        const entryFor = found.get(name);
+        const ev = { file: path, line, text: trim(text) };
+        if (inString(start + m.index)) {
+          if (entryFor.textOnly.length < 3) entryFor.textOnly.push(ev);
+        } else {
+          entryFor.real = true;
+          if (entryFor.evidence.length < 3) entryFor.evidence.push(ev);
+        }
       }
     }
   }
 
   const findings = [];
-  for (const [name, evidence] of found) {
+  for (const [name, { evidence: realEvidence, textOnly, real }] of found) {
     if (declared?.has(name)) continue;
+    if (!real) {
+      findings.push({
+        check: 'undeclared-env',
+        subject: name,
+        severity: 'info',
+        inText: true,
+        message: `mentions ${name} only inside a string (example code or instructions text); no line of code reads it`,
+        evidence: textOnly,
+      });
+      continue;
+    }
+    const evidence = realEvidence;
     if (name.includes('${') || name.includes('+')) {
       // A computed name like `${prefix}_API_KEY`. Static analysis cannot resolve it,
       // and reporting the template as if it were a variable name would be a lie.

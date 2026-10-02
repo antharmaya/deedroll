@@ -297,6 +297,13 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
   white-space: nowrap;
 }
 .manifest li .path { overflow: hidden; text-overflow: ellipsis; }
+.manifest li.jump { cursor: pointer; border-radius: 4px; }
+.manifest li.jump:hover .path, .manifest li.jump:focus-visible .path { color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+.manifest li.jump:focus-visible { outline: 2px solid var(--accent, currentColor); outline-offset: -2px; }
+#findings li.flash > details { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { #findings li.flash > details { animation: none; outline: 2px solid var(--accent, currentColor); } }
+.explain .cwe { margin-top: 6px; font-size: 12px; }
 .manifest li .lines { color: var(--text-faint); font-size: 11px; font-variant-numeric: tabular-nums; }
 .manifest li.developed { color: var(--text); }
 .manifest li .glyph { justify-self: center; }

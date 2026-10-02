@@ -207,15 +207,18 @@ function buildModel(r) {
     }
     return out;
   };
-  const credential = (f) => f.check === 'undeclared-env' && (f.documented || f.severity !== 'low');
+  // A name seen only inside a string (example code, instructions text) is not read by anything.
+  const read = (f) => f.check === 'undeclared-env' && !f.inText;
+  const credential = (f) => read(f) && (f.documented || f.severity !== 'low');
   const does = [
     { label: 'Credentials read', items: rows(credential, (f) => ({ sev: f.severity, text: f.subject, mono: true,
       detail: withLoc(f.documented ? 'its README explains it, its listing doesn\'t' : f.severity === 'high' ? 'not in its listing' : 'no listing to declare it in', f) })) },
-    { label: 'Other settings read', items: rows((f) => (f.check === 'undeclared-env' && !credential(f)) || f.check === 'dynamic-env', (f) => ({ sev: f.severity, text: f.check === 'dynamic-env' ? 'A name built at runtime' : f.subject, mono: f.check !== 'dynamic-env', detail: withLoc(f.check === 'dynamic-env' ? 'cannot be read statically' : 'not in its listing', f) })) },
+    { label: 'Other settings read', items: rows((f) => (read(f) && !credential(f)) || f.check === 'dynamic-env', (f) => ({ sev: f.severity, text: f.check === 'dynamic-env' ? 'A name built at runtime' : f.subject, mono: f.check !== 'dynamic-env', detail: withLoc(f.check === 'dynamic-env' ? 'cannot be read statically' : 'not in its listing', f) })) },
     { label: 'Hosts contacted', items: rows((f) => f.check === 'network-egress', (f) => ({ sev: f.severity, text: f.message.replace(/^contacts /, ''), mono: true, detail: loc(f) })) },
     { label: 'Capabilities', items: rows((f) => f.check === 'capability', (f) => ({ sev: f.severity, text: sentence(f).replace(/\.$/, ''), detail: loc(f) })) },
     { label: 'Install scripts', items: rows((f) => f.check === 'install-script', (f) => ({ sev: f.severity, text: sentence(f).replace(/\.$/, ''), detail: loc(f) })) },
     { label: 'Known vulnerabilities', items: rows((f) => f.check === 'known-vulnerability', (f) => ({ sev: f.severity, text: sentence(f).replace(/\.$/, '') })) },
+    { label: 'Named only in text', items: rows((f) => f.check === 'undeclared-env' && f.inText, (f) => ({ sev: 'info', text: f.subject, mono: true, detail: withLoc('inside a string; no code reads it', f) })) },
   ].filter((g) => g.items.length);
   if (!does.length) does.push({ label: 'Nothing found', items: [{ key: 'does:none', sev: 'ok', text: 'Reads, runs and contacts nothing static analysis can see' }] });
 
@@ -427,11 +430,34 @@ async function play(model, my) {
 function markRows(model, rows) {
   rows.forEach((r, i) => {
     const here = model.hits.filter((h) => h.row === i);
-    if (here.length && !r.querySelector('.glyph')) r.querySelector('.glyph-slot').replaceChildren(glyph(worst(here.map((h) => h.f))));
+    if (!here.length) return;
+    if (!r.querySelector('.glyph')) r.querySelector('.glyph-slot').replaceChildren(glyph(worst(here.map((h) => h.f))));
+    if (r.classList.contains('jump')) return;
+    // A marked file is a way into its findings: click (or Enter) opens the first one below.
+    r.classList.add('jump');
+    r.tabIndex = 0;
+    r.setAttribute('role', 'button');
+    r.setAttribute('aria-label', `Show ${plural(here.length, 'finding')} in ${r.querySelector('.path')?.textContent ?? 'this file'}`);
+    const go = () => jumpToFinding(model.findings.indexOf(here[0].f));
+    r.addEventListener('click', go);
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
   });
   const count = (groups) => groups.reduce((n, g) => n + g.items.filter((i) => i.key !== 'does:none').length, 0);
   $('#tells-n').textContent = plural(count(model.tells), 'fact');
   $('#does-n').textContent = plural(count(model.does), 'finding');
+}
+
+/** Opens the finding (or the group holding it) and brings it into view. */
+function jumpToFinding(i) {
+  const li = [...document.querySelectorAll('#findings li[data-f]')].find((n) => n.dataset.f.split(' ').includes(String(i)));
+  if (!li) return;
+  const d = li.querySelector('details');
+  if (d) d.open = true;
+  li.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: li.offsetHeight > innerHeight * 0.6 ? 'start' : 'center' });
+  li.classList.remove('flash');
+  void li.offsetWidth; // restart the animation on a repeat click
+  li.classList.add('flash');
+  li.querySelector('summary')?.focus({ preventScroll: true });
 }
 
 /* ---------- findings list ---------- */
@@ -469,6 +495,7 @@ const where = (f) => {
 
 const GROUP_TITLE = {
   'undeclared-env': (n) => `Reads ${n} settings its listing doesn't mention`,
+  'undeclared-env:text': (n) => `Names ${n} settings only inside strings; no code reads them`,
   'network-egress': (n) => `Contacts ${n} hosts`,
   provenance: (n) => `${n} notes about how it was published`,
 };
@@ -478,31 +505,35 @@ const GROUP_TITLE = {
  * the same kind at a lower severity collapse into one row that opens to its members —
  * a wall of near-identical rows hides the finding that matters.
  */
+let findingIds = new Map(); // finding -> its index in the current scan, for jumps from the manifest
+
 function groupFindings(fs, allowGroups) {
   const buckets = new Map();
   for (const f of fs) {
-    const k = allowGroups ? f.check : `${f.check}#${buckets.size}`;
+    const kind = f.inText ? `${f.check}:text` : f.check;
+    const k = allowGroups ? kind : `${kind}#${buckets.size}`;
     if (!buckets.has(k)) buckets.set(k, []);
     buckets.get(k).push(f);
   }
   const out = [];
   for (const [k, members] of buckets) {
-    const check = k.split('#')[0];
+    const kind = k.split('#')[0];
+    const check = kind.split(':')[0];
     if (members.length < 3 || !allowGroups) {
       for (const f of members) {
-        out.push(el('li', {}, el('details', {},
+        out.push(el('li', { 'data-f': String(findingIds.get(f)) }, el('details', {},
           el('summary', {}, glyph(f.severity), el('span', { class: 'what' }, sentence(f)), el('span', { class: 'where' }, where(f)), chev()),
           ...evidenceBlock(f),
           explainBlock(f.check))));
       }
       continue;
     }
-    const title = (GROUP_TITLE[check] ?? ((n) => `${n} similar findings`))(members.length);
+    const title = (GROUP_TITLE[kind] ?? ((n) => `${n} similar findings`))(members.length);
     const lines = members.map((f) => {
       const ev = f.evidence?.[0];
       return el('li', {}, f.subject && !String(f.subject).includes(':') ? el('code', {}, f.subject) : el('span', {}, sentence(f)), el('span', { class: 'where' }, ev?.line ? `${ev.file}:${ev.line}` : ''));
     });
-    out.push(el('li', {}, el('details', {},
+    out.push(el('li', { 'data-f': members.map((f) => findingIds.get(f)).join(' ') }, el('details', {},
       el('summary', {}, glyph(members[0].severity), el('span', { class: 'what' }, title), el('span', { class: 'where' }, ''), chev()),
       el('ul', { class: 'members' }, ...lines),
       explainBlock(check))));
@@ -527,6 +558,7 @@ function renderFindings(model, { replay }) {
     ['Context', 'facts, for the record', 'info', model.findings.filter((f) => f.severity === 'info')],
   ];
   $('#verdict').replaceChildren(...groups.map(([title, , sev, fs]) => el('span', {}, glyph(sev), el('b', {}, fs.length), title.toLowerCase())));
+  findingIds = new Map(model.findings.map((f, i) => [f, i]));
   const list = $('#findings');
   list.replaceChildren();
   if (!model.findings.length) {
@@ -538,8 +570,41 @@ function renderFindings(model, { replay }) {
     list.append(el('li', { class: 'group' }, title, el('span', { class: 'group-note' }, noteText)));
     for (const item of groupFindings(fs, title !== 'Ask before installing')) list.append(item);
   }
+  renderLinks(model);
   $('#results').hidden = false;
   if (!REDUCE) [...list.children].slice(0, 14).forEach((li, i) => reveal(li, i * 35, { y: 8, duration: 360 }));
+}
+
+/**
+ * The same server elsewhere, for cross-checking in one click, and a way to follow it. Only
+ * links whose address is known from the scan itself; nothing guessed from a name.
+ */
+const ORIGIN = 'https://deedroll.antharmaya.com';
+function renderLinks(model) {
+  const box = $('#links');
+  const a = (href, text) => el('a', { class: 'chip', href, target: '_blank', rel: 'noopener' }, text);
+  const out = [];
+  const name = model.prebuilt || !model.ecosystem ? null : model.name; // package scans only
+  if (model.listing) out.push(a(`https://registry.modelcontextprotocol.io/v0.1/servers/${encodeURIComponent(model.listing)}/versions/latest`, 'Registry entry'));
+  if (name && model.version) {
+    const pypi = model.ecosystem === 'pypi';
+    out.push(pypi ? a(`https://pypi.org/project/${encodeURIComponent(name)}/${encodeURIComponent(model.version)}/`, 'PyPI')
+      : a(`https://www.npmjs.com/package/${name}/v/${encodeURIComponent(model.version)}`, 'npm'));
+    out.push(a(`https://deps.dev/${pypi ? 'pypi' : 'npm'}/${encodeURIComponent(name)}/${encodeURIComponent(model.version)}`, 'deps.dev'));
+  }
+  if (/^https:\/\//.test(model.repository ?? '')) out.push(a(model.repository, 'Source'));
+  if (model.listing) {
+    out.push(a(`${ORIGIN}/feed/${model.listing}.atom`, 'Follow (Atom)'));
+    const badge = `[![deedroll](https://img.shields.io/endpoint?url=${encodeURIComponent(`${ORIGIN}/badge/${model.listing}.json`)})](${ORIGIN}/web/?q=${encodeURIComponent(model.listing)})`;
+    const copy = el('button', { class: 'chip', type: 'button', title: 'Markdown for a README badge that shows how the code compares with the listing' }, 'Copy README badge');
+    copy.onclick = async () => {
+      try { await navigator.clipboard.writeText(badge); copy.textContent = 'Copied'; } catch { copy.textContent = 'Copy failed'; }
+      setTimeout(() => (copy.textContent = 'Copy README badge'), 1600);
+    };
+    out.push(copy);
+  }
+  box.hidden = !out.length;
+  box.replaceChildren(...(out.length ? [el('span', {}, 'Elsewhere'), ...out] : []));
 }
 
 /**
@@ -596,6 +661,7 @@ function fromLive(r) {
     declared: [...r.declared.keys()],
     provenance: Boolean(r.pkg.provenance?.current),
     ecosystem: r.pkg.ecosystem ?? 'npm',
+    repository: r.entry?.server?.repository?.url ?? null,
     findings: r.findings,
   };
 }

@@ -18,7 +18,11 @@ workers_dev = true
 
 [vars]
 CANONICAL_HOST = "deedroll.antharmaya.com"
-FORMER_HOSTS = "mcpscan.antharmaya.com"
+# Empty until 2026-10-04: some resolvers (Jio's, seen 2026-10-02) cached "no such name" for
+# deedroll.antharmaya.com from the minutes before it existed, so a redirect there would break the
+# old address for their users. Until then mcpscan.antharmaya.com serves the site itself. Set it
+# back to "mcpscan.antharmaya.com" to turn the 301 on.
+FORMER_HOSTS = ""
 
 [assets]
 directory = "./site"

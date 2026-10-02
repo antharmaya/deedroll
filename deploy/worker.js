@@ -72,6 +72,13 @@ export default {
     // answering, with a permanent redirect for anything readable. POSTs are left alone: a page
     // opened before the move still talks to its own relay.
     const canonical = env.CANONICAL_HOST;
+    // Plain http is never served. Found live 2026-10-02: the page opened over http:// had no
+    // crypto.subtle (browsers keep it to secure contexts), so every package scan failed at the
+    // integrity check with "can't access property digest". The zone does not force https.
+    if (url.protocol === 'http:' && (request.method === 'GET' || request.method === 'HEAD')) {
+      const host = url.hostname.endsWith('.workers.dev') || (env.FORMER_HOSTS ?? '').split(',').map((h) => h.trim()).includes(url.hostname) ? canonical ?? url.hostname : url.hostname;
+      return new Response(null, { status: 301, headers: { location: `https://${host}${url.pathname}${url.search}` } });
+    }
     const former = (env.FORMER_HOSTS ?? '').split(',').map((h) => h.trim()).filter(Boolean);
     const moved = url.hostname.endsWith('.workers.dev') || former.includes(url.hostname);
     if (canonical && url.hostname !== canonical && moved && (request.method === 'GET' || request.method === 'HEAD')) {
@@ -127,6 +134,8 @@ function noInjection(res) {
   const out = new Response(res.body, res);
   const cc = out.headers.get('cache-control');
   out.headers.set('cache-control', cc ? `${cc}, no-transform` : 'no-transform');
+  // This host only (no includeSubDomains): browsers go straight to https from the second visit.
+  out.headers.set('strict-transport-security', 'max-age=31536000');
   return out;
 }
 

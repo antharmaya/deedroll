@@ -14,6 +14,9 @@ import { init as initSetup, setCurrent } from './setup.js';
 
 const $ = (s) => document.querySelector(s);
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Scans hash every package (crypto.subtle), which browsers allow only on secure pages. A copy
+// served over plain http (a proxy, a mirror) moves itself to https rather than fail mid-scan.
+if (!window.isSecureContext && location.protocol === 'http:') location.replace(`https://${location.host}${location.pathname}${location.search}${location.hash}`);
 const INDEX_URL = new URL('../src/data/registry-index.json', import.meta.url).href;
 // The relay runs the same read-only probe server-side, for servers that block browsers.
 const RELAY_URL = new URL('../api/probe', import.meta.url).href;

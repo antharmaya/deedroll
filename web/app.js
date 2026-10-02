@@ -133,27 +133,41 @@ export function sentence(f) {
 
 /* ---------- the model the stage and the list share ---------- */
 
+/**
+ * The key of the ledger row a finding belongs to. Facts the code reveals get one row each (a
+ * credential, a host, a capability), so the scan's mark can fly to exactly the row it proves.
+ */
 function ledgerKey(f) {
   switch (f.check) {
-    case 'undeclared-env': return f.documented ? 'does:documented' : f.severity === 'low' ? 'does:settings' : 'does:credentials';
-    case 'dynamic-env': return 'does:settings';
-    case 'network-egress': return 'does:hosts';
+    case 'undeclared-env':
+    case 'dynamic-env': return `does:env:${f.subject}`;
+    case 'network-egress': return `does:host:${f.message.replace(/^contacts /, '')}`;
     case 'capability': return `does:cap:${f.message}`;
-    case 'install-script': return 'does:install';
-    case 'known-vulnerability': return 'does:vulns';
+    case 'install-script': return `does:install:${f.message}`;
+    case 'known-vulnerability': return `does:vuln:${f.message}`;
     case 'provenance': return /repository/.test(f.message) ? 'tells:source' : 'tells:package';
-    case 'provenance-dropped': return 'tells:provenance';
+    case 'provenance-dropped':
     case 'publisher-mismatch': return 'tells:provenance';
-    case 'listing-status': return 'tells:listing';
+    case 'listing-status':
+    case 'multiple-listings': return 'tells:listing';
     case 'deprecated': return 'tells:status';
     case 'instruction-like-text': return 'tells:descriptions';
-    case 'multiple-listings': return 'tells:listing';
     default: return 'tells:package';
   }
 }
 
 const worst = (fs) => fs.reduce((w, f) => (RANK[f.severity] < RANK[w] ? f.severity : w), 'info');
+const loc = (f) => {
+  const ev = f.evidence?.[0];
+  return ev?.file && !['registry', 'npm', 'PyPI metadata'].includes(ev.file) ? (ev.line ? `${ev.file}:${ev.line}` : ev.file) : '';
+};
+const withLoc = (text, f) => [text, loc(f)].filter(Boolean).join(' · ');
 
+/**
+ * The two ledgers as labelled groups of rows: { label, items: [{ key, sev, text, mono, detail }] }.
+ * "What it tells you" is the listing and the package's own metadata; "What the code does" is
+ * one row per fact the scan found in the code, each with the file and line that shows it.
+ */
 function buildModel(r) {
   const byKey = new Map();
   for (const f of r.findings) {
@@ -161,35 +175,49 @@ function buildModel(r) {
     if (!byKey.has(k)) byKey.set(k, []);
     byKey.get(k).push(f);
   }
-  const names = (k) => (byKey.get(k) ?? []).map((f) => f.subject).filter(Boolean);
-  const tells = [];
-  const does = [];
-
-  tells.push({ key: 'tells:listing', sev: r.listing ? 'ok' : 'info', text: r.listing ? `Listed as ${r.listing}` : 'No registry listing found', detail: r.listing ? 'Official MCP registry' : 'Nothing to check its declarations against' });
-  tells.push({
-    key: 'tells:declared',
-    sev: 'ok',
-    text: r.declared.length ? `Declares ${plural(r.declared.length, 'setting')}` : 'Declares no settings',
-    detail: r.declared.length ? r.declared : null,
-  });
+  const first = (k) => byKey.get(k)?.[0];
+  const note = (k) => (byKey.has(k) ? [{ key: k, sev: worst(byKey.get(k)), text: sentence(first(k)).replace(/\.$/, '') }] : []);
   const reg = r.ecosystem === 'pypi' ? 'PyPI' : 'npm';
-  tells.push({ key: 'tells:provenance', sev: r.provenance ? 'ok' : 'info', text: r.provenance ? `Built by CI, with ${reg} provenance` : 'No provenance attestation' });
-  for (const k of ['tells:source', 'tells:status', 'tells:descriptions', 'tells:package']) {
-    if (byKey.has(k)) tells.push({ key: k, sev: worst(byKey.get(k)), text: sentence(byKey.get(k)[0]).replace(/\.$/, '') });
-  }
 
-  const creds = names('does:credentials');
-  if (creds.length) does.push({ key: 'does:credentials', sev: worst(byKey.get('does:credentials')), text: `Reads ${plural(creds.length, 'credential')} it doesn't declare`, detail: creds });
-  const documented = names('does:documented');
-  if (documented.length) does.push({ key: 'does:documented', sev: worst(byKey.get('does:documented')), text: `Reads ${plural(documented.length, 'credential')} its README explains, not its listing`, detail: documented });
-  const settings = names('does:settings');
-  if (settings.length) does.push({ key: 'does:settings', sev: 'low', text: `Reads ${plural(settings.length, 'other setting')}`, detail: settings });
-  const hosts = (byKey.get('does:hosts') ?? []).map((f) => f.message.replace(/^contacts /, ''));
-  if (hosts.length) does.push({ key: 'does:hosts', sev: 'info', text: `Contacts ${plural(hosts.length, 'host')}`, detail: hosts });
-  for (const [k, fs] of byKey) if (k.startsWith('does:cap:')) does.push({ key: k, sev: 'info', text: sentence(fs[0]).replace(/\.$/, '') });
-  if (byKey.has('does:install')) does.push({ key: 'does:install', sev: 'high', text: sentence(byKey.get('does:install')[0]).replace(/\.$/, '') });
-  if (byKey.has('does:vulns')) does.push({ key: 'does:vulns', sev: worst(byKey.get('does:vulns')), text: `Has ${plural(byKey.get('does:vulns').length, 'known vulnerability', 'known vulnerabilities')}` });
-  if (!does.length) does.push({ key: 'does:none', sev: 'ok', text: 'Nothing found that reads, runs or contacts anything' });
+  const tells = [
+    { label: 'Listed as', items: [
+      { key: 'tells:listing', sev: r.listing ? 'ok' : 'info', text: r.listing ?? 'No registry listing', mono: Boolean(r.listing), detail: r.listing ? 'the official MCP registry' : 'nothing to check its declarations against' },
+      ...(byKey.get('tells:listing') ?? []).map((f) => ({ key: 'tells:listing', sev: f.severity, text: sentence(f).replace(/\.$/, '') })),
+    ] },
+    { label: 'Declares', items: [r.declared.length
+      ? { key: 'tells:declared', sev: 'ok', text: plural(r.declared.length, 'setting'), detail: r.declared }
+      : { key: 'tells:declared', sev: 'ok', text: 'No settings', detail: 'its listing names none' }] },
+    { label: 'Provenance', items: [
+      r.provenance ? { key: 'tells:provenance', sev: 'ok', text: 'Built by CI', detail: `${reg} provenance` } : { key: 'tells:provenance', sev: 'info', text: 'None', detail: 'not linked to a CI build' },
+      ...note('tells:source'),
+      ...(byKey.get('tells:provenance') ?? []).map((f) => ({ key: 'tells:provenance', sev: f.severity, text: sentence(f).replace(/\.$/, '') })),
+    ] },
+    { label: 'Published', items: [...note('tells:package'), ...note('tells:status'), ...note('tells:descriptions')] },
+  ].filter((g) => g.items.length);
+
+  const rows = (pred, make) => {
+    const out = [];
+    const seen = new Set();
+    for (const f of r.findings) {
+      if (!pred(f)) continue;
+      const key = ledgerKey(f);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ key, ...make(f) });
+    }
+    return out;
+  };
+  const credential = (f) => f.check === 'undeclared-env' && (f.documented || f.severity !== 'low');
+  const does = [
+    { label: 'Credentials read', items: rows(credential, (f) => ({ sev: f.severity, text: f.subject, mono: true,
+      detail: withLoc(f.documented ? 'its README explains it, its listing doesn\'t' : f.severity === 'high' ? 'not in its listing' : 'no listing to declare it in', f) })) },
+    { label: 'Other settings read', items: rows((f) => (f.check === 'undeclared-env' && !credential(f)) || f.check === 'dynamic-env', (f) => ({ sev: f.severity, text: f.check === 'dynamic-env' ? 'A name built at runtime' : f.subject, mono: f.check !== 'dynamic-env', detail: withLoc(f.check === 'dynamic-env' ? 'cannot be read statically' : 'not in its listing', f) })) },
+    { label: 'Hosts contacted', items: rows((f) => f.check === 'network-egress', (f) => ({ sev: f.severity, text: f.message.replace(/^contacts /, ''), mono: true, detail: loc(f) })) },
+    { label: 'Capabilities', items: rows((f) => f.check === 'capability', (f) => ({ sev: f.severity, text: sentence(f).replace(/\.$/, ''), detail: loc(f) })) },
+    { label: 'Install scripts', items: rows((f) => f.check === 'install-script', (f) => ({ sev: f.severity, text: sentence(f).replace(/\.$/, ''), detail: loc(f) })) },
+    { label: 'Known vulnerabilities', items: rows((f) => f.check === 'known-vulnerability', (f) => ({ sev: f.severity, text: sentence(f).replace(/\.$/, '') })) },
+  ].filter((g) => g.items.length);
+  if (!does.length) does.push({ label: 'Nothing found', items: [{ key: 'does:none', sev: 'ok', text: 'Reads, runs and contacts nothing static analysis can see' }] });
 
   // Where each finding lives in the manifest (by its first evidence file).
   const fileIndex = new Map(r.files.map((f, i) => [f.path, i]));
@@ -242,14 +270,15 @@ export function renderDetail(items, { max = DETAIL_MAX } = {}) {
   return span;
 }
 
-function renderLedger(ul, items) {
-  ul.replaceChildren(
-    ...items.map((it) =>
-      el('li', { dataset: { key: it.key }, class: it.sev === 'ok' && /no |nothing/i.test(it.text) ? 'empty' : null },
-        glyph(it.sev),
-        el('span', {}, it.text, it.detail && renderDetail(it.detail)))
-    )
-  );
+/** A ledger: labelled groups, one row per fact, each row a mark, the fact, and where it shows. */
+function renderLedger(box, groups) {
+  box.replaceChildren(...groups.map((g) => el('div', { class: 'lgroup' },
+    el('h3', {}, g.label),
+    el('ul', {}, ...g.items.map((it) => el('li', { dataset: { key: it.key } },
+      glyph(it.sev),
+      el('span', {},
+        it.mono ? el('code', { class: 'val', translate: 'no' }, it.text) : el('span', { class: 'val' }, it.text),
+        it.detail && (Array.isArray(it.detail) ? renderDetail(it.detail) : el('span', { class: 'detail' }, it.detail)))))))));
 }
 
 /** Every file gets its own row. Long packages scroll inside the panel instead of being cut off. */
@@ -326,8 +355,8 @@ async function play(model, my) {
   $('#does-n').textContent = '';
 
   const rows = [...manifest.children];
-  const tellsLis = [...$('#tells').children];
-  const doesLis = [...$('#does').children];
+  const tellsLis = [...$('#tells').querySelectorAll('li')];
+  const doesLis = [...$('#does').querySelectorAll('li')];
   const liFor = (key) => [...tellsLis, ...doesLis].find((li) => li.dataset.key === key);
 
   if (REDUCE) {
@@ -400,8 +429,9 @@ function markRows(model, rows) {
     const here = model.hits.filter((h) => h.row === i);
     if (here.length && !r.querySelector('.glyph')) r.querySelector('.glyph-slot').replaceChildren(glyph(worst(here.map((h) => h.f))));
   });
-  $('#tells-n').textContent = plural(model.tells.length, 'fact');
-  $('#does-n').textContent = plural(model.does.filter((d) => d.key !== 'does:none').length, 'finding');
+  const count = (groups) => groups.reduce((n, g) => n + g.items.filter((i) => i.key !== 'does:none').length, 0);
+  $('#tells-n').textContent = plural(count(model.tells), 'fact');
+  $('#does-n').textContent = plural(count(model.does), 'finding');
 }
 
 /* ---------- findings list ---------- */
@@ -410,7 +440,9 @@ function markRows(model, rows) {
 function explainBlock(check) {
   const r = RULES[check];
   if (!r) return null;
-  return el('div', { class: 'explain' }, el('p', {}, el('b', {}, 'Why it matters. '), r.why), el('p', {}, el('b', {}, 'What to do. '), r.fix));
+  return el('div', { class: 'explain' },
+    el('div', {}, el('h4', {}, 'Why it matters'), el('p', {}, r.why)),
+    el('div', {}, el('h4', {}, 'What the publisher can do'), el('p', {}, r.fix)));
 }
 
 function evidenceBlock(f) {
@@ -487,28 +519,63 @@ function renderFindings(model, { replay }) {
   const tag = el('span', { class: `live-tag ${replay ? 'replay' : 'live'}` }, el('span', { class: 'live-dot', 'aria-hidden': 'true' }), replay ? 'Replay' : 'Live');
   $('#results-sub').replaceChildren(tag, sub);
 
-  const counts = { high: 0, medium: 0, low: 0, info: 0 };
-  for (const f of model.findings) counts[f.severity]++;
-  $('#verdict').replaceChildren(...Object.entries(counts).map(([s, n]) => el('span', {}, glyph(s), el('b', {}, n), s)));
-
+  // Three plain groups in the page; the CLI and SARIF keep the four severity levels.
   const groups = [
-    ['Needs a look', model.findings.filter((f) => f.severity === 'high' || f.severity === 'medium')],
-    ['Worth knowing', model.findings.filter((f) => f.severity === 'low')],
-    ['Context', model.findings.filter((f) => f.severity === 'info')],
+    ['Ask before installing', 'a question for the publisher first', 'high', model.findings.filter((f) => f.severity === 'high' || f.severity === 'medium')],
+    ['Worth knowing', 'small gaps between the label and the code', 'low', model.findings.filter((f) => f.severity === 'low')],
+    ['Context', 'facts, for the record', 'info', model.findings.filter((f) => f.severity === 'info')],
   ];
+  $('#verdict').replaceChildren(...groups.map(([title, , sev, fs]) => el('span', {}, glyph(sev), el('b', {}, fs.length), title.toLowerCase())));
   const list = $('#findings');
   list.replaceChildren();
   if (!model.findings.length) {
     list.append(el('li', { class: 'group' }, model.emptyText ?? 'Nothing found. That covers what static analysis can see: the listing, the code, known advisories.'));
   }
   if (model.pinAction) list.append(model.pinAction);
-  for (const [title, fs] of groups) {
+  for (const [title, noteText, , fs] of groups) {
     if (!fs.length) continue;
-    list.append(el('li', { class: 'group' }, `${title} (${fs.length})`));
-    for (const item of groupFindings(fs, title !== 'Needs a look')) list.append(item);
+    list.append(el('li', { class: 'group' }, title, el('span', { class: 'group-note' }, noteText)));
+    for (const item of groupFindings(fs, title !== 'Ask before installing')) list.append(item);
   }
   $('#results').hidden = false;
   if (!REDUCE) [...list.children].slice(0, 14).forEach((li, i) => reveal(li, i * 35, { y: 8, duration: 360 }));
+}
+
+/**
+ * "Is this your server?": the environmentVariables a publisher would add to server.json so the
+ * listing matches the code. Only what the scan knows is filled in: names, and isSecret for
+ * credentials. Descriptions stay empty for the publisher to write; nothing here is invented.
+ */
+function renderPublisher(model) {
+  const box = $('#publisher');
+  const reads = model.prebuilt || !model.listing ? [] : model.findings.filter((f) => f.check === 'undeclared-env' && f.subject);
+  const seen = new Set();
+  const adds = reads.filter((f) => !seen.has(f.subject) && seen.add(f.subject)).map((f) => ({
+    name: f.subject,
+    description: '',
+    ...(f.severity !== 'low' || f.documented ? { isSecret: true } : {}),
+  }));
+  box.hidden = !adds.length;
+  if (!adds.length) return;
+  const declared = model.declared ?? [];
+  $('#pub-text').textContent = `Its listing declares ${declared.length ? plural(declared.length, 'setting') : 'no settings'}. The code reads ${adds.length} more. Add ${adds.length === 1 ? 'it' : 'them'} to server.json, under the package, and the next scan will match.`;
+  const pre = $('#pub-pre');
+  const lines = ['"environmentVariables": ['];
+  const kept = declared.map((n) => `  { "name": ${JSON.stringify(n)}, … },`);
+  const fmt = (a) => `{ ${Object.entries(a).map(([k, v]) => `${JSON.stringify(k)}: ${JSON.stringify(v)}`).join(', ')} }`;
+  const added = adds.map((a, i) => `  ${fmt(a)}${i < adds.length - 1 ? ',' : ''}`);
+  pre.replaceChildren(
+    el('span', { class: 'ln' }, lines[0]),
+    ...kept.map((t) => el('span', { class: 'ln' }, t)),
+    ...added.map((t) => el('span', { class: 'ln add' }, el('span', { class: 'sign', 'aria-hidden': 'true' }, '+'), t)),
+    el('span', { class: 'ln' }, ']'),
+  );
+  $('#pub-count').textContent = `+ ${adds.length} to add`;
+  $('#pub-copy').onclick = async (e) => {
+    const text = JSON.stringify(adds, null, 2);
+    try { await navigator.clipboard.writeText(text); e.target.textContent = 'Copied'; } catch { e.target.textContent = 'Select and copy'; }
+    setTimeout(() => (e.target.textContent = 'Copy JSON'), 1600);
+  };
 }
 
 /* ---------- flows ---------- */
@@ -559,6 +626,7 @@ async function show(data, { replay, my }) {
   skipBtn.hidden = true;
   status(replay ? `Replay of a real scan, ${fmtDate(model.scannedAt)}` : model.doneText ?? `${plural(model.files.length, 'file')} read, nothing run`);
   renderFindings(model, { replay });
+  renderPublisher(model);
 }
 
 const STAGE_TEXT = {
@@ -634,6 +702,7 @@ function begin(label, btn) {
   $('#tells-n').textContent = '';
   $('#does-n').textContent = '';
   skipBtn.hidden = true;
+  $('#publisher').hidden = true;
   skeleton();
 }
 
@@ -838,8 +907,8 @@ function buildRemoteModel(url, r, { entry, via, findings, pinAction }) {
     label: via === 'relay' ? `${host}, via relay` : host,
     scannedAt: new Date().toISOString(),
     files,
-    tells,
-    does,
+    tells: groupRemote(tells),
+    does: [{ label: rem.probed ? 'From its tool list' : 'From its sign-in', items: does }],
     hits,
     findings,
     pinAction,
@@ -848,6 +917,18 @@ function buildRemoteModel(url, r, { entry, via, findings, pinAction }) {
     emptyText: 'Nothing found in what the server says about itself.',
     ledgerTitles: ['What it tells you', 'What we found'],
   };
+}
+
+/** A hosted server's facts, in the same labelled groups as a package's. */
+function groupRemote(items) {
+  const label = { 'tells:listing': 'Listed as', 'tells:server': 'Server', 'tells:era': 'Server', 'tells:tools': 'Tools', 'tells:annotations': 'Tools', 'tells:auth': 'Sign-in' };
+  const groups = new Map();
+  for (const it of items) {
+    const l = label[it.key] ?? 'Notes';
+    if (!groups.has(l)) groups.set(l, []);
+    groups.get(l).push(it);
+  }
+  return [...groups].map(([l, list]) => ({ label: l, items: list }));
 }
 
 async function scanLive(name, { keepUrl } = {}) {
@@ -869,6 +950,7 @@ async function scanLive(name, { keepUrl } = {}) {
   $('#tells-n').textContent = '';
   $('#does-n').textContent = '';
   skipBtn.hidden = true; // an interrupted replay never reaches its own cleanup
+  $('#publisher').hidden = true;
   skeleton();
   try {
     // The registry is sometimes slow (7s measured 2026-09-28). Say who we are waiting on;
@@ -952,6 +1034,9 @@ async function census() {
   const lines = (await (await fetch(`${base}chain.jsonl`, { cache: 'no-store' })).text()).split('\n').filter(Boolean);
   const last = JSON.parse(lines.at(-1));
   $('#figure').textContent = last.listings.toLocaleString('en');
+  const chip = $('#nav-count');
+  chip.textContent = `${last.listings.toLocaleString('en')} servers on record`;
+  chip.hidden = false;
   $('#census-when').textContent = `From the registry record of ${fmtDate(last.date)}, chained to ${plural(lines.length - 1, 'day')} before it.`;
   const diffFile = last.files.find((f) => f.file.endsWith('.diff.json'));
   if (!diffFile) return;

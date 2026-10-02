@@ -71,26 +71,35 @@ Scale around a 17 px body, ratio ≈ 1.25: `13 · 15 · 17 · 21 · 27 · 36`, d
 
 ## 4. DOM layout
 
+Redesigned 2026-10-02 from two prototypes (Claude Design and Google Stitch), keeping this
+system's tokens and every real-data path. Claude Design gave the structure; Stitch gave the
+idea of a live registry count in the header. Rejected from both: invented capabilities (AST,
+manifests, attestation, "verified" badges), invented descriptions, and any regrouping that
+overrides the engine's severity.
+
 ```
-header.site        mark · nav (How it works / The registry / Command line) · theme toggle
+header.site        mark · census chip ("38,247 servers on record", live from /history) · nav · theme
 main
-  section.hero     grid 11fr | 13fr
-    .copy          h1 (2 masked lines) · .lede · form.scan-form (label above input) · .help · .examples chips
-    .stage         .stage-head (pkg · status · Skip)
-                   .stage-body grid 1fr | 1fr
-                     ol#manifest   ruled file list, one row per scanned file, glyph per hit
-                     .ledgers      #tells "What it tells you" / #does "What the code does"
-                   .scanbar        the X-ray bar (absolute, transform-only)
-                   .drops          layer for the ink drops
-  section#results  .results-head (h2 · verdict counts) · ol.findings (grouped low/info)
-  section.band#registry   figure · dot grid (one dot per sampled server) · legend · note
-  section.steps    3 steps "How a scan works" + the promise box
-  section.cli      "Check what your agents already trust" + commands
+  section.hero     grid: h1 (left, large) | .hero-copy (lede · form · help · examples)
+  section.stage    full width: .stage-head (pkg · status · Skip)
+                   .stage-body: ol#manifest (a third) | .ledgers (two columns)
+                     #tells  "What it tells you": groups Listed as · Declares · Provenance · Published
+                     #does   "What the code does": groups Credentials read · Other settings read ·
+                             Hosts contacted · Capabilities · Install scripts · Known vulnerabilities
+                             one row per fact, each with its file:line
+  section#results  .results-head (h2 · live/replay tag · three group counts) · .results-note
+                   ol.findings in three groups: Ask before installing (high, medium) ·
+                   Worth knowing (low) · Context (info); an opened finding shows its code, then
+                   "Why it matters" | "What the publisher can do"
+                   .publisher "Is this your server?": the server.json environmentVariables to add,
+                   as a diff, names and isSecret only (descriptions left for the publisher)
+  section.band#registry   the census (live) · the 57-server sample as a closer read
+  section.history · section.steps · section.cli
 footer
 ```
 
-Breakpoints: **980 px** the hero stacks (copy over stage); **640 px** the stage body stacks
-(manifest over ledgers), chips and verdict wrap. No horizontal scroll at 360 px.
+Breakpoints: **980 px** the hero stacks; **760 px** the instrument stacks (files over the two
+ledgers, which stack too). No horizontal scroll at 360 px.
 
 ## 5. Interaction states
 

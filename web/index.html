@@ -21,6 +21,7 @@
 <div class="wrap">
   <header class="site">
     <a class="mark" href="./" aria-label="mcpscan home" translate="no"><b>mcp<i>scan</i></b><span>by Antharmaya Labs</span></a>
+    <a class="census-chip" href="#registry" id="nav-count" hidden>— servers watched</a>
     <nav aria-label="Sections">
       <a href="#setup">Your setup</a>
       <a href="#registry">The registry</a>
@@ -32,9 +33,9 @@
 
   <main id="main">
     <section class="hero" aria-labelledby="title">
+      <h1 id="title"><span class="line"><span>Read the label,</span></span><span class="line"><span>then read the code.</span></span></h1>
       <div class="hero-copy">
-        <h1 id="title"><span class="line"><span>Read the label,</span></span><span class="line"><span>then read the code.</span></span></h1>
-        <p class="lede">Scan any MCP server in your browser. See what it reads, runs and contacts beside what it tells you.</p>
+        <p class="lede">See what an MCP server reads, runs and contacts, beside what its listing tells you. In your browser, without running it.</p>
         <form class="scan-form" id="scan-form" novalidate>
           <label for="pkg">Server URL, package or registry name</label>
           <div class="field">
@@ -59,8 +60,9 @@
           </div>
         </form>
       </div>
+    </section>
 
-      <div class="stage" id="stage" role="region" aria-label="Scan">
+    <section class="stage" id="stage" aria-label="Scan">
         <div class="stage-head">
           <span class="pkg" id="stage-pkg" translate="no">&nbsp;</span>
           <span class="status" id="stage-status" aria-live="polite"></span>
@@ -69,13 +71,12 @@
         <div class="stage-body">
           <ol class="manifest" id="manifest" aria-label="Files in the package" translate="no"></ol>
           <div class="ledgers">
-            <section class="ledger" aria-labelledby="tells-h"><h2 id="tells-h">What it tells you <small id="tells-n"></small></h2><ul id="tells"></ul></section>
-            <section class="ledger" aria-labelledby="does-h"><h2 id="does-h">What the code does <small id="does-n"></small></h2><ul id="does"></ul></section>
+            <section class="ledger" aria-labelledby="tells-h"><h2 id="tells-h">What it tells you <small id="tells-n"></small></h2><div id="tells"></div></section>
+            <section class="ledger" aria-labelledby="does-h"><h2 id="does-h">What the code does <small id="does-n"></small></h2><div id="does"></div></section>
           </div>
         </div>
         <div class="scanbar" id="scanbar" aria-hidden="true"></div>
         <div class="drops" id="drops" aria-hidden="true"></div>
-      </div>
     </section>
 
     <section class="results" id="results" aria-labelledby="results-h" hidden>
@@ -91,7 +92,19 @@
         <button class="chip" type="button" data-export="egress">Egress allowlist</button>
         <button class="chip" type="button" data-export="meta">Registry block</button>
       </div>
+      <p class="results-note">Each is a question for the publisher, not a verdict on the server. Open one to see the line that raised it.</p>
       <ol class="findings" id="findings"></ol>
+      <div class="publisher" id="publisher" hidden>
+        <div class="pub-copy">
+          <h2>Is this your server?</h2>
+          <p id="pub-text"></p>
+          <p class="pub-note">Write each description in your own words, and mark <code>isRequired</code> where the server cannot start without it. mcpscan fills in only what the code shows.</p>
+        </div>
+        <div class="pub-code">
+          <div class="pub-head"><span translate="no">server.json · packages[0]</span><span class="pub-count" id="pub-count"></span><button class="chip" type="button" id="pub-copy">Copy JSON</button></div>
+          <pre id="pub-pre" translate="no"></pre>
+        </div>
+      </div>
     </section>
 
     <section class="setup" id="setup" aria-labelledby="setup-h">

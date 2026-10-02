@@ -7,7 +7,7 @@ import { gzipSync } from 'node:zlib';
 import { execFileSync } from 'node:child_process';
 
 const SCRIPT = new URL('../scripts/build-ledger.js', import.meta.url).pathname;
-const run = (archive, ...args) => execFileSync('node', [SCRIPT, ...args], { env: { ...process.env, MCPSCAN_ARCHIVE: archive }, encoding: 'utf8' });
+const run = (archive, ...args) => execFileSync('node', [SCRIPT, ...args], { env: { ...process.env, DEEDROLL_ARCHIVE: archive }, encoding: 'utf8' });
 const listing = (name, version, env = []) => ({ name, version, description: name, repository: null, status: 'active', packages: [{ type: 'npm', id: name.split('/')[1], version, transport: 'stdio', env }], remotes: [] });
 const scan = (id, version, at, reads) => ({ key: `npm:${id}@${version}`, type: 'npm', id, version, at, files: 1, provenance: false, reads, dynamicEnv: 0, hosts: [], caps: [], install: [], vulns: [], other: [] });
 const day = (archive, date, rows) => writeFileSync(join(archive, 'registry', `${date}.jsonl.gz`), gzipSync(rows.map((r) => JSON.stringify(r)).join('\n')));

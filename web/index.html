@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>mcpscan: check an MCP server before you install it</title>
+<title>deedroll: check an MCP server before you install it</title>
 <meta name="description" content="Scan any MCP server in your browser: a package, a hosted URL or a registry name. See what it reads, runs and contacts beside what it tells you.">
 <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1714" media="(prefers-color-scheme: dark)">
@@ -13,14 +13,14 @@
 <link rel="stylesheet" href="styles.css">
 <script>
   // No flash of the wrong theme: stored choice, else the system setting.
-  try { const t = localStorage.getItem('mcpscan-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.dataset.theme = 'dark'; } catch {}
+  try { const t = localStorage.getItem('deedroll-theme'); if (t === 'dark' || (!t && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.dataset.theme = 'dark'; } catch {}
 </script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to the scanner</a>
 <div class="wrap">
   <header class="site">
-    <a class="mark" href="./" aria-label="mcpscan home" translate="no"><b>mcp<i>scan</i></b><span>by Antharmaya Labs</span></a>
+    <a class="mark" href="./" aria-label="deedroll home" translate="no"><b>deed<i>roll</i></b><span>by Antharmaya Labs</span></a>
     <a class="census-chip" href="#registry" id="nav-count" hidden>— servers watched</a>
     <nav aria-label="Sections">
       <a href="#setup">Your setup</a>
@@ -45,12 +45,12 @@
           <p class="help" id="pkg-help" aria-live="polite">Nothing is installed or run, and no tool is ever called.</p>
           <div class="relay-ask" id="relay-ask" role="region" aria-labelledby="relay-why" hidden>
             <p id="relay-why"></p>
-            <p class="relay-what">mcpscan's relay can send the same read-only requests from its server and show you the answer. The relay sees this URL; it stores nothing.</p>
+            <p class="relay-what">deedroll's relay can send the same read-only requests from its server and show you the answer. The relay sees this URL; it stores nothing.</p>
             <div class="relay-actions">
               <button class="btn" type="button" id="relay-go">Probe through the relay</button>
               <label class="relay-always"><input type="checkbox" id="relay-always"> Always, when a server needs it</label>
             </div>
-            <p class="relay-alt">Or on your own machine: <code translate="no">npx @antharmaya/mcpscan &lt;url&gt;</code></p>
+            <p class="relay-alt">Or on your own machine: <code translate="no">npx @antharmaya/deedroll &lt;url&gt;</code></p>
           </div>
           <div class="examples" translate="no"><span translate="yes">Try</span>
             <button class="chip" type="button" data-pkg="pretrip-mcp">pretrip-mcp</button>
@@ -98,7 +98,7 @@
         <div class="pub-copy">
           <h2>Is this your server?</h2>
           <p id="pub-text"></p>
-          <p class="pub-note">Write each description in your own words, and mark <code>isRequired</code> where the server cannot start without it. mcpscan fills in only what the code shows.</p>
+          <p class="pub-note">Write each description in your own words, and mark <code>isRequired</code> where the server cannot start without it. deedroll fills in only what the code shows.</p>
         </div>
         <div class="pub-code">
           <div class="pub-head"><span translate="no">server.json · packages[0]</span><span class="pub-count" id="pub-count"></span><button class="chip" type="button" id="pub-copy">Copy JSON</button></div>
@@ -116,7 +116,7 @@
           <button class="btn" type="button" id="local-go">Check this computer</button>
           <p class="setup-status" id="local-status" aria-live="polite"></p>
           <ol class="setup-results" id="local-results"></ol>
-          <p class="setup-note">The command line checks every listening port, and your network: <code translate="no">npx @antharmaya/mcpscan --local</code></p>
+          <p class="setup-note">The command line checks every listening port, and your network: <code translate="no">npx @antharmaya/deedroll --local</code></p>
         </div>
         <div class="setup-part" aria-labelledby="config-h">
           <h3 id="config-h">Servers your agents trust</h3>
@@ -146,7 +146,7 @@
   <div class="wrap band-grid">
     <div>
       <div class="figure" id="figure">37,878</div>
-      <h2 id="registry-h">MCP servers in the official registry. mcpscan reads every listing, every day.</h2>
+      <h2 id="registry-h">MCP servers in the official registry. deedroll reads every listing, every day.</h2>
       <dl class="census" id="census">
         <div><dt>New yesterday</dt><dd id="census-added">368</dd></div>
         <div><dt>Changed what they ask for</dt><dd id="census-declared">84</dd></div>
@@ -161,7 +161,7 @@
       <div class="legend"><span><i class="on"></i>Mentioned nowhere</span><span><i class="readme"></i>Explained in its README only</span><span><i></i>Declared in its listing</span></div>
       <p class="dot-note" id="dot-note" aria-live="polite">Point at a dot to see the server.</p>
       <p class="sample-p" id="band-method">A random sample of npm-published servers in the official MCP registry.</p>
-      <p class="sample-p"><a href="https://github.com/antharmaya/mcpscan#measurements" class="on-band">How this was measured</a></p>
+      <p class="sample-p"><a href="https://github.com/antharmaya/deedroll#measurements" class="on-band">How this was measured</a></p>
     </div>
   </div>
 </section>
@@ -169,7 +169,7 @@
 <div class="wrap">
   <section class="history" id="history" aria-labelledby="history-h">
     <h2 id="history-h">The registry, day by day</h2>
-    <p class="history-lede">Every day, mcpscan records what each listing in the official MCP registry declares, and what a slice of hosted servers' tools say. Each day is chained to the one before by its hash, so the record cannot be quietly rewritten, and you can check that yourself.</p>
+    <p class="history-lede">Every day, deedroll records what each listing in the official MCP registry declares, and what a slice of hosted servers' tools say. Each day is chained to the one before by its hash, so the record cannot be quietly rewritten, and you can check that yourself.</p>
     <div class="history-body" id="history-body"><p class="setup-status">Loading the record…</p></div>
   </section>
 
@@ -181,9 +181,9 @@
         <li><h3>Read it without running it</h3><p>Packages are unpacked in memory: install scripts never run and nothing touches your disk. Hosted servers get discovery requests only, never a tool call.</p></li>
         <li><h3>Compare the label with the code</h3><p>What its registry listing declares, against what the code reads, runs and contacts. Every finding points at a file and a line.</p></li>
       </ol>
-      <details class="catalog" id="catalog"><summary>Every check mcpscan makes</summary><div id="catalog-body"></div></details>
-      <p class="promise"><b>What a result is, and isn't:</b> mcpscan reads a server's label beside its code, without running either. A difference between them is a question for the publisher, not a verdict on the server, and most turn out to be documentation gaps. It does not prove a server safe, and it does not yet trace whether a tool's input can reach a shell or a file path, which is where most of 2026's MCP vulnerabilities were found.</p>
-      <p class="promise"><b>What leaves your browser:</b> package names and versions (to npm or PyPI, the MCP registry and OSV.dev), and for a hosted server, the discovery requests to that server. If you choose the relay, the URL goes to mcpscan's relay, which keeps nothing. Tools you scan are remembered in this browser only, so a later change stands out.</p>
+      <details class="catalog" id="catalog"><summary>Every check deedroll makes</summary><div id="catalog-body"></div></details>
+      <p class="promise"><b>What a result is, and isn't:</b> deedroll reads a server's label beside its code, without running either. A difference between them is a question for the publisher, not a verdict on the server, and most turn out to be documentation gaps. It does not prove a server safe, and it does not yet trace whether a tool's input can reach a shell or a file path, the largest class of publicly listed MCP vulnerabilities (17 of 50 in the Vulnerable MCP Project, October 2026).</p>
+      <p class="promise"><b>What leaves your browser:</b> package names and versions (to npm or PyPI, the MCP registry and OSV.dev), and for a hosted server, the discovery requests to that server. If you choose the relay, the URL goes to deedroll's relay, which keeps nothing. Tools you scan are remembered in this browser only, so a later change stands out.</p>
     </div>
   </section>
 
@@ -193,15 +193,15 @@
       <p>The command line also probes hosted servers and pins their tools, reads the MCP configs of Claude Code, Codex, Cursor, Devin and Gemini CLI without launching anything, and writes SARIF for code scanning.</p>
     </div>
     <div class="term" role="group" aria-label="Commands" translate="no">
-      <div><code>npx @antharmaya/mcpscan --installed</code><span>every configured server</span></div>
-      <div><code>npx @antharmaya/mcpscan https://host/mcp</code><span>a hosted server, pinned</span></div>
-      <div><code>npx @antharmaya/mcpscan pypi:&lt;package&gt;</code><span>before you install</span></div>
-      <div><code>npx @antharmaya/mcpscan explain</code><span>what every check means</span></div>
+      <div><code>npx @antharmaya/deedroll --installed</code><span>every configured server</span></div>
+      <div><code>npx @antharmaya/deedroll https://host/mcp</code><span>a hosted server, pinned</span></div>
+      <div><code>npx @antharmaya/deedroll pypi:&lt;package&gt;</code><span>before you install</span></div>
+      <div><code>npx @antharmaya/deedroll explain</code><span>what every check means</span></div>
     </div>
   </section>
 
   <footer class="site-foot">
-    <span>mcpscan is made by Antharmaya Labs. MIT licensed.</span>
+    <span>deedroll is made by Antharmaya Labs. MIT licensed.</span>
     <span>Type: Bricolage Grotesque, Hanken Grotesk, JetBrains Mono. Icons: Phosphor.</span>
   </footer>
 </div>

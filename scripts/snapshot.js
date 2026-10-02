@@ -6,7 +6,7 @@
  * and the registry "does not provide data durability guarantees". Only a record kept at
  * the time can show what a listing declared, or what a server's tools said, on a given day.
  *
- * Each run writes, under $MCPSCAN_ARCHIVE (default ./archive):
+ * Each run writes, under $DEEDROLL_ARCHIVE (default ./archive):
  *   registry/YYYY-MM-DD.jsonl.gz   every latest listing: declarations, endpoints, status
  *   registry/YYYY-MM-DD.diff.json  what changed since the previous snapshot
  *   tools/YYYY-MM-DD.jsonl.gz      tool lists of a rotating slice of hosted servers
@@ -18,8 +18,8 @@
  *   node scripts/snapshot.js --verify        re-hash every file and check the chain
  *   node scripts/snapshot.js --upload        publish anything not yet uploaded to R2
  *
- * Publishing: with MCPSCAN_R2_BUCKET set, each run uploads its files and the chain to that
- * Cloudflare R2 bucket (via wrangler), which the mcpscan Worker serves read-only at
+ * Publishing: with DEEDROLL_R2_BUCKET set, each run uploads its files and the chain to that
+ * Cloudflare R2 bucket (via wrangler), which the deedroll Worker serves read-only at
  * /history/. Uploads are tracked by content hash in archive/uploaded.json, so a failed
  * night is retried the next day and nothing is uploaded twice.
  */
@@ -31,7 +31,7 @@ import { execFileSync } from 'node:child_process';
 import { inspectRemote } from '../src/remote-scan.js';
 import { fingerprintTools } from '../src/pins-core.js';
 
-const ARCHIVE = resolve(process.env.MCPSCAN_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
+const ARCHIVE = resolve(process.env.DEEDROLL_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
 const REGISTRY = 'https://registry.modelcontextprotocol.io/v0.1/servers';
 const CHAIN = join(ARCHIVE, 'chain.jsonl');
 const today = new Date().toISOString().slice(0, 10);
@@ -259,7 +259,7 @@ async function takeLocked() {
   const target = join(ARCHIVE, 'registry', `${today}.jsonl.gz`);
   if (existsSync(target)) {
     log(`snapshot for ${today} already exists`);
-    if (process.env.MCPSCAN_R2_BUCKET) upload(process.env.MCPSCAN_R2_BUCKET); // retry anything still pending
+    if (process.env.DEEDROLL_R2_BUCKET) upload(process.env.DEEDROLL_R2_BUCKET); // retry anything still pending
     return;
   }
   const t0 = Date.now();
@@ -283,7 +283,7 @@ async function takeLocked() {
   if (tools.rows.length) files.push(writeGz(join(ARCHIVE, 'tools', `${today}.jsonl.gz`), tools.rows));
 
   appendChain({ date: today, took: Math.round((Date.now() - t0) / 1000), pages, listings: listings.length, endpoints: tools.total, probed: tools.rows.filter((r) => r.probed).length, files });
-  if (process.env.MCPSCAN_R2_BUCKET) upload(process.env.MCPSCAN_R2_BUCKET);
+  if (process.env.DEEDROLL_R2_BUCKET) upload(process.env.DEEDROLL_R2_BUCKET);
   log(`snapshot ${today}: ${listings.length} listings (${pages} pages), ${summary}; tools for ${tools.rows.length} of ${tools.total} endpoints (${tools.rows.filter((r) => r.probed).length} answered); ${Math.round((Date.now() - t0) / 1000)} s`);
 }
 
@@ -309,7 +309,7 @@ function status() {
     if (!days.has(k)) gaps.push(k);
   }
   if (gaps.length) {
-    console.log(`MISSING: no snapshot for ${gaps.join(', ')}${last < due ? ` (last is ${last})` : ''}. Check: systemctl --user status mcpscan-snapshot.timer`);
+    console.log(`MISSING: no snapshot for ${gaps.join(', ')}${last < due ? ` (last is ${last})` : ''}. Check: systemctl --user status deedroll-snapshot.timer`);
     process.exitCode = 1;
   } else console.log(`ok: ${chain.length} snapshot(s), last ${last}, none missing`);
 }
@@ -341,9 +341,9 @@ function verify() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   if (args.includes('--status')) status();
   else if (args.includes('--upload')) {
-    const bucket = process.env.MCPSCAN_R2_BUCKET ?? flag('--upload', null);
+    const bucket = process.env.DEEDROLL_R2_BUCKET ?? flag('--upload', null);
     if (!bucket || bucket === true) {
-      console.log('set MCPSCAN_R2_BUCKET, or pass the bucket: --upload mcpscan-history');
+      console.log('set DEEDROLL_R2_BUCKET, or pass the bucket: --upload mcpscan-history');
       process.exitCode = 2;
     } else process.exitCode = upload(bucket) ? 0 : 1;
   }

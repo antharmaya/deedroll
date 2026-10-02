@@ -1,6 +1,9 @@
-# mcpscan
+# deedroll
 
-Check an MCP server before you trust it. mcpscan reads what a server's code actually does and
+A deed roll is a register of deeds: what was actually done, written down and kept. deedroll keeps
+one for MCP servers.
+
+Check an MCP server before you trust it. deedroll reads what a server's code actually does and
 compares it with what the server tells you, then reports every difference with the file and line
 that proves it.
 
@@ -14,14 +17,14 @@ description is ever sent anywhere. No account, no API key.
 
 ## Try it in a minute
 
-**In a browser:** https://mcpscan.antharmaya.com (the same engine, running in the page).
+**In a browser:** https://deedroll.antharmaya.com (the same engine, running in the page).
 To run it locally instead: `node scripts/serve.js`, then open http://localhost:4173/web/.
 
 Type a server URL, a package or a registry name, click an example, or paste what your config
 says (`npx -y …`, `uvx …`).
 
 Most hosted servers don't let web pages read their answers (25 of 44 sampled, 2026-09-28). For
-those, the page offers mcpscan's relay: the same read-only probe, run from the server behind the
+those, the page offers deedroll's relay: the same read-only probe, run from the server behind the
 page. It asks first, sees only the URL, and stores nothing. `scripts/serve.js` includes the relay
 for local use.
 
@@ -29,11 +32,11 @@ The page does everything the command line does:
 
 | In the page | Command line |
 |---|---|
-| Scan a package, a server URL or a registry name | `mcpscan <target>` |
-| **Check this computer**: which MCP servers on common ports a website could reach | `mcpscan --local` (every port, and `--subnet`) |
-| **Servers your agents trust**: choose your config files; read in the page, never uploaded | `mcpscan --installed` |
+| Scan a package, a server URL or a registry name | `deedroll <target>` |
+| **Check this computer**: which MCP servers on common ports a website could reach | `deedroll --local` (every port, and `--subnet`) |
+| **Servers your agents trust**: choose your config files; read in the page, never uploaded | `deedroll --installed` |
 | Download the report as JSON, SARIF, an egress allowlist or a registry block | `--json`, `--sarif`, `--egress`, `--registry-meta` |
-| Why each finding matters, and every check | `mcpscan explain` |
+| Why each finding matters, and every check | `deedroll explain` |
 | The registry history, and **verifying it** in your browser | `snapshot.js --status`, `--verify` |
 
 Not in the page: `--deps`, the agent-judge protocol (`--semantic=agent`), and tool-name
@@ -43,16 +46,16 @@ time on click) — these need a command line.
 **On the command line** (Node 22+):
 
 ```
-npx @antharmaya/mcpscan io.github.owner/some-server     # any official-registry listing
-npx @antharmaya/mcpscan npm:@modelcontextprotocol/server-filesystem
-npx @antharmaya/mcpscan pypi:mcp-server-fetch
-npx @antharmaya/mcpscan https://learn.microsoft.com/api/mcp
-npx @antharmaya/mcpscan --installed                     # everything your agents already trust
-npx @antharmaya/mcpscan explain                         # what every check means
+npx @antharmaya/deedroll io.github.owner/some-server     # any official-registry listing
+npx @antharmaya/deedroll npm:@modelcontextprotocol/server-filesystem
+npx @antharmaya/deedroll pypi:mcp-server-fetch
+npx @antharmaya/deedroll https://learn.microsoft.com/api/mcp
+npx @antharmaya/deedroll --installed                     # everything your agents already trust
+npx @antharmaya/deedroll explain                         # what every check means
 ```
 
-From a clone, `node bin/mcpscan.js` works the same way. (The npm package is not published
-yet; until it is, run it from a clone: `git clone https://github.com/antharmaya/mcpscan`.)
+From a clone, `node bin/deedroll.js` works the same way. (The npm package is not published
+yet; until it is, run it from a clone: `git clone https://github.com/antharmaya/deedroll`.)
 
 ## What it can scan
 
@@ -66,7 +69,7 @@ yet; until it is, run it from a clone: `git clone https://github.com/antharmaya/
 | `--local` | Finds MCP servers listening on this machine (every listening port, with the owning process) or, with `--subnet 192.168.1.0/24`, on a private network you own. Checks each for network exposure, sign-in, and whether it rejects requests from other websites, as the specification requires. |
 
 Not yet: Docker images, `.mcpb` bundles, NuGet and Cargo packages; the tool lists of servers that
-require sign-in (their sign-in is checked, their tools are not listed, since mcpscan uses no
+require sign-in (their sign-in is checked, their tools are not listed, since deedroll uses no
 account); and tool lists over the deprecated HTTP+SSE transport (detected and reported). Each is
 reported as "not scanned" with the reason, never as clean.
 
@@ -87,7 +90,7 @@ reported as "not scanned" with the reason, never as clean.
   INFO   network-egress  contacts scan.kesey.agency
 
   1 high · 1 medium · 1 low · 1 info
-  What these mean: mcpscan explain undeclared-env · mcpscan explain provenance
+  What these mean: deedroll explain undeclared-env · deedroll explain provenance
 ```
 
 | Severity | Meaning |
@@ -97,7 +100,7 @@ reported as "not scanned" with the reason, never as clean.
 | **low** | Good to know. |
 | **info** | Context, not a problem. A filesystem server writing files is the product working. |
 
-Every finding names a check. `mcpscan explain <check>` says why it matters and what to do; the web
+Every finding names a check. `deedroll explain <check>` says why it matters and what to do; the web
 page shows the same text under each finding; [docs/checks.md](docs/checks.md) lists all of them.
 The exit code is 1 when anything at or above `--fail-on` (default `high`) is found, so it fits in CI.
 
@@ -105,17 +108,17 @@ The exit code is 1 when anything at or above `--fail-on` (default `high`) is fou
 
 | Flag | For |
 |---|---|
-| `--json` | Scripts and pipelines. Schema `mcpscan/v1` ([docs/schema-v1.md](docs/schema-v1.md)): stable check ids, and a stable `id` per finding for baselines and suppressions. |
+| `--json` | Scripts and pipelines. Schema `deedroll/v1` ([docs/schema-v1.md](docs/schema-v1.md)): stable check ids, and a stable `id` per finding for baselines and suppressions. |
 | `--sarif` | GitHub code scanning, Azure DevOps and security dashboards. SARIF 2.1.0, validated against the official schema. |
 | `--egress` | Egress proxies. The hosts the server's code names, as a starting allowlist (static, so a starting point). |
-| `--registry-meta` | Registries and marketplaces. A `_meta` block under `com.antharmaya/mcpscan` that a subregistry can attach to a listing: the mechanism the official registry documents for "security scan results". |
+| `--registry-meta` | Registries and marketplaces. A `_meta` block under `com.antharmaya/deedroll` that a subregistry can attach to a listing: the mechanism the official registry documents for "security scan results". |
 
 GitHub code scanning, for example:
 
 ```yaml
-- run: npx @antharmaya/mcpscan io.github.owner/server --sarif > mcpscan.sarif || true
+- run: npx @antharmaya/deedroll io.github.owner/server --sarif > deedroll.sarif || true
 - uses: github/codeql-action/upload-sarif@v3
-  with: { sarif_file: mcpscan.sarif }
+  with: { sarif_file: deedroll.sarif }
 ```
 
 ## What it checks
@@ -143,7 +146,7 @@ Grouped here; every check, with why and what to do, is in [docs/checks.md](docs/
 
 Checked against each project's own README on 2026-09-28.
 
-| | mcpscan | Snyk Agent Scan | Cisco mcp-scanner |
+| | deedroll | Snyk Agent Scan | Cisco mcp-scanner |
 |---|---|---|---|
 | Runs the server to inspect it | Never | Starts stdio servers from your config | No |
 | Sends tool descriptions elsewhere | Never | To Snyk (cannot be disabled) | Only with its API or LLM analyzers |
@@ -157,24 +160,24 @@ Checked against each project's own README on 2026-09-28.
 | Model judgment of descriptions | Optional, by your own agent | Yes, by Snyk | Optional |
 
 Where they are ahead: both judge tool descriptions for prompt injection with a model by default;
-Cisco traces dataflow across files in ten languages; Snyk also covers agent skills. mcpscan's
+Cisco traces dataflow across files in ten languages; Snyk also covers agent skills. deedroll's
 place is the check you run **before** installing, with evidence for every finding and nothing sent
 anywhere. An independent audit that ran three scanners on 33 servers found about 78% of their
 pattern detections were false positives
 ([AppSec Santa, July 2026](https://appsecsanta.com/research/mcp-server-security-audit-2026));
-mcpscan only reports what it can point at.
+deedroll only reports what it can point at.
 
 ## Hosted servers: probe, pin, and catch the rug pull
 
 ```
-mcpscan https://learn.microsoft.com/api/mcp        # probe, check descriptions, pin every tool
-mcpscan https://learn.microsoft.com/api/mcp        # later: reports anything that changed
-mcpscan <url> --update-pins                        # accept the changes and re-pin
-mcpscan --installed --remote --auth-from-env       # every hosted server your agents trust
+deedroll https://learn.microsoft.com/api/mcp        # probe, check descriptions, pin every tool
+deedroll https://learn.microsoft.com/api/mcp        # later: reports anything that changed
+deedroll <url> --update-pins                        # accept the changes and re-pin
+deedroll --installed --remote --auth-from-env       # every hosted server your agents trust
 ```
 
 - **Both protocol generations.** Revision 2026-07-28 made MCP stateless: no `initialize`, no
-  session, version and client identity on every request. mcpscan sends a current request first and
+  session, version and client identity on every request. deedroll sends a current request first and
   falls back to the older handshake only when the reply shows an older server, as the
   specification prescribes. On 30 random registry endpoints (2026-09-28): 2 answered on
   2026-07-28, 18 on older revisions, 5 needed sign-in, 5 were not live.
@@ -189,7 +192,7 @@ mcpscan --installed --remote --auth-from-env       # every hosted server your ag
 ## The registry history
 
 A hosted server can change what its tools say after you approved them, and the official
-registry keeps no guarantees about its own data. So mcpscan keeps a record: once a day, every
+registry keeps no guarantees about its own data. So deedroll keeps a record: once a day, every
 listing's declarations (packages, settings, endpoints, status), a diff against the day before,
 and the tool lists of a rotating slice of hosted servers. Each day's entry is hash-chained to the
 one before, so the history cannot be quietly rewritten.
@@ -200,7 +203,7 @@ node scripts/snapshot.js --status     # the last runs, and a warning if the reco
 node scripts/snapshot.js --verify     # re-hash every file and check every link in the chain
 ```
 
-Published at https://mcpscan.antharmaya.com/history/chain.jsonl (Cloudflare R2), and
+Published at https://deedroll.antharmaya.com/history/chain.jsonl (Cloudflare R2), and
 verifiable from the web page. The local copy is under `archive/` (not in git). Measured on the first run: about 4 MB a day (3.4 MB of listings, 0.6 MB of tool lists), roughly 1.5 GB a year before deduplication. At 500 endpoints a day, every hosted endpoint comes round about every 46 days.
 
 ## The ledger: every MCP server's history
@@ -220,7 +223,7 @@ GET /api/servers/<registry name>          one server: its latest listing, probes
 GET /api/servers                          the ledger's span and size
 ```
 
-Live at `https://mcpscan.antharmaya.com/api/servers`. JSON, open to any origin, cached at the
+Live at `https://deedroll.antharmaya.com/api/servers`. JSON, open to any origin, cached at the
 edge for ten minutes.
 
 `node scripts/build-ledger.js` folds any new day into the saved state;
@@ -259,7 +262,7 @@ much older; its `publishedAt` says when.
 ## Audit what you already trust
 
 ```
-npx @antharmaya/mcpscan --installed     # --all for every server, --remote to probe hosted ones
+npx @antharmaya/deedroll --installed     # --all for every server, --remote to probe hosted ones
 ```
 
 Your config files contain live keys, so values are dropped the moment they are parsed: every later
@@ -272,8 +275,8 @@ The static scan knows what the code *can* do. Whether the descriptions *say so* 
 question, and the agent you already run can answer it, with no API key:
 
 ```
-mcpscan npm:<package> --semantic=agent > request.json   # what to judge, and the rules
-mcpscan --answers answers.json                          # the agent's answers, checked and applied
+deedroll npm:<package> --semantic=agent > request.json   # what to judge, and the rules
+deedroll --answers answers.json                          # the agent's answers, checked and applied
 ```
 
 The descriptions were written by the publisher, so the request treats them as untrusted data, a
@@ -281,8 +284,8 @@ The descriptions were written by the publisher, so the request treats them as un
 exact request. Install the skill so your agent scans before installing any server:
 
 ```
-claude plugin marketplace add ./mcpscan && claude plugin install mcpscan@antharmaya   # Claude Code
-cp -r mcpscan/skills/mcpscan ~/.codex/skills/                                         # Codex
+claude plugin marketplace add ./deedroll && claude plugin install deedroll@antharmaya   # Claude Code
+cp -r deedroll/skills/deedroll ~/.codex/skills/                                         # Codex
 ```
 
 `--semantic` does the same through TypeSafe's API instead (`TYPESAFE_API_KEY`); its thresholds are
@@ -290,11 +293,11 @@ not calibrated yet. The default scan never calls a model.
 
 ## Speed, cache and the registry index
 
-- The official registry's search matches listing names only, so mcpscan ships an index from
+- The official registry's search matches listing names only, so deedroll ships an index from
   package names to listings (`src/data/registry-index.json`: 36,906 listings, 9,796 npm and 3,868
   PyPI packages, built 2026-09-28 by `scripts/build-index.js`). A complete index under seven days
   old is trusted on a miss, and says so ("no listing as of <date>").
-- npm tarballs are cached compressed under `~/.cache/mcpscan/tarballs`, keyed by their sha512 and
+- npm tarballs are cached compressed under `~/.cache/deedroll/tarballs`, keyed by their sha512 and
   re-verified on every read. `--no-cache` turns it off.
 - `--deps` also reads a vendor's own dependencies (one level, bounded). On 27 vendor servers it
   changed the capability picture for 10, at about 60% more download, so it is off by default.
@@ -307,10 +310,12 @@ It is static. It reads code, not behaviour: a server that builds a hostname at r
 downloads code after starting will not be caught. It does not follow dataflow across files, so it
 reports that a credential is *read*, not where it goes. `info` findings are not accusations.
 
-It does not trace whether a tool's input can reach a shell, a file path or a URL fetch. That is
-where most of 2026's MCP CVEs came from: shell injection was about 43% of an early-2026 wave of
-30+ CVEs, and path traversal about 10% ([bex.co, 2026-09-23](https://bex.co/blog/2026/09/23/mcp-cve-wave-2026-deploy-mcp-supply-chain)).
-mcpscan reports that a server *can* run programs or write files, not whether a caller can steer
+It does not trace whether a tool's input can reach a shell, a file path or a URL fetch. That
+class (input validation) is the largest among publicly listed MCP vulnerabilities: 17 of 50 in
+the [Vulnerable MCP Project](https://vulnerablemcp.info/) (checked 2026-10-02). Cisco's
+[mcp-scanner](https://github.com/cisco-ai-defense/mcp-scanner) does trace it, with dataflow
+analysis plus an LLM reading the code; run it alongside if that is your question.
+deedroll reports that a server *can* run programs or write files, not whether a caller can steer
 it to. A difference between a listing and the code is a question for the publisher, not a
 verdict; a credential the package's README documents is reported as such, at low severity.
 
@@ -349,9 +354,9 @@ scanned, none errored. A benchmark of the scanner, not a published statistic.
 | [docs/checks.md](docs/checks.md) | Every check: why it matters, what to do (generated from `src/rules.js`) |
 | [docs/schema-v1.md](docs/schema-v1.md) | The `--json`, `--sarif` and `--registry-meta` output contract |
 | [docs/architecture.md](docs/architecture.md) | How it is built: the seams, the one-way doors, the failure modes |
-| [docs/nsa-coverage.md](docs/nsa-coverage.md) | What mcpscan covers of the NSA's MCP security guidance (May 2026), and what it does not |
+| [docs/nsa-coverage.md](docs/nsa-coverage.md) | What deedroll covers of the NSA's MCP security guidance (May 2026), and what it does not |
 | [web/DESIGN.md](web/DESIGN.md) | The web page's design system |
-| `mcpscan --help`, `mcpscan explain` | The same, in the terminal |
+| `deedroll --help`, `deedroll explain` | The same, in the terminal |
 
 ## Deploying
 
@@ -362,14 +367,14 @@ node scripts/build-site.js      # site/: the page and engine, with a Content-Sec
 npx wrangler deploy             # static assets, /api/probe (rate-limited), /history/* from R2
 ```
 
-It answers at `mcpscan.antharmaya.com`, a Workers custom domain: Cloudflare manages its DNS
-record and certificate. The old `mcpscan.harshavar968.workers.dev` address stays on, because
+It answers at `deedroll.antharmaya.com`, a Workers custom domain: Cloudflare manages its DNS
+record and certificate. The old `deedroll.harshavar968.workers.dev` address stays on, because
 links already sent point at it. Its GET and HEAD requests get a 301 to the same path on the
 canonical host, while POSTs to its relay are still answered. HTML responses carry
 `Cache-Control: no-transform`, so Cloudflare does not inject the zone's analytics beacon into
 a page that promises no third-party scripts.
 
-The daily snapshot uploads to the R2 bucket when `MCPSCAN_R2_BUCKET` is set (the systemd unit
+The daily snapshot uploads to the R2 bucket when `DEEDROLL_R2_BUCKET` is set (the systemd unit
 sets it); `node scripts/snapshot.js --upload mcpscan-history` retries anything not yet uploaded.
 
 ## Development

@@ -1,6 +1,6 @@
 /**
  * Tool pinning, platform-neutral: the same fingerprints and the same diff in the CLI
- * (pins stored in ~/.config/mcpscan/pins.json) and in the browser (pins stored in the
+ * (pins stored in ~/.config/deedroll/pins.json) and in the browser (pins stored in the
  * visitor's own browser). A hosted server can rewrite a tool's description after it was
  * approved; the only defence is remembering what it said.
  */

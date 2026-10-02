@@ -24,7 +24,7 @@
 export const MODERN_VERSION = '2026-07-28';
 const LEGACY_VERSION = '2025-06-18';
 const MODERN_ERRORS = new Set([-32020, -32021, -32022]); // HeaderMismatch, MissingRequiredClientCapability, UnsupportedProtocolVersion
-const CLIENT = { name: 'mcpscan', version: '0.1.0' };
+const CLIENT = { name: 'deedroll', version: '0.1.0' };
 const TIMEOUT_MS = 15000;
 const MAX_BYTES = 5 * 1024 * 1024;
 const MAX_PAGES = 20;

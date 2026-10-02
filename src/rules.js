@@ -8,14 +8,14 @@
  * them (the web page did, which is how a wording change broke a test on 2026-09-28).
  */
 
-export const SCHEMA = 'mcpscan/v1';
+export const SCHEMA = 'deedroll/v1';
 /** Kept equal to package.json's version by a test; the browser cannot read package.json. */
 export const TOOL_VERSION = '0.1.0';
-export const SCHEMA_URL = 'https://github.com/varbees/mcpscan/blob/main/docs/schema-v1.md';
+export const SCHEMA_URL = 'https://github.com/varbees/deedroll/blob/main/docs/schema-v1.md';
 
 /** id -> title, why it matters, what to do. Severities vary per finding; `level` is the usual one. */
 export const RULES = {
-  'undeclared-env': { title: 'Reads a setting its listing does not declare', level: 'high', why: 'The registry listing is what catalogs, install tools and agents read before installing. A credential the code reads but the listing does not mention reaches the user only through the README, or at runtime. Many servers do document it in their README; when they do, mcpscan says so and reports it as worth knowing rather than as a hidden read. A name that appears only inside a string, such as example code a server hands to the agent, is reported as info: nothing reads it.', fix: 'Declare every environment variable in the server.json listing, marking credentials isSecret.' },
+  'undeclared-env': { title: 'Reads a setting its listing does not declare', level: 'high', why: 'The registry listing is what catalogs, install tools and agents read before installing. A credential the code reads but the listing does not mention reaches the user only through the README, or at runtime. Many servers do document it in their README; when they do, deedroll says so and reports it as worth knowing rather than as a hidden read. A name that appears only inside a string, such as example code a server hands to the agent, is reported as info: nothing reads it.', fix: 'Declare every environment variable in the server.json listing, marking credentials isSecret.' },
   'dynamic-env': { title: 'Builds an environment variable name at runtime', level: 'info', why: 'A computed name cannot be checked statically, so what it reads is unknown until it runs.', fix: 'Read variables by literal name where possible.' },
   'install-script': { title: 'Runs code when installed', level: 'high', why: 'Install-time code runs with the installing user\'s rights before anyone has used, or reviewed, the server: the classic supply-chain entry point.', fix: 'Remove install-time scripts; publish a wheel for Python packages.' },
   'network-egress': { title: 'Contacts an external host', level: 'info', why: 'Every host in the code is somewhere data can go. Hosts the listing names are expected; others are worth a look.', fix: 'Name the hosts the server talks to in its listing or README.' },
@@ -30,7 +30,7 @@ export const RULES = {
   'known-vulnerability': { title: 'Has a known vulnerability', level: 'high', why: 'A published advisory (OSV.dev, including GitHub advisories) affects this exact version.', fix: 'Upgrade to the fixed version the advisory names.' },
   'vuln-lookup-failed': { title: 'Vulnerability lookup did not complete', level: 'info', why: 'OSV.dev did not answer, so known vulnerabilities were not checked.', fix: 'Run the scan again.' },
   'multiple-listings': { title: 'Several registry listings ship this package', level: 'info', why: 'Different listings can declare different settings for the same code.', fix: 'Check which listing you are installing from.' },
-  'no-package': { title: 'Nothing to scan statically', level: 'info', why: 'The listing ships no package this version of mcpscan reads.', fix: 'Probe its remote endpoint instead.' },
+  'no-package': { title: 'Nothing to scan statically', level: 'info', why: 'The listing ships no package this version of deedroll reads.', fix: 'Probe its remote endpoint instead.' },
   'undisclosed-capability': { title: 'Tool descriptions do not disclose a capability', level: 'medium', why: 'The agent and the user decide what to allow from the descriptions; a capability they never mention is a surprise by design.', fix: 'Describe what each tool can run, write or contact.' },
   'disclosure-unclear': { title: 'Disclosure could not be decided', level: 'info', why: 'The judge could not say whether the descriptions disclose a capability.', fix: 'Read the descriptions yourself.' },
   'disclosure-not-judged': { title: 'Disclosure was not judged', level: 'info', why: 'Descriptions were missing or cut off, so no verdict would be honest.', fix: 'None needed.' },
@@ -38,7 +38,7 @@ export const RULES = {
   'credential-unresolved': { title: 'A referenced credential is not set', level: 'info', why: 'The config points at a variable that is not in the environment.', fix: 'Set it, or remove the reference.' },
   'tool-name-collision': { title: 'Shares a tool name with another server you trust', level: 'medium', why: 'A client resolves a tool call by name. Two different servers offering the same name is how a malicious or compromised one hijacks calls meant for the trusted one \u2014 the NSA MCP guidance calls this tool invocation path confusion.', fix: 'Rename one, or remove whichever server you trust less; check which one actually answers the call.' },
   'unpinned-launch': { title: 'Launches whatever version is newest', level: 'medium', why: 'npx or uvx without a version runs the latest release at every start, so a bad release reaches you without any action on your part.', fix: 'Pin an exact version in the launch command.' },
-  'not-scanned': { title: 'Configured server not scanned', level: 'info', why: 'Its launch method is not one mcpscan reads yet.', fix: 'None needed.' },
+  'not-scanned': { title: 'Configured server not scanned', level: 'info', why: 'Its launch method is not one deedroll reads yet.', fix: 'None needed.' },
   'scan-error': { title: 'The scan failed', level: 'info', why: 'Something went wrong fetching or reading this server.', fix: 'Run it again; report it if it persists.' },
   'deprecated-transport': { title: 'Uses a deprecated transport', level: 'low', why: 'HTTP+SSE was deprecated in 2025-03-26 and is eligible for removal from the protocol; clients will drop it, and it predates the transport\'s current security guidance.', fix: 'Move the server to Streamable HTTP.' },
   'listing-status': { title: 'Deprecated or removed from the registry', level: 'high', why: 'Registry maintainers mark a listing deleted when it breaks the moderation policy (spam, malware, impersonation); a publisher marks it deprecated when it should not be used.', fix: 'Do not install a deleted listing. For a deprecated one, find its replacement.' },

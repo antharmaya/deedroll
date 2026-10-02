@@ -1,5 +1,5 @@
 /**
- * mcpscan web: the same engine as the CLI (../src/browser.js), and a choreography that
+ * deedroll web: the same engine as the CLI (../src/browser.js), and a choreography that
  * replays its REAL results — real file names, real lines — never simulated progress.
  *
  * Security: every string shown here (paths, code, descriptions) was written by a package
@@ -113,7 +113,7 @@ export function sentence(f) {
     case 'deprecated-transport':
       return 'Uses the deprecated HTTP+SSE transport, so its tools could not be listed.';
     case 'remote-not-probed':
-      return /authentication/.test(m) ? 'Requires sign-in, so its tools were not listed. mcpscan uses no account.' : `Could not be probed: ${m.replace(/:.*$/, '')}.`;
+      return /authentication/.test(m) ? 'Requires sign-in, so its tools were not listed. deedroll uses no account.' : `Could not be probed: ${m.replace(/:.*$/, '')}.`;
     case 'pinned':
       return 'First scan from this browser: its tools are now remembered, and any change will show next time.';
     case 'tool-description-changed':
@@ -676,7 +676,7 @@ async function scanTarget(q) {
         return scanLive(target, { keepUrl: q });
       }
       url = (entry.server.remotes ?? []).find((r) => r.url && !/\{/.test(r.url))?.url;
-      if (!url) throw Object.assign(new Error(`“${q}” ships nothing mcpscan can scan yet (no npm or PyPI package, no fixed URL).`), { code: 'not-found' });
+      if (!url) throw Object.assign(new Error(`“${q}” ships nothing deedroll can scan yet (no npm or PyPI package, no fixed URL).`), { code: 'not-found' });
     }
     await scanRemoteUrl(url, { entry, my });
     if (!stale(my)) history.replaceState(null, '', `?q=${encodeURIComponent(q)}`);
@@ -726,14 +726,14 @@ function end(btn) {
 /* ---------- hosted servers ---------- */
 
 // Pins live in this visitor's browser only: a per-viewer memory of what each server said.
-const PINS_KEY = 'mcpscan-pins';
+const PINS_KEY = 'deedroll-pins';
 function loadBrowserPins() {
   try { return JSON.parse(localStorage.getItem(PINS_KEY) ?? '{}'); } catch { return {}; }
 }
 function saveBrowserPins(p) {
   try { localStorage.setItem(PINS_KEY, JSON.stringify(p)); } catch { /* private mode: nothing is remembered */ }
 }
-const relayAlways = () => { try { return localStorage.getItem('mcpscan-relay') === 'always'; } catch { return false; } };
+const relayAlways = () => { try { return localStorage.getItem('deedroll-relay') === 'always'; } catch { return false; } };
 
 /** Ask before a URL goes to the relay; resolves true when the visitor agrees, false if they move on. */
 function askRelay(my, reason) {
@@ -751,7 +751,7 @@ function askRelay(my, reason) {
       resolve(v);
     };
     const onGo = () => {
-      try { if ($('#relay-always').checked) localStorage.setItem('mcpscan-relay', 'always'); } catch { /* no storage */ }
+      try { if ($('#relay-always').checked) localStorage.setItem('deedroll-relay', 'always'); } catch { /* no storage */ }
       done(true);
     };
     go.addEventListener('click', onGo);
@@ -1022,7 +1022,7 @@ const syncChrome = () => {
 $('.theme').addEventListener('click', () => {
   const dark = document.documentElement.dataset.theme !== 'dark';
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-  try { localStorage.setItem('mcpscan-theme', dark ? 'dark' : 'light'); } catch { /* private mode */ }
+  try { localStorage.setItem('deedroll-theme', dark ? 'dark' : 'light'); } catch { /* private mode */ }
   syncChrome();
 });
 syncChrome();

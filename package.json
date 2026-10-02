@@ -1,10 +1,10 @@
 {
-  "name": "@antharmaya/mcpscan",
+  "name": "@antharmaya/deedroll",
   "version": "0.1.0",
   "description": "Static trust scanner for MCP servers. Diffs what a server's code actually does against what its registry entry declares. Never executes what it inspects.",
   "type": "module",
   "bin": {
-    "mcpscan": "bin/mcpscan.js"
+    "deedroll": "bin/deedroll.js"
   },
   "exports": {
     ".": "./src/index.js"
@@ -24,11 +24,11 @@
   "author": "varbees <harshavar968@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/antharmaya/mcpscan.git"
+    "url": "git+https://github.com/antharmaya/deedroll.git"
   },
-  "homepage": "https://github.com/antharmaya/mcpscan#readme",
+  "homepage": "https://github.com/antharmaya/deedroll#readme",
   "bugs": {
-    "url": "https://github.com/antharmaya/mcpscan/issues"
+    "url": "https://github.com/antharmaya/deedroll/issues"
   },
   "keywords": [
     "mcp",

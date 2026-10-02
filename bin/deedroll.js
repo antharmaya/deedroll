@@ -15,25 +15,25 @@ const VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.u
 const print = (doc) => process.stdout.write(`${JSON.stringify(doc, null, 2)}\n`);
 
 const USAGE = `
-mcpscan: check an MCP server before you trust it. Reads packages and probes hosted servers;
+deedroll: check an MCP server before you trust it. Reads packages and probes hosted servers;
 never installs, extracts to disk, or runs what it inspects.
 
 WHAT TO SCAN
-  mcpscan <registry-name>          any official-registry listing, e.g. io.github.owner/server
+  deedroll <registry-name>          any official-registry listing, e.g. io.github.owner/server
                                    (npm or PyPI package: read statically; hosted only: probed)
-  mcpscan npm:<package>            an npm package
-  mcpscan pypi:<package>           a PyPI package (the wheel pip would install)
-  mcpscan https://<host>/mcp       a hosted server: lists its tools read-only (never calls one),
+  deedroll npm:<package>            an npm package
+  deedroll pypi:<package>           a PyPI package (the wheel pip would install)
+  deedroll https://<host>/mcp       a hosted server: lists its tools read-only (never calls one),
                                    pins them, and reports any change on later runs
-  mcpscan --installed              every server your agents already trust: Claude Code, Codex,
+  deedroll --installed              every server your agents already trust: Claude Code, Codex,
                                    Claude Desktop, Cursor, Devin, Gemini CLI (--all for details)
-  mcpscan --local                  MCP servers listening on this machine: every listening port,
+  deedroll --local                  MCP servers listening on this machine: every listening port,
                                    checked for network exposure, sign-in and Origin validation
-  mcpscan --local --subnet <cidr>  the same across a private network range you own (at most a /24)
+  deedroll --local --subnet <cidr>  the same across a private network range you own (at most a /24)
 
 OUTPUT
   (default)                        readable report with file:line evidence
-  --json                           machine-readable, schema mcpscan/v1 (docs/schema-v1.md)
+  --json                           machine-readable, schema deedroll/v1 (docs/schema-v1.md)
   --sarif                          SARIF 2.1.0 for GitHub code scanning and security dashboards
   --registry-meta                  a _meta block a registry or marketplace can attach to a listing
   --egress                         the hosts its code names, as a starting allowlist for an egress proxy
@@ -51,18 +51,18 @@ OPTIONS
   --semantic=agent / --answers f   let the agent running you judge tool descriptions (no API key)
 
 LEARN
-  mcpscan explain                  every check, one line each
-  mcpscan explain <check>          what a finding means, why it matters, what to do
+  deedroll explain                  every check, one line each
+  deedroll explain <check>          what a finding means, why it matters, what to do
 
 WHAT LEAVES YOUR MACHINE
   Public package names and versions (npm or PyPI, the MCP registry, OSV.dev). A probe contacts
   the server you name. No scan result, config, key or tool description is ever sent anywhere.
 
 EXAMPLES
-  mcpscan npm:@modelcontextprotocol/server-filesystem
-  mcpscan pypi:mcp-server-fetch
-  mcpscan io.github.owner/my-server --sarif > mcpscan.sarif
-  mcpscan explain undeclared-env
+  deedroll npm:@modelcontextprotocol/server-filesystem
+  deedroll pypi:mcp-server-fetch
+  deedroll io.github.owner/my-server --sarif > deedroll.sarif
+  deedroll explain undeclared-env
 `;
 
 function parseArgs(argv) {
@@ -89,7 +89,7 @@ function parseArgs(argv) {
     else if (a === '--all') args.all = true;
     else if (a === '--deps') args.deps = true;
     else if (a === '--no-osv') args.osv = false;
-    else if (a === '--no-cache') process.env.MCPSCAN_NO_CACHE = '1';
+    else if (a === '--no-cache') process.env.DEEDROLL_NO_CACHE = '1';
     else if (a === '--fail-on') args.failOn = argv[++i];
     else if (a === '--version-of') args.version = argv[++i];
     else if (a === '-h' || a === '--help') args.help = true;
@@ -109,7 +109,7 @@ const args = parseArgs(process.argv.slice(2));
 if (args.target && /^https?:\/\//i.test(args.target)) {
   try {
     const { headers, missing } = resolveHeaderRefs(args.headers);
-    if (missing.length) process.stderr.write(`mcpscan: not set in this environment: ${missing.join(', ')}\n`);
+    if (missing.length) process.stderr.write(`deedroll: not set in this environment: ${missing.join(', ')}\n`);
     const result = await scanRemote(args.target, { headers, updatePins: args.updatePins });
     if (args.sarif) print(await scanToSarif([result], { version: VERSION }));
     else if (args.registryMeta) print(await toRegistryMeta(result, { version: VERSION }));
@@ -117,7 +117,7 @@ if (args.target && /^https?:\/\//i.test(args.target)) {
     else process.stdout.write(`${renderRemote(result)}\n`);
     process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
   } catch (err) {
-    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.stderr.write(`deedroll: ${err.message}\n`);
     process.exit(2);
   }
 }
@@ -128,12 +128,12 @@ if (args.agentRequest && args.target) {
     const r = await scan(args.target, { version: args.version, deps: args.deps, osv: false });
     const built = buildDisclosureRequest({ pkg: r.pkg, entry: r.entry, findings: r.findings });
     const out = built.skip
-      ? { format: 'mcpscan-judgment-request/1', target: args.target, skip: built.skip.disclosure.reason }
+      ? { format: 'deedroll-judgment-request/1', target: args.target, skip: built.skip.disclosure.reason }
       : buildAgentRequest({ target: args.target, pkg: r.pkg, request: built.request, options: { deps: args.deps } });
     process.stdout.write(`${JSON.stringify(out, null, 2)}\n`);
     process.exit(0);
   } catch (err) {
-    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.stderr.write(`deedroll: ${err.message}\n`);
     process.exit(2);
   }
 }
@@ -155,7 +155,7 @@ if (args.answers) {
     else process.stdout.write(`${render(result)}\n`);
     process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
   } catch (err) {
-    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.stderr.write(`deedroll: ${err.message}\n`);
     process.exit(2);
   }
 }
@@ -164,12 +164,12 @@ if (args.local && !args.help) {
   try {
     const result = await scanLocal({ subnet: args.subnet ?? undefined });
     if (args.sarif) print(await scanToSarif(result.servers.map((s) => ({ target: s.target, pkg: null, findings: s.findings })), { version: VERSION }));
-    else if (args.json) print({ schema: 'mcpscan/v1', tool: { name: 'mcpscan', version: VERSION }, ...result });
+    else if (args.json) print({ schema: 'deedroll/v1', tool: { name: 'deedroll', version: VERSION }, ...result });
     else process.stdout.write(`${renderLocal(result)}\n`);
     const all = result.servers.flatMap((s) => s.findings);
     process.exit(args.failOn === 'never' ? 0 : exitCode(all, { failOn: args.failOn }));
   } catch (err) {
-    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.stderr.write(`deedroll: ${err.message}\n`);
     process.exit(2);
   }
 }
@@ -183,7 +183,7 @@ if (args.installed && !args.help) {
     const all = result.servers.flatMap((s) => s.findings);
     process.exit(args.failOn === 'never' ? 0 : exitCode(all, { failOn: args.failOn }));
   } catch (err) {
-    process.stderr.write(`mcpscan: ${err.message}\n`);
+    process.stderr.write(`deedroll: ${err.message}\n`);
     process.exit(2);
   }
 }
@@ -204,6 +204,6 @@ try {
   }
   process.exit(args.failOn === 'never' ? 0 : exitCode(result.findings, { failOn: args.failOn }));
 } catch (err) {
-  process.stderr.write(`mcpscan: ${err.message}\n`);
+  process.stderr.write(`deedroll: ${err.message}\n`);
   process.exit(2);
 }

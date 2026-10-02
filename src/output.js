@@ -12,7 +12,7 @@ const packageOf = (pkg) =>
 export async function toJsonV1(result, { version }) {
   return {
     schema: SCHEMA,
-    tool: { name: 'mcpscan', version },
+    tool: { name: 'deedroll', version },
     target: result.target,
     package: packageOf(result.pkg),
     listing: result.entry ? { name: result.entry.server?.name ?? null } : null,
@@ -27,7 +27,7 @@ export async function toJsonV1(result, { version }) {
 export async function installedToJsonV1(result, { version }) {
   return {
     schema: SCHEMA,
-    tool: { name: 'mcpscan', version },
+    tool: { name: 'deedroll', version },
     ...result,
     servers: await Promise.all(result.servers.map(async (s) => ({ ...s, findings: await withIds(s.findings) }))),
   };
@@ -38,7 +38,7 @@ export function scanToSarif(results, { version }) {
 }
 
 /** Reverse-DNS key for the registry `_meta` block: a domain Antharmaya controls. */
-export const META_KEY = 'com.antharmaya/mcpscan';
+export const META_KEY = 'com.antharmaya/deedroll';
 
 /**
  * The block a subregistry injects into a server.json `_meta`, as the official registry's
@@ -60,7 +60,7 @@ export async function toRegistryMeta(result, { version, scannedAt = new Date().t
   return {
     [META_KEY]: {
       schema: SCHEMA,
-      tool: { name: 'mcpscan', version },
+      tool: { name: 'deedroll', version },
       scannedAt,
       target: result.target,
       package: packageOf(result.pkg),

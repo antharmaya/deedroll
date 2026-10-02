@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Scan the MCP servers that real vendors publish on npm, to find where mcpscan is
+ * Scan the MCP servers that real vendors publish on npm, to find where deedroll is
  * wrong on production code: false positives, tools it cannot see, packages it chokes on.
  * It grades the scanner, not the vendors. Nothing is installed or run.
  *

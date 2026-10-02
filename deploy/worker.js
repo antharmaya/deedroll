@@ -1,5 +1,5 @@
 /**
- * mcpscan on Cloudflare Workers: the page and engine (static assets), the probe relay
+ * deedroll on Cloudflare Workers: the page and engine (static assets), the probe relay
  * (/api/probe) and the registry history (/history/*, read-only from R2).
  *
  * SSRF on Workers: there is no DNS pinning here, so every relay fetch refuses private IP
@@ -38,7 +38,7 @@ async function guardedFetch(url, init = {}) {
     if (priv) throw new TypeError(`${host} resolves to a private address; the relay does not probe private networks`);
   }
   const headers = new Headers(init.headers ?? {});
-  headers.set('user-agent', 'mcpscan-relay/0.1 (read-only MCP discovery probe)');
+  headers.set('user-agent', 'deedroll-relay/0.1 (read-only MCP discovery probe)');
   return fetch(url, { ...init, headers, redirect: 'manual' });
 }
 
@@ -66,10 +66,13 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     // One canonical address. Links already sent out (disclosure emails, posts) point at the old
-    // workers.dev host, so it keeps answering, with a permanent redirect for anything readable.
-    // POSTs are left alone: a page opened before the move still talks to its own relay.
+    // workers.dev host and at mcpscan.antharmaya.com (the name before deedroll), so those keep
+    // answering, with a permanent redirect for anything readable. POSTs are left alone: a page
+    // opened before the move still talks to its own relay.
     const canonical = env.CANONICAL_HOST;
-    if (canonical && url.hostname !== canonical && url.hostname.endsWith('.workers.dev') && (request.method === 'GET' || request.method === 'HEAD')) {
+    const former = (env.FORMER_HOSTS ?? '').split(',').map((h) => h.trim()).filter(Boolean);
+    const moved = url.hostname.endsWith('.workers.dev') || former.includes(url.hostname);
+    if (canonical && url.hostname !== canonical && moved && (request.method === 'GET' || request.method === 'HEAD')) {
       return new Response(null, {
         status: 301,
         headers: { location: `https://${canonical}${url.pathname}${url.search}`, 'access-control-allow-origin': '*' },

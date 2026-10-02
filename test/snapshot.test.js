@@ -28,10 +28,10 @@ test('the daily diff: added, removed, status, declarations and endpoints', () =>
 });
 
 test('--verify detects an altered file and a rewritten chain', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mcpscan-archive-'));
+  const dir = mkdtempSync(join(tmpdir(), 'deedroll-archive-'));
   const run = () => {
     try {
-      return { code: 0, out: execFileSync(process.execPath, ['scripts/snapshot.js', '--verify'], { env: { ...process.env, MCPSCAN_ARCHIVE: dir }, encoding: 'utf8' }) };
+      return { code: 0, out: execFileSync(process.execPath, ['scripts/snapshot.js', '--verify'], { env: { ...process.env, DEEDROLL_ARCHIVE: dir }, encoding: 'utf8' }) };
     } catch (err) {
       return { code: err.status, out: err.stdout };
     }

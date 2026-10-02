@@ -113,13 +113,20 @@ The exit code is 1 when anything at or above `--fail-on` (default `high`) is fou
 | `--egress` | Egress proxies. The hosts the server's code names, as a starting allowlist (static, so a starting point). |
 | `--registry-meta` | Registries and marketplaces. A `_meta` block under `com.antharmaya/deedroll` that a subregistry can attach to a listing: the mechanism the official registry documents for "security scan results". |
 
-GitHub code scanning, for example:
+GitHub code scanning, with the action in this repository (it needs no install: deedroll has no
+dependencies):
 
 ```yaml
-- run: npx @antharmaya/deedroll io.github.owner/server --sarif > deedroll.sarif || true
+- uses: antharmaya/deedroll@main
+  with:
+    target: io.github.owner/server     # or npm:<package>, pypi:<package>, https://host/mcp
+    fail-on: never                     # or high, medium, low
 - uses: github/codeql-action/upload-sarif@v3
   with: { sarif_file: deedroll.sarif }
 ```
+
+It also writes the plain report to the job summary. To check a release after it is published,
+run it on a schedule or on `release`.
 
 ## What it checks
 
@@ -144,11 +151,11 @@ Grouped here; every check, with why and what to do, is in [docs/checks.md](docs/
 
 ## How it compares
 
-Checked against each project's own README on 2026-09-28.
+Checked against each project's own README on 2026-09-28; rechecked 2026-10-02.
 
 | | deedroll | Snyk Agent Scan | Cisco mcp-scanner |
 |---|---|---|---|
-| Runs the server to inspect it | Never | Starts stdio servers from your config | No |
+| Runs the server to inspect it | Never | Starts stdio servers from your config | In its stdio mode (it also has static modes) |
 | Sends tool descriptions elsewhere | Never | To Snyk (cannot be disabled) | Only with its API or LLM analyzers |
 | Account or API key needed | No | Snyk token | Only for its API, LLM and VirusTotal analyzers |
 | Reads npm and PyPI packages | Yes | No | Yes |
@@ -158,6 +165,10 @@ Checked against each project's own README on 2026-09-28.
 | SARIF output | Yes | Not documented | No |
 | Runs in a browser | Yes | No | No |
 | Model judgment of descriptions | Optional, by your own agent | Yes, by Snyk | Optional |
+
+Others worth knowing: [Glama](https://glama.ai/mcp/servers) grades each tool's description and
+keeps a schema changelog (and awesome-mcp-servers asks for a Glama score before listing a server);
+Docker's MCP Catalog signs the images it builds. Neither reads what a package's code does.
 
 Where they are ahead: both judge tool descriptions for prompt injection with a model by default;
 Cisco traces dataflow across files in ten languages; Snyk also covers agent skills. deedroll's
@@ -225,6 +236,23 @@ GET /api/servers                          the ledger's span and size
 
 Live at `https://deedroll.antharmaya.com/api/servers`. JSON, open to any origin, cached at the
 edge for ten minutes.
+
+**Follow one server without an account:**
+
+```
+GET /feed/<registry name>.atom            its log in plain sentences, newest first
+GET /badge/<registry name>.json           a shields.io endpoint badge
+```
+
+The badge states one measured fact, how what the code reads compares with what the listing
+declares: "declares what it reads", "1 credential in README only", "2 credentials not declared",
+or "on record" for a hosted server. It never says safe or verified. For a README:
+
+```markdown
+[![deedroll](https://img.shields.io/endpoint?url=https%3A%2F%2Fdeedroll.antharmaya.com%2Fbadge%2Fio.github.owner%2Fserver.json)](https://deedroll.antharmaya.com/web/?q=io.github.owner/server)
+```
+
+The page builds this for any listed server: scan it, then **Copy README badge**.
 
 `node scripts/build-ledger.js` folds any new day into the saved state;
 `--rebuild` replays every snapshot from scratch and must give the same result

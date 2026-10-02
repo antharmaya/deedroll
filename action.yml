@@ -1,0 +1,41 @@
+name: deedroll
+description: Compare what an MCP server's code reads, contacts and runs with what its registry listing declares. Static; nothing is installed or run.
+author: Antharmaya Labs
+branding:
+  icon: book-open
+  color: blue
+
+inputs:
+  target:
+    description: What to scan. A registry name (io.github.owner/server), npm:<package>, pypi:<package>, or https://<host>/mcp.
+    required: true
+  fail-on:
+    description: Fail the step at or above this severity (high, medium, low, info), or never.
+    default: never
+  sarif:
+    description: Where to write the SARIF report, for github/codeql-action/upload-sarif.
+    default: deedroll.sarif
+
+outputs:
+  sarif:
+    description: Path of the SARIF report.
+    value: ${{ inputs.sarif }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    # deedroll has no dependencies, so it runs straight from this action's checkout.
+    - shell: bash
+      env:
+        TARGET: ${{ inputs.target }}
+        FAIL_ON: ${{ inputs.fail-on }}
+        SARIF: ${{ inputs.sarif }}
+      run: |
+        set +e
+        node "$GITHUB_ACTION_PATH/bin/deedroll.js" "$TARGET" --sarif --fail-on "$FAIL_ON" > "$SARIF"
+        code=$?
+        node "$GITHUB_ACTION_PATH/bin/deedroll.js" "$TARGET" --fail-on never >> "$GITHUB_STEP_SUMMARY" || true
+        exit $code

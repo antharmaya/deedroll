@@ -33,7 +33,9 @@ function ruleFor(id) {
     fullDescription: { text: r.why || r.title },
     help: { text: `${r.why} ${r.fix}`.trim(), markdown: `**Why it matters.** ${r.why}\n\n**What to do.** ${r.fix}` },
     defaultConfiguration: { level: LEVEL[r.level] },
-    properties: { tags: ['security', 'mcp'], 'security-severity': SECURITY_SEVERITY[r.level] },
+    ...(r.cwe ? { helpUri: `https://cwe.mitre.org/data/definitions/${r.cwe}.html` } : {}),
+    // GitHub code scanning reads CWE ids from this tag form.
+    properties: { tags: ['security', 'mcp', ...(r.cwe ? [`external/cwe/cwe-${r.cwe}`] : [])], 'security-severity': SECURITY_SEVERITY[r.level] },
   };
 }
 

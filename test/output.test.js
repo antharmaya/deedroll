@@ -77,3 +77,15 @@ test('the version the browser reports matches package.json', async () => {
   const { TOOL_VERSION } = await import('../src/rules.js');
   assert.equal(TOOL_VERSION, JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version);
 });
+
+test('SARIF carries a CWE tag only for checks that name one', async () => {
+  const doc = await toSarif([{ target: 'npm:acme', findings: [
+    { check: 'instruction-like-text', severity: 'high', message: 'x', evidence: [{ file: 'tools', line: 0 }] },
+    { check: 'undeclared-env', severity: 'high', subject: 'K', message: 'y', evidence: [{ file: 'i.js', line: 1 }] },
+  ] }], { version: '9.9.9' });
+  const [poison, env] = doc.runs[0].tool.driver.rules;
+  assert.ok(poison.properties.tags.includes('external/cwe/cwe-1427'));
+  assert.equal(poison.helpUri, 'https://cwe.mitre.org/data/definitions/1427.html');
+  assert.ok(!env.properties.tags.some((t) => t.startsWith('external/cwe/')));
+  for (const [id, r] of Object.entries(RULES)) if ('cwe' in r) assert.ok(Number.isInteger(r.cwe), id);
+});

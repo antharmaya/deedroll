@@ -442,7 +442,8 @@ function explainBlock(check) {
   if (!r) return null;
   return el('div', { class: 'explain' },
     el('div', {}, el('h4', {}, 'Why it matters'), el('p', {}, r.why)),
-    el('div', {}, el('h4', {}, 'What the publisher can do'), el('p', {}, r.fix)));
+    el('div', {}, el('h4', {}, 'What the publisher can do'), el('p', {}, r.fix),
+      r.cwe ? el('p', { class: 'cwe' }, el('a', { href: `https://cwe.mitre.org/data/definitions/${r.cwe}.html`, target: '_blank', rel: 'noopener' }, `CWE-${r.cwe}`)) : ''));
 }
 
 function evidenceBlock(f) {

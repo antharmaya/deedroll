@@ -209,7 +209,7 @@ export function explain(id) {
   const wrap = (t) => t.replace(/(.{1,88})(\s+|$)/g, '    $1\n').trimEnd();
   return {
     found: true,
-    text: ['', `  ${id}: ${r.title}`, `  usual severity: ${r.level}`, '', '  Why it matters', wrap(r.why), '', '  What to do', wrap(r.fix), ''].join('\n'),
+    text: ['', `  ${id}: ${r.title}`, `  usual severity: ${r.level}${r.cwe ? `   CWE-${r.cwe}` : ''}`, '', '  Why it matters', wrap(r.why), '', '  What to do', wrap(r.fix), ''].join('\n'),
   };
 }
 

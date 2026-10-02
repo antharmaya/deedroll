@@ -1,7 +1,7 @@
 /**
  * Everything the command line does, in the page: downloads of every output format, the
  * local exposure check (--local), the config audit (--installed), the checks catalog
- * (mcpscan explain) and the registry history (snapshot --status / --verify).
+ * (deedroll explain) and the registry history (snapshot --status / --verify).
  *
  * The page's own helpers are passed in (init), so this module holds no second copy of them.
  */
@@ -45,7 +45,7 @@ function wireExports() {
   $('#exports').addEventListener('click', async (e) => {
     const kind = e.target.closest('[data-export]')?.dataset.export;
     if (!kind || !current) return;
-    const base = `mcpscan-${String(current.pkg?.name ?? new URL(current.target.replace(/^(npm|pypi):/, 'https://x/')).host).replace(/[^a-z0-9.-]+/gi, '_')}`;
+    const base = `deedroll-${String(current.pkg?.name ?? new URL(current.target.replace(/^(npm|pypi):/, 'https://x/')).host).replace(/[^a-z0-9.-]+/gi, '_')}`;
     const opts = { version: TOOL_VERSION };
     if (kind === 'json') save(`${base}.json`, JSON.stringify(await toJsonV1(current, opts), null, 2), 'application/json');
     if (kind === 'sarif') save(`${base}.sarif`, JSON.stringify(await scanToSarif([current], opts), null, 2), 'application/sarif+json');
@@ -210,7 +210,7 @@ async function readConfigs(files) {
 function renderCatalog() {
   const { el, glyph } = h;
   const total = Object.keys(RULES).length;
-  $('#catalog summary').textContent = `Every check mcpscan makes (${total})`;
+  $('#catalog summary').textContent = `Every check deedroll makes (${total})`;
   const body = $('#catalog-body');
   body.replaceChildren(...CHECK_GROUPS.map(([title, ids]) =>
     el('section', {}, el('h3', {}, title), el('dl', {}, ...ids.flatMap((id) => [

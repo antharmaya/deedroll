@@ -1,4 +1,4 @@
-# How mcpscan is built
+# How deedroll is built
 
 For anyone changing the code, or deciding what to build next. It covers three things: the seams
 (where the parts meet), the decisions that are expensive to reverse, and what breaks first.
@@ -58,7 +58,7 @@ paths give identical files, hashes and findings on real packages.
 | **Finding fingerprints ignore line numbers** | Baselines must survive edits and re-scans. | Changing the recipe invalidates every stored baseline. |
 | **Zero dependencies** | A security tool's dependencies are its attack surface. | Cheap to add one, impossible to credibly remove them once users rely on the promise. |
 | **Nothing leaves the machine except names and versions** | The difference from scanners that upload tool descriptions. | Any telemetry, even opt-out, ends the claim. |
-| **The name `mcpscan`** | Chosen early. | 48 GitHub repositories use the name, including Ant Group's `antgroup/MCPScan`; npm `mcp-scan` belongs to another project. Renaming gets harder with every link and download. Decide before publishing. |
+| **The name `deedroll`** | Chosen early. | 48 GitHub repositories use the name, including Ant Group's `antgroup/Deedroll`; npm `mcp-scan` belongs to another project. Renaming gets harder with every link and download. Decide before publishing. |
 
 Everything else (which checks exist, their severities, the web design, the index format) is a
 two-way door and should change when data says so.
@@ -84,15 +84,15 @@ two-way door and should change when data says so.
 
 - `src/data/registry-index.json`: package name → registry listings, rebuilt by
   `scripts/build-index.js` (a full walk of the registry takes about 10 minutes).
-- `~/.cache/mcpscan/tarballs`: npm tarballs by sha512, re-verified on read.
-- `~/.config/mcpscan/pins.json` (`$XDG_CONFIG_HOME/mcpscan/` when set): tool fingerprints of probed hosted servers.
+- `~/.cache/deedroll/tarballs`: npm tarballs by sha512, re-verified on read.
+- `~/.config/deedroll/pins.json` (`$XDG_CONFIG_HOME/deedroll/` when set): tool fingerprints of probed hosted servers.
 - `findings.json`, `population.json`: the stored rows behind the published npm measurement.
 - `archive/` (not in git): the registry history. `registry/DATE.jsonl.gz` (every listing's
   declarations), `registry/DATE.diff.json`, `tools/DATE.jsonl.gz` (tool fingerprints and text
   of a rotating slice of hosted servers), and `chain.jsonl`, where each line carries the hashes
   of that day's files and of the line before it.
-- Browser pins: `localStorage["mcpscan-pins"]` in the visitor's own browser; relay consent:
-  `localStorage["mcpscan-relay"]`.
+- Browser pins: `localStorage["deedroll-pins"]` in the visitor's own browser; relay consent:
+  `localStorage["deedroll-relay"]`.
 
 ## Adding things
 

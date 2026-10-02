@@ -7,7 +7,7 @@
  * extracted, never executed. Package metadata is never cached: deprecations and
  * dist-tags change, a published version's bytes do not.
  *
- * Disabled with --no-cache or MCPSCAN_NO_CACHE=1.
+ * Disabled with --no-cache or DEEDROLL_NO_CACHE=1.
  */
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync, renameSync, rmSync, existsSync } from 'node:fs';
@@ -16,10 +16,10 @@ import { homedir } from 'node:os';
 
 export function cacheDir() {
   const base = process.env.XDG_CACHE_HOME || join(homedir(), '.cache');
-  return join(base, 'mcpscan', 'tarballs');
+  return join(base, 'deedroll', 'tarballs');
 }
 
-const disabled = () => process.env.MCPSCAN_NO_CACHE === '1';
+const disabled = () => process.env.DEEDROLL_NO_CACHE === '1';
 
 /** "sha512-<base64>" -> a filename-safe key; null for anything that is not sha512. */
 function keyFor(integrity) {

@@ -18,8 +18,8 @@ where my first count was wrong.
 
 ## Try it now
 
-Free, no account: **https://mcpscan.antharmaya.com**. Source:
-**https://github.com/antharmaya/mcpscan**. It runs the same engine as the
+Free, no account: **https://deedroll.antharmaya.com**. Source:
+**https://github.com/antharmaya/deedroll**. It runs the same engine as the
 command line, in your browser, and also does two things a package scan can't:
 
 - **Checks a hosted server's sign-in**, when it needs one, against the official spec
@@ -77,11 +77,11 @@ finding out at runtime.
 ## The tool
 
 ```
-npx @antharmaya/mcpscan npm:@modelcontextprotocol/server-filesystem
-npx @antharmaya/mcpscan pypi:mcp-server-fetch
-npx @antharmaya/mcpscan io.github.owner/their-server --json
-npx @antharmaya/mcpscan --installed          # every server your agents already trust
-npx @antharmaya/mcpscan --local              # MCP servers on this machine or your network
+npx @antharmaya/deedroll npm:@modelcontextprotocol/server-filesystem
+npx @antharmaya/deedroll pypi:mcp-server-fetch
+npx @antharmaya/deedroll io.github.owner/their-server --json
+npx @antharmaya/deedroll --installed          # every server your agents already trust
+npx @antharmaya/deedroll --local              # MCP servers on this machine or your network
 ```
 
 It diffs declared against actual and prints file-and-line evidence for everything it claims. It
@@ -107,7 +107,7 @@ reads configs, and reads npm and PyPI packages without executing them, with YARA
 LLM and Cisco API analyzers (which need keys), and dataflow analysis that checks docstrings against
 code in ten languages.
 
-mcpscan is the check **before** you install: it never runs the server, needs no account, and no
+deedroll is the check **before** you install: it never runs the server, needs no account, and no
 scan result, config, key or tool description ever leaves your machine — it only looks up public
 package names and versions (on npm or PyPI, the MCP registry and, unless you pass `--no-osv`,
 OSV.dev). It reads npm and PyPI packages, probes hosted servers on both protocol generations, writes
@@ -125,7 +125,7 @@ listing's declared metadata against the code the way this does.)
 ## One thing the registry cannot tell you
 
 The official registry's search matches listing names only, so it cannot answer "which listing
-ships the npm package `pretrip-mcp`?" (the answer is `agency.kesey/pretrip`). mcpscan ships an
+ships the npm package `pretrip-mcp`?" (the answer is `agency.kesey/pretrip`). deedroll ships an
 index built by walking every current listing: 36,906 of them on 2026-09-28, pointing at 9,796 npm
 and 3,868 PyPI packages (the registry grew to 37,176 listings by 2026-09-29, per the daily record
 above). On 2026-09-27, 267 npm packages were claimed by more than one listing.
@@ -133,7 +133,7 @@ above). On 2026-09-27, 267 npm packages were claimed by more than one listing.
 ## Reproducing this
 
 ```
-git clone https://github.com/antharmaya/mcpscan && cd mcpscan
+git clone https://github.com/antharmaya/deedroll && cd deedroll
 node scripts/collect-population.js     # walks the registry, caches npm-backed servers
 node scripts/registry-sweep.js 60      # seeded random sample, seed 20260926
 ```

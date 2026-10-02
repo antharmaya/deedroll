@@ -1,16 +1,24 @@
-# mcpscan on Cloudflare Workers. Build the assets first: node scripts/build-site.js
+# deedroll on Cloudflare Workers. Build the assets first: node scripts/build-site.js
 #
-# Home: https://mcpscan.antharmaya.com (custom domain; Cloudflare creates the DNS record and
-# certificate). The old mcpscan.harshavar968.workers.dev stays on, because links already sent
-# point at it: the Worker sends its GETs to the canonical host with a 301.
+# Home: https://deedroll.antharmaya.com (custom domain; Cloudflare creates the DNS record and
+# certificate). The project was called mcpscan until 2026-10-02. mcpscan.antharmaya.com and
+# mcpscan.harshavar968.workers.dev stay on, because links already sent point at them: the Worker
+# sends their GETs to the canonical host with a 301.
+#
+# The Worker and the R2 bucket keep their mcpscan names: renaming them means a new Worker and
+# copying the bucket, and no visitor ever sees either name.
 name = "mcpscan"
 main = "deploy/worker.js"
 compatibility_date = "2026-09-28"
-routes = [{ pattern = "mcpscan.antharmaya.com", custom_domain = true }]
+routes = [
+  { pattern = "deedroll.antharmaya.com", custom_domain = true },
+  { pattern = "mcpscan.antharmaya.com", custom_domain = true },
+]
 workers_dev = true
 
 [vars]
-CANONICAL_HOST = "mcpscan.antharmaya.com"
+CANONICAL_HOST = "deedroll.antharmaya.com"
+FORMER_HOSTS = "mcpscan.antharmaya.com"
 
 [assets]
 directory = "./site"

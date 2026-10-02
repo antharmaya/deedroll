@@ -75,7 +75,7 @@ test('codex toml: sub-tables belong to their server, never become servers', () =
 // ---------- secrets never leave the parser ----------
 
 function fakeHome() {
-  const home = mkdtempSync(join(tmpdir(), 'mcpscan-home-'));
+  const home = mkdtempSync(join(tmpdir(), 'deedroll-home-'));
   writeFileSync(
     join(home, '.claude.json'),
     JSON.stringify({
@@ -147,7 +147,7 @@ test('project-scoped servers keep their project', () => {
 });
 
 test('an unreadable config is reported, not fatal', () => {
-  const home = mkdtempSync(join(tmpdir(), 'mcpscan-home-'));
+  const home = mkdtempSync(join(tmpdir(), 'deedroll-home-'));
   try {
     writeFileSync(join(home, '.claude.json'), '{ not json');
     const { configs, servers } = discoverInstalled({ home, cwd: home });

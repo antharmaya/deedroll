@@ -1,8 +1,8 @@
 {
-  "name": "mcpscan",
+  "name": "deedroll",
   "version": "0.1.1",
   "description": "Check an MCP server before you install it: what its code reads, runs and contacts versus what it tells you. Never executes the server.",
   "author": { "name": "Antharmaya Labs" },
-  "repository": "https://github.com/varbees/mcpscan",
+  "repository": "https://github.com/varbees/deedroll",
   "license": "MIT"
 }

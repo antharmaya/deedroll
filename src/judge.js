@@ -1,5 +1,5 @@
 /**
- * The seam between mcpscan and whatever answers semantic questions.
+ * The seam between deedroll and whatever answers semantic questions.
  *
  * A judge has one method: ask(state, questions) -> { model, answers, usage }, in the
  * TypeSafe System One wire shape. The TypeSafe implementation below is one provider;

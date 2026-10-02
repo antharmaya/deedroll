@@ -22,7 +22,7 @@ import { scan } from '../src/index.js';
 import { isCredentialName } from '../src/checks.js';
 import { packageKey } from '../src/ledger.js';
 
-const ARCHIVE = resolve(process.env.MCPSCAN_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
+const ARCHIVE = resolve(process.env.DEEDROLL_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
 const OUT = join(ARCHIVE, 'scans', 'packages.jsonl');
 const args = process.argv.slice(2);
 const opt = (name, dflt) => {
@@ -40,7 +40,7 @@ export const SCAN_RULES = createHash('sha256')
   .update(['checks.js', 'docs.js'].map((f) => readFileSync(new URL(`../src/${f}`, import.meta.url), 'utf8')).join('\0'))
   .digest('hex').slice(0, 12);
 // A batch of ~14,000 packages would add ~2.7 GB of cached tarballs (measured ~190 KB each).
-process.env.MCPSCAN_NO_CACHE ??= '1';
+process.env.DEEDROLL_NO_CACHE ??= '1';
 
 /** The facts kept from one scan: compact, and only what a ledger reader needs. */
 export function summarize(type, id, requested, r) {

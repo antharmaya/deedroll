@@ -57,7 +57,7 @@ export async function inspectRemote(url, { headers = {}, fetchImpl = globalThis.
     findings.push({
       check: 'remote-not-probed',
       severity,
-      message: err.kind === 'auth' ? `${err.message}: its tools were not listed (mcpscan uses no account)` : `${err.message}: tools not listed, so nothing was checked`,
+      message: err.kind === 'auth' ? `${err.message}: its tools were not listed (deedroll uses no account)` : `${err.message}: tools not listed, so nothing was checked`,
       evidence: [{ file: host, line: 0, text: err.kind }],
     });
     findings.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);

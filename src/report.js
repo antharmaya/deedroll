@@ -134,7 +134,7 @@ export function renderInstalled(result, { all = false } = {}) {
   const { configs, servers, packagesScanned } = result;
   const out = [''];
   out.push(
-    `  mcpscan --installed · ${configs.length} config file(s) · ${servers.length} server(s) · ${packagesScanned} npm package(s) scanned${result.remoteProbed ? ` · ${result.remoteProbed} remote probed (read-only)` : ''} · nothing launched`
+    `  deedroll --installed · ${configs.length} config file(s) · ${servers.length} server(s) · ${packagesScanned} npm package(s) scanned${result.remoteProbed ? ` · ${result.remoteProbed} remote probed (read-only)` : ''} · nothing launched`
   );
   for (const c of configs) {
     out.push(`    ${c.agent.padEnd(15)} ${tilde(c.file)}${c.error ? `  (unreadable: ${c.error})` : `  ${c.servers} server(s)`}`);
@@ -193,18 +193,18 @@ export function renderRemote(result) {
   return out.join('\n');
 }
 
-/** `mcpscan explain [check]`: the rules catalog, in the terminal. */
+/** `deedroll explain [check]`: the rules catalog, in the terminal. */
 export function explain(id) {
   const ids = Object.keys(RULES);
   if (!id) {
     const w = Math.max(...ids.map((k) => k.length));
     const lines = ids.map((k) => `  ${k.padEnd(w)}  ${RULES[k].level.padEnd(6)}  ${RULES[k].title}`);
-    return { found: true, text: ['', '  Every check mcpscan can report. `mcpscan explain <check>` for one in full.', '', ...lines, ''].join('\n') };
+    return { found: true, text: ['', '  Every check deedroll can report. `deedroll explain <check>` for one in full.', '', ...lines, ''].join('\n') };
   }
   const r = RULES[id];
   if (!r) {
     const near = ids.filter((k) => k.includes(id) || editDistance(k, id) <= 3);
-    return { found: false, text: `\n  No check called "${id}".${near.length ? ` Did you mean: ${near.join(', ')}?` : ''} Run \`mcpscan explain\` for the list.\n` };
+    return { found: false, text: `\n  No check called "${id}".${near.length ? ` Did you mean: ${near.join(', ')}?` : ''} Run \`deedroll explain\` for the list.\n` };
   }
   const wrap = (t) => t.replace(/(.{1,88})(\s+|$)/g, '    $1\n').trimEnd();
   return {
@@ -216,7 +216,7 @@ export function explain(id) {
 /** One line under every report that has findings, pointing at the in-tool docs. */
 export function explainHint(findings) {
   const ids = [...new Set((findings ?? []).filter((f) => f.severity !== 'info').map((f) => f.check))];
-  return ids.length ? `  What these mean: ${ids.map((i) => `mcpscan explain ${i}`).slice(0, 3).join(' · ')}` : '';
+  return ids.length ? `  What these mean: ${ids.map((i) => `deedroll explain ${i}`).slice(0, 3).join(' · ')}` : '';
 }
 
 
@@ -224,7 +224,7 @@ export function explainHint(findings) {
 export function renderLocal(result) {
   const out = ['', `  MCP servers on ${result.scope}: checked ${result.checked} ${result.scope === 'this machine' ? 'listening port(s)' : 'address:port pair(s)'}${result.open != null ? `, ${result.open} open` : ''}, found ${result.servers.length}`, ''];
   if (!result.servers.length) {
-    out.push('  No MCP server answered. Servers started by your agents over stdio do not listen on the network;', '  `mcpscan --installed` covers those.', '');
+    out.push('  No MCP server answered. Servers started by your agents over stdio do not listen on the network;', '  `deedroll --installed` covers those.', '');
     return out.join('\n');
   }
   for (const s of result.servers) {

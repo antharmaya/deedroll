@@ -1,4 +1,4 @@
-# mcpscan redesign brief (2026-10-01)
+# deedroll redesign brief (2026-10-01)
 
 **What this is for:** prototypes from Claude Design and Google Stitch, built on the softer story.
 Harsha picks one and Claude implements it in `web/`. `DESIGN.md` stays the spec for anything this
@@ -6,7 +6,7 @@ brief doesn't change.
 
 ## The story, in one breath
 
-> **mcpscan checks an MCP server's label against its code, before you install it.**
+> **deedroll checks an MCP server's label against its code, before you install it.**
 > It reads what a server says it needs beside what its code actually reads, runs and contacts,
 > without running anything. Where the two differ, it says so plainly, and says when the README
 > already explains it. A difference is a question for the publisher, not a verdict on the server.
@@ -78,7 +78,7 @@ publisher.
 ## Prompt for Claude Design (paste as is)
 
 ```
-Design the web app for "mcpscan", a free tool that checks an MCP server's label against its code
+Design the web app for "deedroll", a free tool that checks an MCP server's label against its code
 before you install it. It reads what a server's registry listing declares beside what its code
 actually reads, runs and contacts, without running anything, and says plainly where they differ.
 A difference is a question for the publisher, not a verdict. Tone: a careful reviewer who assumes
@@ -119,7 +119,7 @@ a scan line passing down the file list as files are read.
 ## Prompt for Google Stitch (paste as is)
 
 ```
-App: mcpscan, a calm, trustworthy web tool that checks an MCP server's label against its code
+App: deedroll, a calm, trustworthy web tool that checks an MCP server's label against its code
 before installing. Screens to generate, each at desktop and mobile, light and dark:
 
 1. Home + scan instrument (idle replay state). Hero headline "Read the label, then read the
@@ -157,7 +157,7 @@ illustrations, export them as SVG.
 
 # Round 2 (2026-10-02): a page for every server
 
-Round 1 is live at https://mcpscan.antharmaya.com (commit b5b224d).
+Round 1 is live at https://deedroll.antharmaya.com (commit b5b224d).
 
 **Kept from round 1:**
 - From Claude Design: the structure, the grouped ledgers, why/fix side by side, the
@@ -165,8 +165,8 @@ Round 1 is live at https://mcpscan.antharmaya.com (commit b5b224d).
 - From Stitch: the live count in the header.
 
 **Rejected,** and to be avoided in round 2:
-- claims of AST or syntax-tree analysis (mcpscan is pattern-based static reading);
-- a `.mcpscan.json` manifest file, attestation, DNS claiming, "VERIFIED"/"CONFIRMED" badges;
+- claims of AST or syntax-tree analysis (deedroll is pattern-based static reading);
+- a `.deedroll.json` manifest file, attestation, DNS claiming, "VERIFIED"/"CONFIRMED" badges;
 - invented descriptions or data presented as real;
 - jargon copy ("ledger memorandum", "AST-diagnostic");
 - regrouping findings above the engine's severity.
@@ -177,7 +177,7 @@ has a git-like history and scan facts at `/api/servers/<name>`. Design the pages
 ## Prompt for Claude Design (paste into the same project; it can read the repo)
 
 ```
-Design two new pages for mcpscan in the same system as mcpscan.dc.html (same tokens, type,
+Design two new pages for deedroll in the same system as deedroll.dc.html (same tokens, type,
 glyph-plus-shape severity, light and dark, desktop 1440 and phone 390).
 
 1. /servers/<registry name>: one MCP server's record. It must answer, in this order:
@@ -510,7 +510,7 @@ left to right. Respect reduced motion.
 ## Prompt for Google Stitch (round 2)
 
 ```
-App: mcpscan, a calm reference record of every MCP server (like a git log for each one).
+App: deedroll, a calm reference record of every MCP server (like a git log for each one).
 Generate: (1) a server record page, (2) search results, each desktop and mobile, light and
 dark, in this style: warm off-white paper, ink blue accent oklch(0.47 0.16 258), Bricolage
 Grotesque headings, Hanken Grotesk body, JetBrains Mono for names and paths; severity by
@@ -523,9 +523,9 @@ vertical dated list (seen 28 Sept; released 3.45.0 -> 3.46.0 on 1 Oct; scan foun
 settings on 2 Oct) with +/- chips, and a thin day strip above it.
 
 Do NOT include: AST or syntax-tree claims, manifest files, attestation, "verified" or
-"confirmed" badges, scores, user accounts or avatars, version numbers for mcpscan itself.
+"confirmed" badges, scores, user accounts or avatars, version numbers for deedroll itself.
 ```
 
 **What to bring back:** the Claude Design project link (it syncs through the design tool now)
 or the Stitch zip. Claude builds the pages on `/api/servers` (live) inside the existing Worker,
-at `mcpscan.antharmaya.com/servers/<name>`.
+at `deedroll.antharmaya.com/servers/<name>`.

@@ -48,7 +48,7 @@ test('SARIF: levels, rule metadata, regions only for real lines, logical locatio
   assert.equal(prov.level, 'warning');
   assert.equal(prov.locations[0].physicalLocation.region, undefined, 'line 0 is "no line", not line 0');
   assert.deepEqual(egress.locations[0].logicalLocations, [{ name: 'npm', kind: 'resource' }]);
-  assert.match(cred.partialFingerprints['mcpscan/v1'], /^[0-9a-f]{16}$/);
+  assert.match(cred.partialFingerprints['deedroll/v1'], /^[0-9a-f]{16}$/);
 });
 
 test('JSON v1 envelope: schema tag, ecosystem, and an id on every finding', async () => {

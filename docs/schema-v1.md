@@ -1,6 +1,6 @@
-# mcpscan output schema, v1
+# deedroll output schema, v1
 
-`--json` prints one document tagged `"schema": "mcpscan/v1"`. `--sarif` prints SARIF 2.1.0 built
+`--json` prints one document tagged `"schema": "deedroll/v1"`. `--sarif` prints SARIF 2.1.0 built
 from the same result, so the two never disagree. v1 is additive-only: fields may be added, and
 none will be renamed, retyped or removed without a v2.
 
@@ -8,8 +8,8 @@ none will be renamed, retyped or removed without a v2.
 
 ```json
 {
-  "schema": "mcpscan/v1",
-  "tool": { "name": "mcpscan", "version": "0.1.0" },
+  "schema": "deedroll/v1",
+  "tool": { "name": "deedroll", "version": "0.1.0" },
   "target": "pypi:acme-mcp",
   "package": { "ecosystem": "pypi", "name": "acme-mcp", "version": "1.0", "sha256": "…", "file": "acme_mcp-1.0-py3-none-any.whl" },
   "listing": { "name": "io.github.acme/acme-mcp" },
@@ -51,9 +51,9 @@ and pointers only, no code text, so it fits inside a listing; the v1 JSON is the
 
 ```json
 {
-  "com.antharmaya/mcpscan": {
-    "schema": "mcpscan/v1",
-    "tool": { "name": "mcpscan", "version": "0.1.0" },
+  "com.antharmaya/deedroll": {
+    "schema": "deedroll/v1",
+    "tool": { "name": "deedroll", "version": "0.1.0" },
     "scannedAt": "2026-09-28T12:53:31.695Z",
     "target": "npm:pretrip-mcp",
     "package": { "ecosystem": "npm", "name": "pretrip-mcp", "version": "1.0.1", "sha256": "2b35…" },
@@ -70,11 +70,11 @@ For hosted servers the block also carries `remote: { probed, era, protocolVersio
 
 ## SARIF mapping
 
-| mcpscan | SARIF |
+| deedroll | SARIF |
 |---|---|
 | `check` | `ruleId`, with rule title, description and help from the catalog |
 | `high` / `medium` / `low` / `info` | `error` / `warning` / `note` / `note`, plus `properties.security-severity` 8.0 / 5.0 / 3.0 / 0.0 for GitHub |
-| `id` | `partialFingerprints["mcpscan/v1"]` |
+| `id` | `partialFingerprints["deedroll/v1"]` |
 | evidence path | `physicalLocation` relative to the `PACKAGE` base; a region only when `line > 0` |
 | evidence source (`npm`, `registry`) | `logicalLocations` |
 

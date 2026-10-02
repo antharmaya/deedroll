@@ -16,7 +16,7 @@ import { probeRemote, ProbeError } from './remote.js';
 /** Ports MCP servers and their tooling commonly listen on (6274/6277: MCP Inspector). */
 export const COMMON_PORTS = [3000, 3001, 3333, 4000, 5000, 5173, 6274, 6277, 7000, 8000, 8001, 8080, 8081, 8765, 8787, 8888, 9000, 9090];
 const PATHS = ['/mcp', '/', '/sse', '/api/mcp'];
-export const FOREIGN_ORIGIN = 'https://origin-check.mcpscan.invalid';
+export const FOREIGN_ORIGIN = 'https://origin-check.deedroll.invalid';
 
 /**
  * Is there an MCP server at this base URL? Tries the usual endpoint paths; stops at the

@@ -40,7 +40,7 @@ export function guardedFetch(url, init = {}) {
       u,
       {
         method: init.method ?? 'GET',
-        headers: { 'user-agent': 'mcpscan-relay/0.1 (read-only MCP discovery probe)', ...headers },
+        headers: { 'user-agent': 'deedroll-relay/0.1 (read-only MCP discovery probe)', ...headers },
         lookup: (hostname, opts, cb) => {
           vetted(hostname).then(
             (a) => (opts?.all ? cb(null, [a]) : cb(null, a.address, a.family)),

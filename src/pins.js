@@ -11,7 +11,7 @@ export { serverKey, fingerprintTools, diffFingerprints } from './pins-core.js';
 
 export function pinsPath() {
   const base = process.env.XDG_CONFIG_HOME || join(homedir(), '.config');
-  return join(base, 'mcpscan', 'pins.json');
+  return join(base, 'deedroll', 'pins.json');
 }
 
 export const fingerprint = fingerprintTool;

@@ -87,4 +87,4 @@ createServer(async (req, res) => {
     res.writeHead(404, { 'content-type': 'text/plain' });
     res.end('not found');
   }
-}).listen(PORT, () => console.log(`mcpscan web: http://localhost:${PORT}/web/`));
+}).listen(PORT, () => console.log(`deedroll web: http://localhost:${PORT}/web/`));

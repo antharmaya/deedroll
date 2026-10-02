@@ -73,7 +73,7 @@ test('OSV: an outage is reported as a failed lookup, never as clean', async () =
 const integrityOf = (b) => `sha512-${createHash('sha512').update(b).digest('base64')}`;
 
 test('cache round-trips verified bytes', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mcpscan-cache-'));
+  const dir = mkdtempSync(join(tmpdir(), 'deedroll-cache-'));
   try {
     const bytes = Buffer.from('tarball bytes');
     writeCached(integrityOf(bytes), bytes, dir);
@@ -84,7 +84,7 @@ test('cache round-trips verified bytes', () => {
 });
 
 test('a tampered cache file is deleted and never returned', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mcpscan-cache-'));
+  const dir = mkdtempSync(join(tmpdir(), 'deedroll-cache-'));
   try {
     const bytes = Buffer.from('original');
     const integrity = integrityOf(bytes);
@@ -99,7 +99,7 @@ test('a tampered cache file is deleted and never returned', () => {
 });
 
 test('bytes that do not match their claimed integrity are never cached', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'mcpscan-cache-'));
+  const dir = mkdtempSync(join(tmpdir(), 'deedroll-cache-'));
   try {
     writeCached(integrityOf(Buffer.from('a')), Buffer.from('b'), dir);
     assert.equal(readdirSync(dir).length, 0);

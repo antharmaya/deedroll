@@ -26,7 +26,7 @@ const REGISTRY = 'https://registry.modelcontextprotocol.io';
  * 404s do carry the header, so a request for a name nobody publishes tells the two apart:
  * if npm answers that, the network is fine and the scoped package isn't public.
  */
-const PROBE = `${NPM}/mcpscan-reachability-probe-0`;
+const PROBE = `${NPM}/deedroll-reachability-probe-0`;
 async function fetchPackument(name, fetchImpl) {
   const url = `${NPM}/${encodeURIComponent(name).replace('%40', '@')}`;
   try {

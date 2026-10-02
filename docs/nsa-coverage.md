@@ -1,13 +1,13 @@
-# mcpscan against the NSA's MCP security guidance
+# deedroll against the NSA's MCP security guidance
 
 *Model Context Protocol (MCP): Security Design Considerations for AI-Driven Automation*,
 NSA Cybersecurity Information Sheet U/OO/6030316-26, May 2026, with Carnegie Mellon SEI. The PDF
 is in [references/](references/nsa-csi-mcp-security-2026-06.pdf). This maps what it names to what
-mcpscan does; "no" means mcpscan does not do it, not that it cannot matter.
+deedroll does; "no" means deedroll does not do it, not that it cannot matter.
 
 ## The risks it describes
 
-| NSA concern | mcpscan | How |
+| NSA concern | deedroll | How |
 |---|---|---|
 | **Poor approval workflows**: a trusted server's capabilities change without new approval; "the malicious MCP server advertised a benign instruction at the time of installation and switched to a malicious instruction after the server's second usage" (WhatsApp) | **Yes** | Hosted tools are pinned, in the CLI and in the browser; a changed description is **high**, with old and new text, and is never accepted silently. The daily registry history records tool lists over time. |
 | Poisoned tool metadata, hidden instructions ("poisoning output", tool poisoning) | **Partly** | `instruction-like-text` flags descriptions that instruct the model (0 false positives on 5,811 real descriptions). It does not judge tool *outputs*, which only exist at runtime. |
@@ -19,20 +19,20 @@ mcpscan does; "no" means mcpscan does not do it, not that it cannot matter.
 
 ## Its recommendations
 
-| NSA recommendation | mcpscan | How |
+| NSA recommendation | deedroll | How |
 |---|---|---|
 | **Choose supported MCP projects**: "many popular servers are no longer actively maintained"; apply "the most stringent review profile" | **Yes** | `archived-upstream` (reference servers the MCP project archived, which PyPI does not mark), `deprecated`, `listing-status`, provenance and publisher checks. The scan is the review, before install. |
 | Design for boundaries; **use a filtering outgoing proxy "with specific resource URLs"** | **Yes, as input** | `--egress` prints the hosts a server's code names, as a starting allowlist. Static, and labelled so. |
 | Validate parameters against schemas | **No** | A runtime property. Tool input schemas are fingerprinted, so a changed schema is reported (`tool-schema-changed`). |
 | Constrain and sandbox tool execution | **Informs it** | `capability` says which servers run programs, evaluate code or write files, which decides how tightly to sandbox them. |
-| Sign and verify MCP messages | **No** | A protocol change. mcpscan checks signed *build* provenance (npm, PyPI) instead. |
+| Sign and verify MCP messages | **No** | A protocol change. deedroll checks signed *build* provenance (npm, PyPI) instead. |
 | Filter and monitor output pipelines | **No** | Runtime. |
 | Instrument for logging and detection | **Feeds it** | `--json` (schema v1) and `--sarif` go straight into security tooling. |
 | **Track and patch vulnerabilities**; "maintain a clear inventory of all deployed MCP agents and tools, along with versioning" | **Yes** | `--installed` is the inventory, across six agents, with versions and findings; OSV lookups on each. |
-| **Scan for open or vulnerable MCP servers**: unauthenticated servers, outdated versions; "periodic scans and differential reports" | **Yes** | `mcpscan --local` finds every MCP server listening on this machine (with its owning process) or, with `--subnet`, on a private network you own, and reports network exposure, missing sign-in and missing Origin validation. The web page checks this computer from a website's point of view. The daily registry snapshot and its diff are the periodic differential report for the public registry. |
+| **Scan for open or vulnerable MCP servers**: unauthenticated servers, outdated versions; "periodic scans and differential reports" | **Yes** | `deedroll --local` finds every MCP server listening on this machine (with its owning process) or, with `--subnet`, on a private network you own, and reports network exposure, missing sign-in and missing Origin validation. The web page checks this computer from a website's point of view. The daily registry snapshot and its diff are the periodic differential report for the public registry. |
 
 ## What this suggests building next
 
-1. ~~Local network discovery~~: built 2026-09-28 (`mcpscan --local`, and "Check this computer" in
+1. ~~Local network discovery~~: built 2026-09-28 (`deedroll --local`, and "Check this computer" in
    the page).
 2. ~~Tool-name collisions~~: built 2026-09-29 (`tool-name-collision` in `--installed`).

@@ -12,7 +12,7 @@ const BATCH = 'https://api.osv.dev/v1/querybatch';
 const VULN = 'https://api.osv.dev/v1/vulns/';
 const MAX_DETAILS = 12;
 
-/** mcpscan ecosystem id -> OSV's ecosystem name. */
+/** deedroll ecosystem id -> OSV's ecosystem name. */
 const OSV_ECOSYSTEM = { npm: 'npm', pypi: 'PyPI' };
 const sameName = (a, b) => String(a).toLowerCase().replace(/[-_.]+/g, '-') === String(b).toLowerCase().replace(/[-_.]+/g, '-');
 

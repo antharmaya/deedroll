@@ -1,4 +1,4 @@
-# mcpscan web: design system
+# deedroll web: design system
 
 The page is a working instrument first and a showreel second. Everything below exists to make
 one moment land: the scan, where a package's own label is laid next to what its code does.
@@ -111,7 +111,7 @@ ledgers, which stack too). No horizontal scroll at 360 px.
 | Not found | npm's 404 for a missing *scoped* package has no CORS header, so the tab sees a network error. The adapter probes an unscoped name (whose 404 does carry CORS): if npm answers, it reports "No public package called…", else the real network error |
 | Skip | visible only while an animation plays; finishes every running animation instantly |
 | Finding rows | `<details>` collapsed · open (evidence with file:line in mono) |
-| Theme | light / dark, stored in `localStorage` (`mcpscan-theme`), wrapped in try/catch; no-flash script in `<head>` |
+| Theme | light / dark, stored in `localStorage` (`deedroll-theme`), wrapped in try/catch; no-flash script in `<head>` |
 | URL | `?q=` deep-links any scan (a package, a server URL or a registry name); `?pkg=` still works |
 | Input | classified as it is read: `https://…` is a hosted server, `owner.tld/name` a registry listing, anything else a package; pasted launch commands (`npx -y`, `uvx`, `pip install`) are reduced to the package |
 | Relay consent | when a hosted server blocks browsers, a panel under the input says why, what the relay sees (the URL) and keeps (nothing), with "Probe through the relay", an "Always" choice, and the CLI command as the alternative. The Scan button stays usable while it asks. |
@@ -119,7 +119,7 @@ ledgers, which stack too). No horizontal scroll at 360 px.
 | Check this computer | tries 18 common MCP ports on 127.0.0.1 from the page; a readable server is shown high, with its tools listed as proof ("this page just did it"); a port that answers opaquely is "listening, and it keeps websites out"; nothing readable explains that the browser may have blocked local access. The page's own port is skipped. |
 | Servers your agents trust | a file chooser and drop zone; files are parsed in the page (secret values dropped inside the parser, never in the DOM or any request); each server shows its config findings and a "Scan it" button, except hosted ones whose URL carries a credential, which point to the command line |
 | Downloads | JSON, SARIF, egress allowlist and registry block for the last live scan; hidden during the demo replay |
-| Every check | a disclosure listing every check by group, with why and what to do, from the same catalog as `mcpscan explain` |
+| Every check | a disclosure listing every check by group, with why and what to do, from the same catalog as `deedroll explain` |
 | Registry history | days recorded, the latest day's counts and diff, and "Verify it in your browser" (re-hashes every chain link and the latest file) |
 | Browser pins | tools are remembered per server in this browser; a later change is reported with an explicit "Accept these tools as the new baseline" button, never accepted silently |
 

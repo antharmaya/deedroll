@@ -55,14 +55,14 @@ export async function toSarif(scans, { version }) {
         level: LEVEL[f.severity] ?? 'note',
         message: { text: f.message.charAt(0).toUpperCase() + f.message.slice(1) },
         ...(locs.length ? { locations: locs } : {}),
-        partialFingerprints: { 'mcpscan/v1': await fingerprint(f) },
+        partialFingerprints: { 'deedroll/v1': await fingerprint(f) },
         properties: { severity: f.severity, 'security-severity': SECURITY_SEVERITY[f.severity], ...(f.subject ? { subject: f.subject } : {}) },
       });
     }
     const pkg = s.package;
     runs.push({
-      tool: { driver: { name: 'mcpscan', version, informationUri: 'https://github.com/varbees/mcpscan', rules: ids.map(ruleFor) } },
-      automationDetails: { id: `mcpscan/${s.target}` },
+      tool: { driver: { name: 'deedroll', version, informationUri: 'https://github.com/varbees/deedroll', rules: ids.map(ruleFor) } },
+      automationDetails: { id: `deedroll/${s.target}` },
       originalUriBaseIds: {
         PACKAGE: { description: { text: pkg ? `Files inside ${pkg.ecosystem ?? 'npm'} package ${pkg.name}@${pkg.version}` : `Files of ${s.target}` } },
       },

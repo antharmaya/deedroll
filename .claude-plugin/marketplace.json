@@ -4,7 +4,7 @@
   "owner": { "name": "Antharmaya Labs" },
   "plugins": [
     {
-      "name": "mcpscan",
+      "name": "deedroll",
       "description": "Pre-install trust scanner for MCP servers, with the host agent as the semantic judge",
       "source": "./"
     }

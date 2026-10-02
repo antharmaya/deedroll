@@ -18,7 +18,7 @@ import { execFileSync } from 'node:child_process';
 import { isCredentialName } from '../src/checks.js';
 import { emptyLedger, foldDay, foldProbes, foldScans, toShards, fromShards, publicRecord, indexEntry, searchFiles, SHARDS, LEDGER_VERSION } from '../src/ledger.js';
 
-const ARCHIVE = resolve(process.env.MCPSCAN_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
+const ARCHIVE = resolve(process.env.DEEDROLL_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
 const STATE = join(ARCHIVE, 'ledger', 'state');
 const PUBLIC = join(ARCHIVE, 'ledger', 'public');
 const args = process.argv.slice(2);
@@ -139,9 +139,9 @@ function upload(bucket) {
 build();
 if (args.includes('--upload')) {
   const i = args.indexOf('--upload');
-  const bucket = process.env.MCPSCAN_R2_BUCKET ?? (args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : null);
+  const bucket = process.env.DEEDROLL_R2_BUCKET ?? (args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : null);
   if (!bucket) {
-    console.error('set MCPSCAN_R2_BUCKET, or pass the bucket: --upload mcpscan-history');
+    console.error('set DEEDROLL_R2_BUCKET, or pass the bucket: --upload mcpscan-history');
     process.exit(2);
   }
   upload(bucket);

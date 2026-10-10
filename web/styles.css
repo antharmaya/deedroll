@@ -28,7 +28,7 @@
   --paper-sunk: oklch(0.955 0.007 80);
   --text: oklch(0.235 0.015 55);
   --text-muted: oklch(0.49 0.015 55);
-  --text-faint: oklch(0.66 0.012 60);
+  --text-faint: oklch(0.50 0.012 60);
   --rule: oklch(0.885 0.01 75);
   --rule-soft: oklch(0.925 0.008 78);
   --accent: oklch(0.47 0.16 258);
@@ -87,7 +87,7 @@
   --paper-sunk: oklch(0.14 0.008 60);
   --text: oklch(0.945 0.005 80);
   --text-muted: oklch(0.69 0.01 70);
-  --text-faint: oklch(0.52 0.01 65);
+  --text-faint: oklch(0.66 0.01 65);
   --rule: oklch(0.28 0.01 60);
   --rule-soft: oklch(0.235 0.01 60);
   --accent: oklch(0.72 0.135 258);
@@ -304,7 +304,7 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
 @keyframes flash { from { background: var(--accent-soft); } to { background: transparent; } }
 @media (prefers-reduced-motion: reduce) { #findings li.flash > details { animation: none; outline: 2px solid var(--accent, currentColor); } }
 .explain .cwe { margin-top: 6px; font-size: 12px; }
-.manifest li .lines { color: var(--text-faint); font-size: 11px; font-variant-numeric: tabular-nums; }
+.manifest li .lines { color: var(--text-faint); font-size: 12px; font-variant-numeric: tabular-nums; }
 .manifest li.developed { color: var(--text); }
 .manifest li .glyph { justify-self: center; }
 .scanbar {
@@ -391,7 +391,7 @@ code, .code { font-family: var(--font-code); font-size: 0.86em; }
 /* the live/replay tag: a shape, not just a sentence, marking this text as the scan's own
    output rather than page copy. A fresh result pulses a few honest times, then settles for
    good — never a perpetual animation. */
-.live-tag { display: inline-flex; align-items: center; gap: 6px; font: 650 11px/1 var(--font-body); letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-faint); }
+.live-tag { display: inline-flex; align-items: center; gap: 6px; font: 650 12px/1 var(--font-body); letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-faint); }
 .live-tag .live-dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
 .live-tag.replay .live-dot { background: none; border: 1.5px solid var(--text-faint); }
 .live-tag.live { color: var(--accent); }

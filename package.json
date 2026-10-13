@@ -26,7 +26,7 @@
     "type": "git",
     "url": "git+https://github.com/antharmaya/deedroll.git"
   },
-  "homepage": "https://github.com/antharmaya/deedroll#readme",
+  "homepage": "https://deedroll.antharmaya.com",
   "bugs": {
     "url": "https://github.com/antharmaya/deedroll/issues"
   },
@@ -36,5 +36,8 @@
     "security",
     "supply-chain",
     "audit"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

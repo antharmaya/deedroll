@@ -54,8 +54,7 @@ npx @antharmaya/deedroll --installed                     # everything your agent
 npx @antharmaya/deedroll explain                         # what every check means
 ```
 
-From a clone, `node bin/deedroll.js` works the same way. (The npm package is not published
-yet; until it is, run it from a clone: `git clone https://github.com/antharmaya/deedroll`.)
+From a clone, `node bin/deedroll.js` works the same way.
 
 ## What it can scan
 
@@ -117,7 +116,7 @@ GitHub code scanning, with the action in this repository (it needs no install: d
 dependencies):
 
 ```yaml
-- uses: antharmaya/deedroll@main
+- uses: antharmaya/deedroll@v0
   with:
     target: io.github.owner/server     # or npm:<package>, pypi:<package>, https://host/mcp
     fail-on: never                     # or high, medium, low
@@ -408,7 +407,7 @@ sets it); `node scripts/snapshot.js --upload mcpscan-history` retries anything n
 ## Development
 
 ```
-npm test                              # 171 tests, no network
+npm test                              # 212 tests, no network
 node scripts/serve.js                 # the web page at http://localhost:4173/web/
 node scripts/browser-parity.js        # browser and CLI give identical results (uses the network)
 node scripts/build-index.js           # rebuild the registry index (~10 minutes)

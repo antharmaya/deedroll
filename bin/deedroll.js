@@ -44,6 +44,7 @@ OPTIONS
   --deps                           also read the vendor's own dependencies (one level, bounded)
   --no-osv                         skip the known-vulnerability lookup on OSV.dev
   --no-cache                       do not read or write the local download cache
+  -v, --version                    print the deedroll version
   --remote                         with --installed, also probe the hosted servers
   --auth-from-env                  send \${VAR} headers from your environment when probing
   --header 'Name: \${VAR}'          add a header to a probe; the value is read from the environment
@@ -93,6 +94,7 @@ function parseArgs(argv) {
     else if (a === '--fail-on') args.failOn = argv[++i];
     else if (a === '--version-of') args.version = argv[++i];
     else if (a === '-h' || a === '--help') args.help = true;
+    else if (a === '-v' || a === '--version') args.printVersion = true;
     else if (!a.startsWith('-')) args.target ??= a;
   }
   return args;
@@ -105,6 +107,11 @@ if (process.argv[2] === 'explain') {
 }
 
 const args = parseArgs(process.argv.slice(2));
+
+if (args.printVersion) {
+  process.stdout.write(`${VERSION}\n`);
+  process.exit(0);
+}
 
 if (args.target && /^https?:\/\//i.test(args.target)) {
   try {

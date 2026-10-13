@@ -63,7 +63,7 @@ export async function toSarif(scans, { version }) {
     }
     const pkg = s.package;
     runs.push({
-      tool: { driver: { name: 'deedroll', version, informationUri: 'https://github.com/varbees/deedroll', rules: ids.map(ruleFor) } },
+      tool: { driver: { name: 'deedroll', version, informationUri: 'https://github.com/antharmaya/deedroll', rules: ids.map(ruleFor) } },
       automationDetails: { id: `deedroll/${s.target}` },
       originalUriBaseIds: {
         PACKAGE: { description: { text: pkg ? `Files inside ${pkg.ecosystem ?? 'npm'} package ${pkg.name}@${pkg.version}` : `Files of ${s.target}` } },

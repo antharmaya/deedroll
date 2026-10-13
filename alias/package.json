@@ -1,0 +1,37 @@
+{
+  "name": "deedroll",
+  "version": "0.1.0",
+  "description": "Pointer to @antharmaya/deedroll, so that `npx deedroll` works. Check an MCP server before you install it.",
+  "type": "module",
+  "bin": {
+    "deedroll": "cli.js"
+  },
+  "files": [
+    "cli.js",
+    "README.md"
+  ],
+  "dependencies": {
+    "@antharmaya/deedroll": ">=0.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "author": "varbees <harshavar968@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antharmaya/deedroll.git",
+    "directory": "alias"
+  },
+  "homepage": "https://deedroll.antharmaya.com",
+  "bugs": {
+    "url": "https://github.com/antharmaya/deedroll/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "security",
+    "supply-chain",
+    "audit"
+  ]
+}

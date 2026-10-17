@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>deedroll: check an MCP server before you install it</title>
+<link rel="canonical" href="https://deedroll.antharmaya.com/web/">
 <meta name="description" content="Scan any MCP server in your browser: a package, a hosted URL or a registry name. See what it reads, runs and contacts beside what it tells you.">
 <meta name="theme-color" content="#f7f5f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1a1714" media="(prefers-color-scheme: dark)">
@@ -69,8 +70,8 @@
           <button class="skip" id="skip" type="button" hidden>Skip</button>
         </div>
         <div class="stage-body">
-          <ol class="manifest" id="manifest" aria-label="Files in the package" translate="no"></ol>
-          <div class="ledgers">
+          <ol class="manifest" id="manifest" aria-label="Files in the package" translate="no" tabindex="0"></ol>
+          <div class="ledgers" role="region" aria-label="What it tells you, and what the code does" tabindex="0">
             <section class="ledger" aria-labelledby="tells-h"><h2 id="tells-h">What it tells you <small id="tells-n"></small></h2><div id="tells"></div></section>
             <section class="ledger" aria-labelledby="does-h"><h2 id="does-h">What the code does <small id="does-n"></small></h2><div id="does"></div></section>
           </div>
@@ -146,19 +147,24 @@
 <section class="band" id="registry" aria-labelledby="registry-h">
   <div class="wrap band-grid">
     <div>
-      <div class="figure" id="figure">37,878</div>
+      <div class="figure" id="figure">—</div>
       <h2 id="registry-h">MCP servers in the official registry. deedroll reads every listing, every day.</h2>
       <dl class="census" id="census">
-        <div><dt>New yesterday</dt><dd id="census-added">368</dd></div>
-        <div><dt>Changed what they ask for</dt><dd id="census-declared">84</dd></div>
-        <div><dt>Moved their endpoint</dt><dd id="census-moved">20</dd></div>
+        <div><dt>New that day</dt><dd id="census-added">—</dd></div>
+        <div><dt>Changed what they ask for</dt><dd id="census-declared">—</dd></div>
+        <div><dt>Moved their endpoint</dt><dd id="census-moved">—</dd></div>
       </dl>
-      <p id="census-when">From the registry record of 1 Oct 2026, chained to every day before it.</p>
+      <p id="census-when">From the latest registry record, chained to every day before it.</p>
+      <p class="built" id="ledger-built"></p>
     </div>
     <div>
-      <h3 class="sample-h">A closer read: 57 servers, sampled at random</h3>
-      <p class="sample-p" id="sample-summary">Do they say which credentials they need? 4 mention one nowhere; 8 explain it only in their README, not the listing that catalogs and agents read. Usually a missing line of metadata, not anything hidden.</p>
-      <div class="dots" id="dots" role="list" aria-label="Each dot is one sampled server"></div>
+      <h3 class="sample-h" id="creds-h">Do they say which credentials they need?</h3>
+      <p class="creds-figure" id="creds-figure"><b id="creds-pct">—</b> <span id="creds-line">of the servers with an npm or PyPI package that deedroll has scanned read a credential their listing and README never mention.</span></p>
+      <p class="sample-p" id="creds-more"></p>
+      <p class="sample-p" id="creds-rule">Counted from the ledger: every listing in the registry that ships an npm or PyPI package, its code read without running it, and each read compared with what that listing declares. Usually a missing line of metadata, not anything hidden.</p>
+      <h3 class="sample-h">Where it started: 57 servers, sampled at random</h3>
+      <p class="sample-p" id="sample-summary">The first measurement, 1 Oct 2026, before every package was scanned.</p>
+      <div class="dots" id="dots" role="group" aria-label="Each dot is one sampled server"></div>
       <div class="legend"><span><i class="on"></i>Mentioned nowhere</span><span><i class="readme"></i>Explained in its README only</span><span><i></i>Declared in its listing</span></div>
       <p class="dot-note" id="dot-note" aria-live="polite">Point at a dot to see the server.</p>
       <p class="sample-p" id="band-method">A random sample of npm-published servers in the official MCP registry.</p>

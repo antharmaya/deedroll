@@ -11,6 +11,7 @@ import { inspectRemote } from '../src/remote-scan.js';
 import { fingerprintTools, diffFingerprints, serverKey } from '../src/pins-core.js';
 import { listingStatus } from '../src/model.js';
 import { init as initSetup, setCurrent } from './setup.js';
+import { recordText, censusText, sampleText } from './census-text.js';
 
 const $ = (s) => document.querySelector(s);
 const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -436,14 +437,13 @@ function markRows(model, rows) {
     if (!here.length) return;
     if (!r.querySelector('.glyph')) r.querySelector('.glyph-slot').replaceChildren(glyph(worst(here.map((h) => h.f))));
     if (r.classList.contains('jump')) return;
-    // A marked file is a way into its findings: click (or Enter) opens the first one below.
+    // A marked file is a way into its findings: a real button inside the row opens the first one
+    // below. The row stays a listitem (a role on the li itself broke the list for screen readers).
     r.classList.add('jump');
-    r.tabIndex = 0;
-    r.setAttribute('role', 'button');
-    r.setAttribute('aria-label', `Show ${plural(here.length, 'finding')} in ${r.querySelector('.path')?.textContent ?? 'this file'}`);
-    const go = () => jumpToFinding(model.findings.indexOf(here[0].f));
-    r.addEventListener('click', go);
-    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    const btn = el('button', { type: 'button', class: 'row', 'aria-label': `Show ${plural(here.length, 'finding')} in ${r.querySelector('.path')?.textContent ?? 'this file'}` });
+    btn.append(...r.childNodes);
+    r.replaceChildren(btn);
+    btn.addEventListener('click', () => jumpToFinding(model.findings.indexOf(here[0].f)));
   });
   const count = (groups) => groups.reduce((n, g) => n + g.items.filter((i) => i.key !== 'does:none').length, 0);
   $('#tells-n').textContent = plural(count(model.tells), 'fact');
@@ -1103,27 +1103,41 @@ async function census() {
   const base = new URL('../history/', import.meta.url).href;
   const lines = (await (await fetch(`${base}chain.jsonl`, { cache: 'no-store' })).text()).split('\n').filter(Boolean);
   const last = JSON.parse(lines.at(-1));
-  $('#figure').textContent = last.listings.toLocaleString('en');
-  const chip = $('#nav-count');
-  chip.textContent = `${last.listings.toLocaleString('en')} servers on record`;
-  chip.hidden = false;
-  $('#census-when').textContent = `From the registry record of ${fmtDate(last.date)}, chained to ${plural(lines.length - 1, 'day')} before it.`;
   const diffFile = last.files.find((f) => f.file.endsWith('.diff.json'));
-  if (!diffFile) return;
-  const d = await (await fetch(`${base}${diffFile.file}`)).json();
-  $('#census-added').textContent = d.added.length.toLocaleString('en');
-  $('#census-declared').textContent = d.declarations.length.toLocaleString('en');
-  $('#census-moved').textContent = d.endpoints.length.toLocaleString('en');
+  const diff = diffFile ? await (await fetch(`${base}${diffFile.file}`)).json() : null;
+  const t = recordText(last, lines.length, diff);
+  $('#figure').textContent = t.figure;
+  const chip = $('#nav-count');
+  chip.textContent = `${t.figure} servers on record`;
+  chip.hidden = false;
+  $('#census-when').textContent = t.when;
+  if (diff) {
+    $('#census-added').textContent = t.added;
+    $('#census-declared').textContent = t.declared;
+    $('#census-moved').textContent = t.moved;
+  }
+}
+
+/** The credential figure across every scanned package, from the ledger (/api/servers). */
+async function credentials() {
+  const { ledger } = await (await fetch(new URL('../api/servers', import.meta.url).href)).json();
+  if (!ledger?.census?.scanned) return;
+  const t = censusText(ledger.census, ledger.builtAt);
+  $('#creds-pct').textContent = t.pct;
+  $('#creds-line').textContent = t.line;
+  $('#creds-more').textContent = t.more;
+  $('#ledger-built').textContent = t.built;
 }
 
 async function band() {
-  census().catch(() => { /* the figures in the page stay as the last known record */ });
+  // Each keeps the figures written into the page at build time when its source is unreachable.
+  census().catch(() => {});
+  credentials().catch(() => {});
   const h = await (await fetch('data/registry-health.json')).json();
-  $('#sample-summary').textContent = `Do they say which credentials they need? ${h.flagged} mention one nowhere; ${h.readmeOnly ?? 0} explain it only in their README, not the listing that catalogs and agents read. Usually a missing line of metadata, not anything hidden.`;
-  $('#band-method').textContent =
-    `A random sample of npm-published servers in the official MCP registry, ${fmtDate(h.sampledAt)}. Across the whole registry that points to between ${h.interval[0]}% and ${h.interval[1]}%, at 95% confidence.`;
+  const st = sampleText(h);
+  $('#sample-summary').textContent = st.summary;
+  $('#band-method').textContent = st.method;
   const dots = $('#dots');
-  dots.setAttribute('role', 'group');
   const note = $('#dot-note');
   const rank = (r) => (r.flagged ? 0 : r.readmeOnly?.length ? 1 : 2);
   const rows = [...h.rows].sort((a, b) => rank(a) - rank(b));

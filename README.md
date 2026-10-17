@@ -120,7 +120,7 @@ dependencies):
   with:
     target: io.github.owner/server     # or npm:<package>, pypi:<package>, https://host/mcp
     fail-on: never                     # or high, medium, low
-- uses: github/codeql-action/upload-sarif@v3
+- uses: github/codeql-action/upload-sarif@v4
   with: { sarif_file: deedroll.sarif }
 ```
 
@@ -323,7 +323,9 @@ not calibrated yet. The default scan never calls a model.
 - The official registry's search matches listing names only, so deedroll ships an index from
   package names to listings (`src/data/registry-index.json`: 36,906 listings, 9,796 npm and 3,868
   PyPI packages, built 2026-09-28 by `scripts/build-index.js`). A complete index under seven days
-  old is trusted on a miss, and says so ("no listing as of <date>").
+  old is trusted on a miss, and says so ("no listing as of <date>"). The web page does not use
+  this copy: each night the ledger build rebuilds the index from that day's registry snapshot and
+  the site serves it from there, so the page's lookup is never more than a day behind.
 - npm tarballs are cached compressed under `~/.cache/deedroll/tarballs`, keyed by their sha512 and
   re-verified on every read. `--no-cache` turns it off.
 - `--deps` also reads a vendor's own dependencies (one level, bounded). On 27 vendor servers it
@@ -347,6 +349,19 @@ it to. A difference between a listing and the code is a question for the publish
 verdict; a credential the package's README documents is reported as such, at low severity.
 
 ## Measurements
+
+**The whole registry, every night (since 2026-10-15).** Every listing that ships an npm or PyPI
+package is scanned (new versions first) and the count is redone from the ledger each night; the
+current figure, its date and its denominator are on the site and in `/api/servers`
+(`ledger.census`). The rule, in `scripts/ledger-views.js`: of the listings present in that day's
+registry snapshot that ship at least one npm or PyPI package and have at least one successful
+scan, count those where some package's code reads a credential-like name (outside a string) that
+the listing does not declare and the README never mentions; separately, those not in that count
+where the README is the only place it is explained. Each server counts once. Shares are truncated
+to one decimal, never rounded up. Listings that ship only OCI, MCPB, NuGet or Cargo packages, and
+packages that could not be read, are reported apart, not counted as clean.
+
+The sample below came first and is kept as history.
 
 **npm, 2026-09-26, re-run 2026-10-01.** A seeded random sample of 60 npm-backed registry servers
 (`node scripts/registry-sweep.js 60`, seed `20260926`): 57 scanned across 53 publishers. **12

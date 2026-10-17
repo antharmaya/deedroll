@@ -77,13 +77,18 @@ two-way door and should change when data says so.
 | The relay on Workers | No DNS pinning on Cloudflare Workers | Private IP literals and local names refused; hostnames resolved through Cloudflare DNS-over-HTTPS first and refused on any private answer (verified live: `localtest.me` → 127.0.0.1 refused); redirects never followed; Cloudflare's rate-limit binding, 20 probes a minute per visitor. Workers cannot reach a private network without an explicit binding, which this Worker does not have. |
 | Injected script in the page | Package content is hostile input | Untrusted text only ever goes through DOM text nodes, and a Content-Security-Policy allows only the page's own scripts (the one inline script pinned by hash), so injected script could not run anyway. |
 | A browser blocked by CORS reads nothing | Most hosted servers and many sign-in metadata endpoints | "Could not read from here" is reported as unknown, never as missing; the page offers the relay instead of guessing. |
-| The history dies quietly | A daily timer on one machine | `snapshot.js --status` warns when the last entry is over 48 hours old; `--verify` re-hashes every file and checks the chain. |
+| The history dies quietly | A daily timer on one machine | `snapshot.js --status` warns when the last entry is over 48 hours old; `--verify` re-hashes every file and checks the chain. `.github/workflows/ledger-fresh.yml` reads `ledger.builtAt` from `/api/servers` twice a day and fails (GitHub emails the owner) past 36 hours. |
+| The page's lookup index goes stale | The index bundled with the site is only as fresh as the last deploy | The nightly build writes `registry-index.json` from the day's snapshot and uploads it to R2; the Worker serves it at `/src/data/registry-index.json` in place of the bundled copy, which answers only when R2 has none. |
+| A published figure goes stale | Numbers typed into the page | None are typed: the census is counted by `scripts/ledger-views.js` each night into `meta.json` (served in `/api/servers`), worded by `web/census-text.js`, and written into the no-JS page by `build-site.js` from the archive, always with its date. |
 | A test suite that passes but proves nothing | Any guard | New guards are mutation-checked: remove the guard, and its test must fail. |
 
 ## Where the data lives
 
 - `src/data/registry-index.json`: package name → registry listings, rebuilt by
-  `scripts/build-index.js` (a full walk of the registry takes about 10 minutes).
+  `scripts/build-index.js` (a full walk of the registry takes about 10 minutes). This bundled
+  copy serves the CLI and is the site's fallback; the site gets a nightly one from
+  `archive/ledger/public/registry-index.json` via R2 (`ledger/registry-index.json`).
+- `archive/ledger/public/meta.json`: the ledger's dates, `builtAt`, and the census.
 - `~/.cache/deedroll/tarballs`: npm tarballs by sha512, re-verified on read.
 - `~/.config/deedroll/pins.json` (`$XDG_CONFIG_HOME/deedroll/` when set): tool fingerprints of probed hosted servers.
 - `findings.json`, `population.json`: the stored rows behind the published npm measurement.

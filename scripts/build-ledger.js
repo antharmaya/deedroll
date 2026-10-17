@@ -7,6 +7,11 @@
  *   node scripts/build-ledger.js --rebuild       replay every snapshot from scratch
  *   node scripts/build-ledger.js --upload [bkt]  then publish changed files to R2 (ledger/...)
  *
+ * Beside the ledger it writes two views (scripts/ledger-views.js): registry-index.json, the
+ * package -> listing index the page looks packages up in (the Worker serves it in place of the
+ * copy bundled with the site, so the page's lookup is never older than the last night), and
+ * the census, carried in meta.json and served in /api/servers.
+ *
  * The snapshots are the source of truth; this is a view of them. --rebuild must always give
  * the same result as the nightly fold (test/ledger.test.js holds it to that).
  */
@@ -17,6 +22,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { isCredentialName } from '../src/checks.js';
 import { emptyLedger, foldDay, foldProbes, foldScans, toShards, fromShards, publicRecord, indexEntry, searchFiles, SHARDS, LEDGER_VERSION } from '../src/ledger.js';
+import { registryIndexOf, censusOf } from './ledger-views.js';
 
 const ARCHIVE = resolve(process.env.DEEDROLL_ARCHIVE ?? new URL('../archive', import.meta.url).pathname);
 const STATE = join(ARCHIVE, 'ledger', 'state');
@@ -103,7 +109,9 @@ function build() {
     writeAtomic(join(STATE, `${k}.json`), JSON.stringify({ servers: recs }));
     writeAtomic(join(PUBLIC, 'servers', `${k}.json`), JSON.stringify({ version: LEDGER_VERSION, shard: k, servers: Object.fromEntries(Object.entries(recs).map(([n, r]) => [n, publicRecord(r)])) }));
   }
-  const meta = { version: LEDGER_VERSION, start: ledger.start, last: ledger.last, servers: ledger.servers.size, shards: SHARDS, builtAt: new Date().toISOString() };
+  const builtAt = new Date().toISOString();
+  const census = censusOf(ledger.servers.values(), ledger.last);
+  const meta = { version: LEDGER_VERSION, start: ledger.start, last: ledger.last, servers: ledger.servers.size, shards: SHARDS, builtAt, census };
   const index = { ...meta, entries: [...ledger.servers.values()].map(indexEntry).sort((a, b) => a.n.localeCompare(b.n)) };
   writeAtomic(join(PUBLIC, 'index.json'), JSON.stringify(index));
   // What the Worker searches (see searchFiles in src/ledger.js for why three texts, not one).
@@ -111,17 +119,21 @@ function build() {
   writeAtomic(join(PUBLIC, 'search-names.txt'), search.names);
   writeAtomic(join(PUBLIC, 'search-descs.txt'), search.descs);
   writeAtomic(join(PUBLIC, 'search-entries.txt'), search.entries);
+  const lookup = registryIndexOf(ledger.servers.values(), { builtAt, snapshot: ledger.last });
+  writeAtomic(join(PUBLIC, 'registry-index.json'), `${JSON.stringify(lookup)}\n`);
   writeAtomic(join(PUBLIC, 'meta.json'), JSON.stringify(meta));
   // Written last: if a run dies before this line, the next run re-folds the day, which is a no-op.
   writeAtomic(join(STATE, 'meta.json'), JSON.stringify({ version: LEDGER_VERSION, start: ledger.start, last: ledger.last, scansThrough: ledger.scansThrough, rules: RULES_HASH }));
   log(`wrote ${SHARDS} shards and the index (${index.entries.length} servers, record ${ledger.start} → ${ledger.last})`);
+  log(`lookup index: ${lookup.listings} listings, ${Object.keys(lookup.index).length} npm and ${Object.keys(lookup.pypi).length} PyPI packages`);
+  log(`census ${census.date}: ${census.undeclared} of ${census.scanned} scanned packaged servers read an unmentioned credential, ${census.readmeOnly} README only (${census.packaged} packaged, ${census.notScanned} not scanned, ${census.failed} failed)`);
 }
 
 /** Publish public files whose content changed since the last upload, one wrangler call each. */
 function upload(bucket) {
   const statePath = join(ARCHIVE, 'ledger', 'uploaded.json');
   const done = existsSync(statePath) ? JSON.parse(readFileSync(statePath, 'utf8')) : {};
-  const files = ['meta.json', 'index.json', 'search-names.txt', 'search-descs.txt', 'search-entries.txt', ...readdirSync(join(PUBLIC, 'servers')).filter((f) => f.endsWith('.json')).map((f) => `servers/${f}`)];
+  const files = ['meta.json', 'registry-index.json', 'index.json', 'search-names.txt', 'search-descs.txt', 'search-entries.txt', ...readdirSync(join(PUBLIC, 'servers')).filter((f) => f.endsWith('.json')).map((f) => `servers/${f}`)];
   let sent = 0;
   for (const f of files.reverse()) { // meta last, so it never points at shards not yet uploaded
     const path = join(PUBLIC, f);

@@ -3,6 +3,10 @@
  * (/api/probe), the registry history (/history/*, read-only from R2), the ledger
  * (/api/servers), and ways to follow one server: /badge/<name>.json and /feed/<name>.atom.
  *
+ * One asset is replaced from R2: /src/data/registry-index.json, the package -> listing index the
+ * page looks packages up in. The nightly build rebuilds it from the day's snapshot and uploads it
+ * as ledger/registry-index.json; the copy bundled with the site answers only when R2 has none.
+ *
  * SSRF on Workers: there is no DNS pinning here, so every relay fetch refuses private IP
  * literals and local names, resolves hostnames through Cloudflare's DNS-over-HTTPS first
  * and refuses any private answer, and never follows redirects. Workers' own egress cannot
@@ -120,6 +124,12 @@ export default {
       return history(url.pathname, env);
     }
 
+    if (url.pathname === INDEX_PATH && (request.method === 'GET' || request.method === 'HEAD')) {
+      // The edge cache takes GETs only.
+      const fresh = request.method === 'GET' ? await cached(request, () => nightlyIndex(env)) : await nightlyIndex(env);
+      if (fresh.status === 200) return fresh;
+    }
+
     return noInjection(await env.ASSETS.fetch(request));
   },
 };
@@ -137,6 +147,19 @@ function noInjection(res) {
   // This host only (no includeSubDomains): browsers go straight to https from the second visit.
   out.headers.set('strict-transport-security', 'max-age=31536000');
   return out;
+}
+
+/* ---------- the nightly lookup index ---------- */
+
+const INDEX_PATH = '/src/data/registry-index.json';
+
+/** 200 with the nightly index, or 404 so the caller falls back to the bundled asset. */
+async function nightlyIndex(env) {
+  const obj = await env.HISTORY.get('ledger/registry-index.json');
+  if (!obj) return new Response(null, { status: 404 });
+  return new Response(obj.body, {
+    headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'public, max-age=3600', etag: obj.httpEtag, 'x-deedroll-index': 'nightly' },
+  });
 }
 
 /* ---------- the ledger API: /api/servers ---------- */
@@ -181,7 +204,9 @@ async function servers(url, env) {
   }
   const s = await store(env);
   if (!s) return json({ error: 'the ledger is not available right now' }, 503);
-  const ledger = { start: s.meta.start, last: s.meta.last, servers: s.meta.servers, builtAt: s.meta.builtAt };
+  // builtAt is what the staleness check (.github/workflows/ledger-fresh.yml) watches; census is
+  // the registry-wide figure on the page (scripts/ledger-views.js has the counting rule).
+  const ledger = { start: s.meta.start, last: s.meta.last, servers: s.meta.servers, builtAt: s.meta.builtAt, census: s.meta.census ?? null };
   const q = url.searchParams.get('q');
   if (!q) return json({ ledger, usage: { search: '/api/servers?q=github', server: '/api/servers/<registry name>' } });
   const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit')) || 25));

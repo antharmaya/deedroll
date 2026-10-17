@@ -18,11 +18,11 @@ workers_dev = true
 
 [vars]
 CANONICAL_HOST = "deedroll.antharmaya.com"
-# Empty until 2026-10-04: some resolvers (Jio's, seen 2026-10-02) cached "no such name" for
-# deedroll.antharmaya.com from the minutes before it existed, so a redirect there would break the
-# old address for their users. Until then mcpscan.antharmaya.com serves the site itself. Set it
-# back to "mcpscan.antharmaya.com" to turn the 301 on.
-FORMER_HOSTS = ""
+# On since 2026-10-14 (held empty 2026-10-02 to 10-04 while some resolvers, Jio's among them,
+# still cached "no such name" for deedroll.antharmaya.com). GETs and HEADs on these hosts get a
+# 301 to the same path and query on CANONICAL_HOST; POSTs (/api/probe) are still answered here, so
+# a page opened on the old host before the move keeps its relay.
+FORMER_HOSTS = "mcpscan.antharmaya.com"
 
 [assets]
 directory = "./site"

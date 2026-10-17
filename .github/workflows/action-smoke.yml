@@ -1,0 +1,29 @@
+# Runs the published action the way the README documents it (@v0) and the one on this branch,
+# so a change to action.yml is tried before the v0 tag is moved to it.
+name: action smoke test
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths: [action.yml, bin/**, src/**]
+permissions:
+  contents: read
+jobs:
+  smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        ref: [published-v0, this-branch]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        if: matrix.ref == 'this-branch'
+      - uses: antharmaya/deedroll@v0
+        if: matrix.ref == 'published-v0'
+        with: { target: 'npm:pretrip-mcp', fail-on: never }
+      - uses: ./
+        if: matrix.ref == 'this-branch'
+        with: { target: 'npm:pretrip-mcp', fail-on: never }
+      - name: SARIF was written
+        run: jq -e '.version == "2.1.0" and (.runs | length) == 1' deedroll.sarif

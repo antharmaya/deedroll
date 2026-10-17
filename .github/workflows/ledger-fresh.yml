@@ -1,0 +1,29 @@
+# The ledger is built on one laptop each night (systemd unit mcpscan-snapshot). If that machine is
+# off, nothing else notices: this check reads the build time the site publishes and fails when it
+# is older than 36 hours, so GitHub emails the owner. It never scans anything itself.
+name: ledger freshness
+on:
+  schedule:
+    - cron: '23 3,15 * * *'   # twice a day, UTC
+  workflow_dispatch:
+permissions: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ledger built within 36 hours
+        env:
+          URL: https://deedroll.antharmaya.com/api/servers
+          MAX_HOURS: '36'
+        run: |
+          body=$(curl -fsS --retry 3 --retry-delay 10 --max-time 30 "$URL")
+          built=$(jq -r '.ledger.builtAt // empty' <<<"$body")
+          last=$(jq -r '.ledger.last // empty' <<<"$body")
+          if [ -z "$built" ]; then echo "::error::$URL has no ledger.builtAt"; exit 1; fi
+          age=$(( ($(date -u +%s) - $(date -u -d "$built" +%s)) / 3600 ))
+          echo "ledger built $built (snapshot $last), ${age}h ago" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$age" -gt "$MAX_HOURS" ]; then
+            echo "::error::the ledger is ${age}h old (limit ${MAX_HOURS}h): the nightly job on the laptop has not run"
+            exit 1
+          fi
